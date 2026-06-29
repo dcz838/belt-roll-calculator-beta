@@ -19,16 +19,19 @@
         <img src="assets/icons/icon-192.png" alt="BRC Logo" class="brand-icon">
         <div>
           <h1>Belt Roll Calculator</h1>
-          <div class="version" data-i18n="version">Web Edition 2.1</div>
+          <div class="version" data-i18n="version">Web Edition 2.1 Beta</div>
+          <div class="build" data-i18n="build">Build 2026.06.29.02</div>
         </div>
       </div>
 
-      <button type="button" id="installButton" class="install-button" data-i18n="installApp">Install App</button>
+      <div class="header-actions">
+        <button type="button" id="installButton" class="install-button" data-i18n="installApp">Install App</button>
         <select id="languageSelect" class="language-select" aria-label="Language">
-        <option value="en">English</option>
-        <option value="es">Español</option>
-        <option value="zh">简体中文</option>
-      </select>
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="zh">简体中文</option>
+        </select>
+      </div>
     </header>
 
     <section class="calculator-grid">
@@ -37,8 +40,8 @@
 
         <div class="form-row">
           <label data-i18n="units">Units</label>
-          <div class="segmented" role="group" aria-label="Units">
-            <button type="button" class="seg-button" id="unitMM" data-unit="MM">MM</button>
+          <div class="segmented">
+            <button type="button" class="seg-button active" id="unitMM" data-unit="MM">MM</button>
             <button type="button" class="seg-button" id="unitInch" data-unit="Inch">INCH</button>
           </div>
         </div>
@@ -46,23 +49,23 @@
         <div class="form-row">
           <label for="thickness" data-i18n="thickness">Thickness</label>
           <div class="input-wrap">
-            <input id="thickness" type="number" inputmode="decimal" step="any" autocomplete="off">
-            <span class="unit-suffix" data-current-unit>mm</span>
+            <input id="thickness" type="number" inputmode="decimal" step="any" autocomplete="off" value="1">
+            <span class="unit-suffix unit-text">mm</span>
           </div>
         </div>
 
         <div class="form-row">
           <label for="core" data-i18n="core">Core Diameter</label>
           <div class="input-wrap">
-            <input id="core" type="number" inputmode="decimal" step="any" autocomplete="off">
-            <span class="unit-suffix" data-current-unit>mm</span>
+            <input id="core" type="number" inputmode="decimal" step="any" autocomplete="off" value="100">
+            <span class="unit-suffix unit-text">mm</span>
           </div>
         </div>
 
         <div class="form-row">
           <label data-i18n="calculateBy">Calculate By</label>
-          <div class="segmented" role="group" aria-label="Calculate By">
-            <button type="button" class="seg-button" id="modeOD" data-mode="od">OD</button>
+          <div class="segmented">
+            <button type="button" class="seg-button active" id="modeOD" data-mode="od">OD</button>
             <button type="button" class="seg-button" id="modeTurns" data-mode="turns" data-i18n="turnsShort">Turns</button>
           </div>
         </div>
@@ -70,7 +73,7 @@
         <div class="form-row">
           <label id="remainingLabel" for="remaining">Remaining OD</label>
           <div class="input-wrap">
-            <input id="remaining" type="number" inputmode="decimal" step="any" autocomplete="off">
+            <input id="remaining" type="number" inputmode="decimal" step="any" autocomplete="off" value="102">
             <span class="unit-suffix" id="remainingUnit">mm</span>
           </div>
         </div>
@@ -85,7 +88,6 @@
       <section class="panel result-panel">
         <h2 data-i18n="result">Result</h2>
         <div id="warningArea"></div>
-
         <div id="resultArea">
           <div class="result-card">
             <div class="result-label" id="lengthUnitLabel">Length (MM)</div>
@@ -122,33 +124,22 @@
 
       <div class="about-content">
         <h3>Belt Roll Calculator</h3>
-        <p class="muted" data-i18n="version">Web Edition 2.1</p>
+        <p class="muted" data-i18n="version">Web Edition 2.1 Beta</p>
+        <p class="muted build" data-i18n="build">Build 2026.06.29.02</p>
         <p class="muted" data-i18n="designed">Designed and Developed by</p>
         <p class="author">Raymond Lei</p>
-
         <hr>
-
         <p class="copyright" data-i18n="copyright">Copyright © 2026 Raymond Lei</p>
         <p data-i18n="rights">All Rights Reserved.</p>
         <p class="legal" data-i18n="legal"></p>
-
         <img src="assets/logo/brc-logo.png" alt="BRC Logo" class="about-logo">
 
         <section class="install-card" id="installInstructions">
           <h4 data-i18n="installTitle">Install to Device</h4>
           <div class="install-grid">
-            <div>
-              <b>iPhone / iPad</b>
-              <p data-i18n="installIOS">Safari → Share → Add to Home Screen</p>
-            </div>
-            <div>
-              <b>Android</b>
-              <p data-i18n="installAndroid">Chrome → Menu → Install app or Add to Home screen</p>
-            </div>
-            <div>
-              <b>Windows / Mac</b>
-              <p data-i18n="installDesktop">Chrome or Edge → Address bar install icon, or Menu → Install app</p>
-            </div>
+            <div><b>iPhone / iPad</b><p data-i18n="installIOS">Safari → Share → Add to Home Screen</p></div>
+            <div><b>Android</b><p data-i18n="installAndroid">Chrome → Menu → Install app or Add to Home screen</p></div>
+            <div><b>Windows / Mac</b><p data-i18n="installDesktop">Chrome or Edge → Address bar install icon, or Menu → Install app</p></div>
           </div>
         </section>
       </div>

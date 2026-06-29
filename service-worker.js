@@ -1,9 +1,9 @@
-const CACHE_NAME = "belt-roll-calculator-web-2-1";
+const CACHE_NAME = "belt-roll-calculator-web-2-1-beta-build-20260629-02";
 const ASSETS = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
-  "./service-worker.js",
+  "./VERSION.json",
   "./css/app.css",
   "./js/app.js",
   "./assets/logo/brc-logo.png",
@@ -20,9 +20,7 @@ self.addEventListener("install", event => {
 
 self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.map(key => key === CACHE_NAME ? null : caches.delete(key)))
-    )
+    caches.keys().then(keys => Promise.all(keys.map(key => key === CACHE_NAME ? null : caches.delete(key))))
   );
   self.clients.claim();
 });

@@ -1,40 +1,24 @@
 {
-  "id": "/belt-roll-calculator/",
+  "id": "/belt-roll-calculator-beta/",
   "name": "Belt Roll Calculator",
   "short_name": "Belt Calculator",
-  "description": "Industrial belt roll length calculator.",
-  "start_url": "/belt-roll-calculator/",
-  "scope": "/belt-roll-calculator/",
+  "description": "Belt Roll Calculator Web Edition 2.1 Beta.",
+  "start_url": "/belt-roll-calculator-beta/",
+  "scope": "/belt-roll-calculator-beta/",
   "display": "standalone",
-  "display_override": [
-    "standalone",
-    "minimal-ui"
-  ],
   "background_color": "#0D1B2A",
   "theme_color": "#0D1B2A",
   "orientation": "any",
-  "categories": [
-    "utilities",
-    "productivity"
-  ],
   "icons": [
     {
       "src": "assets/icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     },
     {
       "src": "assets/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "assets/icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "type": "image/png"
     }
   ]
 }
