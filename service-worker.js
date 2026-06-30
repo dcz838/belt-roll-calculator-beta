@@ -1,4 +1,4 @@
-const CACHE_NAME = "belt-roll-calculator-web-2-1-beta-build-20260629-02";
+const CACHE_NAME = "belt-roll-calculator-web-2-1-beta-build-20260629-03";
 const ASSETS = [
   "./",
   "./index.html",

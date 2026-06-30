@@ -62,3 +62,22 @@ hr{border:0;border-top:1px solid #DDD;margin:12px 0}
 @media(max-width:760px){.app-shell{padding-left:12px;padding-right:12px}.brand-icon{width:50px;height:50px;border-radius:13px}.calculator-grid{grid-template-columns:1fr;gap:12px}.panel{padding:14px}.form-row{grid-template-columns:1fr 150px;gap:8px}.result-panel{min-height:0}}
 @media(max-width:520px){.app-header{flex-direction:column;align-items:stretch}.header-actions{width:100%}.language-select{flex:1;min-width:0}.install-button{flex:1}}
 @media(max-width:430px){.form-row{grid-template-columns:1fr}input{text-align:left}.about-modal{padding:16px}.modal-top h2{font-size:26px}}
+
+.about-logo {
+  cursor: pointer;
+  transition: filter .35s ease, transform .35s ease;
+}
+
+.about-logo.easter-egg {
+  animation: brcLogoEasterEgg 5s ease-in-out 1;
+}
+
+@keyframes brcLogoEasterEgg {
+  0% { transform: scale(1) rotate(0deg); filter: hue-rotate(0deg) saturate(1) brightness(1); }
+  12% { transform: scale(1.08) rotate(-2deg); filter: hue-rotate(45deg) saturate(1.7) brightness(1.12); }
+  25% { transform: scale(0.96) rotate(2deg); filter: hue-rotate(110deg) saturate(2.1) brightness(1.18); }
+  38% { transform: scale(1.10) rotate(-1deg); filter: hue-rotate(180deg) saturate(2.0) brightness(1.12); }
+  55% { transform: scale(1.02) rotate(1deg); filter: hue-rotate(260deg) saturate(1.8) brightness(1.08); }
+  72% { transform: scale(1.07) rotate(0deg); filter: hue-rotate(320deg) saturate(1.5) brightness(1.08); }
+  100% { transform: scale(1) rotate(0deg); filter: hue-rotate(0deg) saturate(1) brightness(1); }
+}

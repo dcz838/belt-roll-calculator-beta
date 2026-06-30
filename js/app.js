@@ -8,7 +8,7 @@
 
   const i18n = {
     en: {
-      version:"Web Edition 2.1 Beta", build:"Build 2026.06.29.02",
+      version:"Web Edition 2.1 Beta", build:"Build 2026.06.29.03",
       input:"Input", result:"Result", units:"Units", thickness:"Thickness", core:"Core Diameter",
       calculateBy:"Calculate By", turnsShort:"Turns", remainingOD:"Remaining OD", remainingTurns:"Remaining Turns",
       copyResult:"Copy Result", clearInputs:"Clear", about:"About", note:"Note: Calculations are estimates only.",
@@ -19,13 +19,13 @@
       installAndroid:"Chrome → Menu → Install app or Add to Home screen",
       installDesktop:"Chrome or Edge → Address bar install icon, or Menu → Install app",
       length:"Length", feet:"ft", meters:"m", estimatedTurns:"Estimated Turns", estimatedOD:"Estimated OD",
-      copied:"Result copied.", installUnavailable:"Install instructions are shown in About.",
+      copied:"Result copied.", easterEggActivated:"BRC logo activated.", installUnavailable:"Install instructions are shown in About.",
       warningNumber:"Wrong input: Please enter numbers only.", warningThickness:"Thickness must be greater than 0.",
       warningCore:"Core Diameter must be greater than 0.", warningPositive:"Remaining value must be greater than 0.",
       warningODCore:"Remaining OD must be greater than Core Diameter."
     },
     es: {
-      version:"Edición Web 2.1 Beta", build:"Build 2026.06.29.02",
+      version:"Edición Web 2.1 Beta", build:"Build 2026.06.29.03",
       input:"Datos", result:"Resultado", units:"Unidades", thickness:"Espesor", core:"Diámetro del Núcleo",
       calculateBy:"Calcular Por", turnsShort:"Vueltas", remainingOD:"Diámetro Exterior Restante", remainingTurns:"Vueltas Restantes",
       copyResult:"Copiar Resultado", clearInputs:"Borrar", about:"Acerca de", note:"Nota: Los cálculos son estimados.",
@@ -36,13 +36,13 @@
       installAndroid:"Chrome → Menú → Instalar app o Agregar a pantalla de inicio",
       installDesktop:"Chrome o Edge → Icono de instalación en la barra, o Menú → Instalar app",
       length:"Longitud", feet:"pies", meters:"m", estimatedTurns:"Vueltas Estimadas", estimatedOD:"Diámetro Exterior Estimado",
-      copied:"Resultado copiado.", installUnavailable:"Las instrucciones de instalación están en Acerca de.",
+      copied:"Resultado copiado.", easterEggActivated:"Logo BRC activado.", installUnavailable:"Las instrucciones de instalación están en Acerca de.",
       warningNumber:"Entrada incorrecta: ingrese solo números.", warningThickness:"El espesor debe ser mayor que 0.",
       warningCore:"El diámetro del núcleo debe ser mayor que 0.", warningPositive:"El valor debe ser mayor que 0.",
       warningODCore:"El diámetro exterior restante debe ser mayor que el diámetro del núcleo."
     },
     zh: {
-      version:"网页版 2.1 Beta", build:"Build 2026.06.29.02",
+      version:"网页版 2.1 Beta", build:"Build 2026.06.29.03",
       input:"输入", result:"结果", units:"单位", thickness:"皮带厚度", core:"卷芯直径",
       calculateBy:"计算方式", turnsShort:"圈数", remainingOD:"剩余外径", remainingTurns:"剩余圈数",
       copyResult:"复制结果", clearInputs:"清除", about:"关于", note:"注：计算结果仅为估算。",
@@ -53,7 +53,7 @@
       installAndroid:"Chrome → 菜单 → 安装应用 或 添加到主屏幕",
       installDesktop:"Chrome 或 Edge → 地址栏安装图标，或 菜单 → 安装应用",
       length:"长度", feet:"英尺", meters:"米", estimatedTurns:"预估圈数", estimatedOD:"预估外径",
-      copied:"结果已复制。", installUnavailable:"安装说明已显示在 About 页面。",
+      copied:"结果已复制。", easterEggActivated:"BRC Logo 彩蛋已启动。", installUnavailable:"安装说明已显示在 About 页面。",
       warningNumber:"错误：请输入有效数字。", warningThickness:"错误：皮带厚度必须大于 0。",
       warningCore:"错误：卷芯直径必须大于 0。", warningPositive:"错误：数值必须大于 0。",
       warningODCore:"错误：剩余外径必须大于卷芯直径。"
@@ -229,6 +229,17 @@
     showToast(t("installUnavailable"));
   }
 
+
+  function runLogoEasterEgg() {
+    const logo = $("aboutLogo");
+    if (!logo) return;
+    logo.classList.remove("easter-egg");
+    void logo.offsetWidth;
+    logo.classList.add("easter-egg");
+    showToast(t("easterEggActivated"));
+    setTimeout(() => logo.classList.remove("easter-egg"), 5200);
+  }
+
   function restoreInputs() {
     el.thickness.value = localStorage.getItem("brc.thickness") || "1";
     el.core.value = localStorage.getItem("brc.core") || "100";
@@ -247,6 +258,8 @@
     $("clearButton").addEventListener("click", clearInputs);
     $("aboutButton").addEventListener("click", openAbout);
     $("closeAboutButton").addEventListener("click", closeAbout);
+    const aboutLogo = $("aboutLogo");
+    if (aboutLogo) aboutLogo.addEventListener("dblclick", runLogoEasterEgg);
     el.installButton.addEventListener("click", installApp);
     el.aboutModal.addEventListener("click", event => { if (event.target === el.aboutModal) closeAbout(); });
     document.addEventListener("keydown", event => { if (event.key === "Escape") closeAbout(); });
