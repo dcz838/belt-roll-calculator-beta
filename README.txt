@@ -1,29 +1,16 @@
 Belt Roll Calculator
 Web Edition 2.1 Beta
-Build 2026.06.29.03
+Build 2026.06.29.06
 
 Canonical package/folder name:
-BeltRollCalculator_WebEdition_2_1_Beta_Build20260629_03_EasterEgg
+BeltRollCalculator_WebEdition_2_1_Beta_Build20260629_06_ResultUnits_EasterEggFix
 
 Updates:
-- Adds About page Easter egg.
-- Double-click the large BRC logo in About.
-- The logo performs a 5-second color/scale animation, then returns to normal.
-- Core calculator behavior remains based on Build 2026.06.29.02.
-
-Test checklist:
-1. Home page shows Web Edition 2.1 Beta.
-2. Build line shows Build 2026.06.29.03.
-3. Calculator buttons work.
-4. About opens.
-5. Double-click About logo triggers the animation.
-6. Logo returns to normal after about 5 seconds.
+- Rebuilt cleanly.
+- Result labels translate with language changes.
+- Metric and Imperial results are grouped together.
+- Yard / 码 result added.
+- About logo Easter egg supports desktop double-click and mobile double-tap.
 
 Deploy:
 Upload the contents of this folder to the GitHub repository root, replacing existing files.
-
-Author:
-Raymond Lei
-
-Copyright © 2026 Raymond Lei
-All Rights Reserved.
