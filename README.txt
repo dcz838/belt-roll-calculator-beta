@@ -1,20 +1,22 @@
 Belt Roll Calculator
 Web Edition 2.1 Beta
-Build 2026.06.29.08
+Build 2026.06.29.09
 
 Canonical package/folder name:
-BeltRollCalculator_WebEdition_2_1_Beta_Build20260629_08_ResultUnitFix
+BeltRollCalculator_WebEdition_2_1_Beta_Build20260629_09_LocalizationTurnsUnit
 
 Fixes:
-- Result labels no longer depend on selected input unit.
-- Metric group always shows MM and m.
-- Imperial group always shows in, ft, and yd.
-- Inch calculation converts correctly.
-- About logo Easter egg supports double-click and double-tap.
+- Chinese OD button displays 外径.
+- Chinese Result unit label displays 毫米 instead of MM.
+- Turns mode input suffix displays 圈 in Chinese, turns in English, vueltas in Spanish.
+- Keeps Metric / Imperial result grouping and yd output from Build 08.
+- Keeps About logo Easter egg.
 
-Expected sample values:
-MM input 1 / 100 / 102:
-317.301 MM, 0.317 m, 12.492 in, 1.041 ft, 0.347 yd
+Deploy:
+Upload the contents of this folder to the GitHub repository root, replacing existing files.
 
-INCH input 1 / 100 / 102:
-8061.460 MM, 8.061 m, 317.301 in, 26.442 ft, 8.814 yd
+Author:
+Raymond Lei
+
+Copyright © 2026 Raymond Lei
+All Rights Reserved.
