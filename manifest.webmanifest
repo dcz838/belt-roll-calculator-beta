@@ -2,11 +2,13 @@
   "id": "/belt-roll-calculator-beta/",
   "name": "Belt Roll Calculator",
   "short_name": "Belt Calculator",
+  "description": "Belt Roll Calculator Web Edition 2.2 Beta.",
   "start_url": "/belt-roll-calculator-beta/",
   "scope": "/belt-roll-calculator-beta/",
   "display": "standalone",
   "background_color": "#0D1B2A",
   "theme_color": "#0D1B2A",
+  "orientation": "any",
   "icons": [
     {
       "src": "assets/icons/icon-192.png",

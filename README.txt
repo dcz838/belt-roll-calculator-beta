@@ -1,22 +1,20 @@
 Belt Roll Calculator
-Web Edition 2.1 Beta
-Build 2026.06.29.09
+Web Edition 2.2 Beta
+Build 2026.07.16.02
 
-Canonical package/folder name:
-BeltRollCalculator_WebEdition_2_1_Beta_Build20260629_09_LocalizationTurnsUnit
+Default Administrator:
+User: Raymond
+PIN: 0921
 
-Fixes:
-- Chinese OD button displays 外径.
-- Chinese Result unit label displays 毫米 instead of MM.
-- Turns mode input suffix displays 圈 in Chinese, turns in English, vueltas in Spanish.
-- Keeps Metric / Imperial result grouping and yd output from Build 08.
-- Keeps About logo Easter egg.
+Included:
+- Calculator
+- Inventory
+- Inventory Logs
+- Users page
+- Administrator can add/delete users and change any PIN without old PIN
+- Inventory password protection ON/OFF
+- Add / Use / Set Balance inventory actions
+- Logs include user/date/time/before/after/password protection state
 
 Deploy:
-Upload the contents of this folder to the GitHub repository root, replacing existing files.
-
-Author:
-Raymond Lei
-
-Copyright © 2026 Raymond Lei
-All Rights Reserved.
+Upload the CONTENTS of this folder to GitHub Pages repository root.
