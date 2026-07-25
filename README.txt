@@ -1,27 +1,24 @@
 Belt Roll Calculator
 Web Edition 2.2 Beta
-Build 2026.07.24.03.03 - Security
+Build 2026.07.25.03.04
 
-Default Administrator:
-User: Raymond
+Key changes
+- Calculator is now a dedicated calculation tool; inventory selection and inventory actions were removed.
+- Added Tools with a standard calculator and common unit conversions.
+- Inventory Detail Edit button moved to the title bar.
+- Delete Belt moved inside the Edit window danger area.
+- Inventory List shows belt name, part number, thickness x width, and stock.
+- Inventory stock actions are located in Inventory Detail.
+- Modal Enter confirms and Escape cancels.
+- Added Backup Center with automatic backup schedules: daily, weekly, monthly, app close, and inventory change.
+- Added retention, destination selection, local internal backup, export, import, and system Share Sheet support.
+- Manual Share can expose Mail, Outlook, AirDrop, Files, and other installed apps when supported by the device.
+- Preserved administrator timeout and device authentication.
+- About logo Easter egg now auto-restores and includes a short unwind animation.
+
+Default administrator
+Username: Raymond
 PIN: 0921
 
-Security build updates:
-- Configurable administrator authentication timeout: every time, 1, 5, 10, 15, 30 minutes, or custom 1-480 minutes
-- Global lock/countdown indicator placed to the left of the language selector
-- Click the countdown to lock immediately
-- Sensitive operations reuse a valid administrator session until the timer expires
-- Add/delete users, reveal/change PIN, History edit/undo, sensitive Settings, and backup import/export require administrator verification
-- Optional device unlock beta using Face ID, Touch ID, fingerprint, Windows Hello, or device PIN through WebAuthn when supported
-- Device unlock always retains the administrator PIN as fallback
-- PIN reveal automatically hides after five seconds
-- Enter confirms modal actions; Escape cancels/closes modal dialogs
-- Security changes are recorded in History
-- Authentication is cleared on logout or browser session end
-
-Notes:
-- WebAuthn device unlock requires HTTPS and compatible browser/device support.
-- Existing inventory and users stored by earlier builds are retained.
-
-Deploy:
-Upload the contents of this folder to the GitHub Pages repository root.
+Important
+Automatic backups in this static PWA are stored inside the app while it is running. Mobile and desktop browsers do not guarantee exact background execution when the app is fully closed. Use Export or Share to place backup files in Files, iCloud Drive, OneDrive, Google Drive, Dropbox, email, AirDrop, or other destinations offered by the system.
