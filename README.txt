@@ -1,22 +1,27 @@
 Belt Roll Calculator
 Web Edition 2.2 Beta
-Build 2026.07.24.02
+Build 2026.07.24.03.03 - Security
 
 Default Administrator:
 User: Raymond
 PIN: 0921
 
-Key updates:
-- Complete English, Simplified Chinese and Spanish interface translation
-- Responsive sidebar/drawer navigation for desktop, tablet and handheld devices
-- Calculator opens blank and does not require an inventory selection
-- Inventory Action moved to Result
-- Inventory detail on the left and inventory list on the right on larger screens
-- Strong low-stock warning borders, low/out-of-stock filters, summary buttons and stock sorting
-- History includes View, Edit and Undo with administrator re-authentication
-- User PINs remain hidden; reveal, add, delete and change PIN require administrator re-authentication
-- Sensitive Settings changes require administrator re-authentication
-- Fixed-height internally scrolling inventory, history and user lists
+Security build updates:
+- Configurable administrator authentication timeout: every time, 1, 5, 10, 15, 30 minutes, or custom 1-480 minutes
+- Global lock/countdown indicator placed to the left of the language selector
+- Click the countdown to lock immediately
+- Sensitive operations reuse a valid administrator session until the timer expires
+- Add/delete users, reveal/change PIN, History edit/undo, sensitive Settings, and backup import/export require administrator verification
+- Optional device unlock beta using Face ID, Touch ID, fingerprint, Windows Hello, or device PIN through WebAuthn when supported
+- Device unlock always retains the administrator PIN as fallback
+- PIN reveal automatically hides after five seconds
+- Enter confirms modal actions; Escape cancels/closes modal dialogs
+- Security changes are recorded in History
+- Authentication is cleared on logout or browser session end
+
+Notes:
+- WebAuthn device unlock requires HTTPS and compatible browser/device support.
+- Existing inventory and users stored by earlier builds are retained.
 
 Deploy:
 Upload the contents of this folder to the GitHub Pages repository root.
