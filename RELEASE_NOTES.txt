@@ -1,0 +1,16 @@
+Belt Roll Calculator - Web Edition 2.2 Beta
+Build 2026.07.26.03.08
+
+Key fixes
+- Unit Converter category and unit option localization for English, Simplified Chinese, and Spanish.
+- Unit Converter history retained and localized.
+- Calculator result cards can be selected individually; Copy Result copies only the selected numeric values.
+- Clear Selection retained; selection uses a deeper pale blue background and a thicker border without a checkmark.
+- Numeric inputs include Paste and Clear controls for touch devices.
+- Inventory summary cards now act as the only stock filters.
+- Normal, Low, and Out of Stock use green, amber, and red status colors.
+- Selected summary and inventory cards use an 8 px status-colored border and a darker matching background.
+- Inventory detail follows the currently selected list item.
+- Accidental administrator PIN 0000 is migrated back to Raymond's default 0921.
+- Existing inventory/settings split backup history and restore functions retained.
+- Service worker cache updated for this build.
