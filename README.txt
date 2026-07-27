@@ -1,11 +1,7 @@
-Belt Roll Calculator Web Edition 2.2 Beta
-Build 2026.07.26.03.06
-Calculator & Mascot Update
+Belt Roll Calculator — Web Edition 2.2 Beta
+Build 2026.07.27.03.07
 
-Updates:
-- Rebuilt the standard calculator keypad using a familiar standard layout.
-- Added Standard and Scientific calculator modes.
-- Added DEG/RAD selection and common scientific functions.
-- Preserved local calculator history.
-- Rebuilt the About-page Easter egg as the original BRC Buddy animation.
-- Updated the service worker cache identifier.
+This build adds selectable calculator results, localized converter categories and conversion history, improved permission switches, separate Inventory and Settings backups with restore history, and Retro Mode.
+
+Deploy: upload the extracted files to the root of the GitHub Pages repository.
+Default administrator: Raymond / 0921
