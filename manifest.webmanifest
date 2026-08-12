@@ -1,9 +1,9 @@
 {
-  "id": "./",
-  "name": "Belt Roll Calculator",
-  "short_name": "Belt Calculator",
-  "description": "Belt Roll Calculator Web Edition 2.2 Beta.",
-  "start_url": "./",
+  "id": "./?channel=beta",
+  "name": "BRC Beta · Belt Roll Calculator",
+  "short_name": "BRC Beta",
+  "description": "Belt Roll Calculator Web Edition 2.3 Beta · Cloud Edition.",
+  "start_url": "./?source=pwa-beta",
   "scope": "./",
   "display": "standalone",
   "background_color": "#0D1B2A",
@@ -13,12 +13,14 @@
     {
       "src": "assets/icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "assets/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
