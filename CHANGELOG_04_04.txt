@@ -1,0 +1,16 @@
+Belt Roll Calculator 2.3 Beta · Cloud Edition
+Build 2026.08.13.04.04
+
+AUTH / CLOUD
+- Embedded the BRC Supabase Project URL and Publishable Key in the browser build.
+- Removed normal-user editing of Project URL / Publishable Key from Cloud Sync.
+- Added Forgot Password from the Cloud login UI.
+- Added Supabase password recovery handling after the recovery email redirects back to GitHub Pages.
+- Added New Password + Confirm Password recovery dialog.
+- Password update uses supabase.auth.updateUser() and never exposes the Secret/service-role key.
+- Cloud Settings now shows DCZ Cloud / project / region instead of credentials.
+
+SECURITY
+- Only the Publishable Key is embedded.
+- No Secret Key, service_role key, or database password is included.
+- RLS remains the database authorization boundary.

@@ -1,26 +1,14 @@
-BRC Cloud Setup - Build 2026.08.12.04.03
+BRC Cloud Setup - Build 2026.08.13.04.04
 
-1. Deploy this build to GitHub Pages.
-2. Open BRC > Settings > Cloud Sync (or click the Cloud status button).
-3. Project URL should be:
-   https://wbitcssptqllibnfcxsg.supabase.co
-4. Paste the Supabase Publishable Key beginning with sb_publishable_.
-   NEVER paste the Secret Key or database password into the app/GitHub.
-5. Save Cloud Settings and allow the app to reload.
-6. Click Login and sign in using a user created under Supabase Authentication.
-7. The corresponding public.profiles row must be active and have the needed permissions (admin bypasses individual permission flags).
-8. If the cloud inventory is empty and this device contains the existing local inventory, use Upload Local Inventory once.
-9. Verify Supabase tables:
-   - belt_catalog
-   - inventory_balances
-   - inventory_transactions
-10. Sign in on a second device and confirm the same inventory appears and updates through Realtime.
+1. Deploy this build to https://dcz838.github.io/belt-roll-calculator-beta/.
+2. Project URL and Publishable Key are already embedded.
+3. Create users in Supabase Authentication and make sure their public.profiles rows are active.
+4. Admin users should have role=admin (or the required permission flags).
+5. Configure Supabase Authentication > URL Configuration:
+   Site URL: https://dcz838.github.io/belt-roll-calculator-beta/
+   Redirect URL: https://dcz838.github.io/belt-roll-calculator-beta/**
+6. Sign in from BRC using email/password.
+7. If cloud inventory is empty and local inventory exists, use Upload Local Inventory once.
+8. Test Forgot Password: send recovery email, open link, set a new password in the BRC recovery dialog.
 
-Cloud behavior in 04.03:
-- Supabase is the primary source after sign-in.
-- Add/Edit Belt writes to belt_catalog.
-- Add/Use/Set Balance uses the adjust_inventory RPC.
-- History reads inventory_transactions.
-- Realtime subscriptions refresh inventory/history on other devices.
-- Product Delete archives belt_catalog.is_active=false to preserve transaction history.
-- Local data remains a cache/recovery source; first-time migration is explicit and is never automatic over an empty cloud database.
+Never place a Secret Key, service_role key, or database password in GitHub or the browser build.

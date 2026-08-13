@@ -2,11 +2,16 @@ const CONFIG_KEY='brc_supabase_config';
 const DEVICE_KEY='brc_device_id';
 const DIRTY_KEY='brc_cloud_dirty';
 const PROFILE_CACHE_KEY='brc_cloud_profile_cache';
+const EMBEDDED_CONFIG=Object.freeze({
+  url:'https://wbitcssptqllibnfcxsg.supabase.co',
+  key:'sb_publishable_bBGvL1QwSX27Eu5bfrERRQ_c9qgziE0',
+  redirectTo:'https://dcz838.github.io/belt-roll-calculator-beta/'
+});
 let client=null,channel=null,reloadTimer=0,applying=false,authBound=false;
 const deviceId=localStorage.getItem(DEVICE_KEY)||crypto.randomUUID();
 localStorage.setItem(DEVICE_KEY,deviceId);
-const cfg=()=>{try{return JSON.parse(localStorage.getItem(CONFIG_KEY)||'{}')}catch{return {}}};
-const state={status:'not-configured',user:null,profile:null,profiles:[],lastSync:'',error:''};
+const cfg=()=>{try{const saved=JSON.parse(localStorage.getItem(CONFIG_KEY)||'{}');return {url:saved.url||EMBEDDED_CONFIG.url,key:saved.key||EMBEDDED_CONFIG.key,redirectTo:EMBEDDED_CONFIG.redirectTo}}catch{return {...EMBEDDED_CONFIG}}};
+const state={status:'signed-out',user:null,profile:null,profiles:[],lastSync:'',error:'',recovery:false};
 const markDirty=()=>localStorage.setItem(DIRTY_KEY,'1');
 const clearDirty=()=>localStorage.removeItem(DIRTY_KEY);
 const isDirty=()=>localStorage.getItem(DIRTY_KEY)==='1';
@@ -20,16 +25,17 @@ function initClient(){
   client=window.supabase.createClient(c.url,c.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   if(!authBound){
     authBound=true;
-    client.auth.onAuthStateChange((_event,session)=>{
+    client.auth.onAuthStateChange((event,session)=>{
       state.user=session?.user||null;
-      if(!session){localStorage.removeItem(PROFILE_CACHE_KEY);stopRealtime();setState({status:'signed-out',user:null,profile:null,profiles:[]})}
+      if(event==='PASSWORD_RECOVERY'){setState({status:'recovery',user:session?.user||null,recovery:true,error:''});return}
+      if(!session){localStorage.removeItem(PROFILE_CACHE_KEY);stopRealtime();setState({status:'signed-out',user:null,profile:null,profiles:[],recovery:false})}
     });
   }
   return client;
 }
 function saveConfig(url,key){
-  const cleanUrl=String(url||'').trim().replace(/\/$/,'');
-  const cleanKey=String(key||'').trim();
+  const cleanUrl=String(url||EMBEDDED_CONFIG.url).trim().replace(/\/$/,'');
+  const cleanKey=String(key||EMBEDDED_CONFIG.key).trim();
   if(!/^https:\/\/.+\.supabase\.co$/.test(cleanUrl))throw new Error('Invalid Supabase Project URL.');
   if(!cleanKey.startsWith('sb_publishable_'))throw new Error('Use the Supabase Publishable Key (sb_publishable_...).');
   localStorage.setItem(CONFIG_KEY,JSON.stringify({url:cleanUrl,key:cleanKey}));
@@ -45,7 +51,20 @@ async function signIn(email,password){
   if(error){setState({status:'error',error:error.message});throw error}
   await start();
 }
-async function signOut(){if(client)await client.auth.signOut();stopRealtime();setState({status:'signed-out',user:null,profile:null,profiles:[]})}
+async function signOut(){if(client)await client.auth.signOut();stopRealtime();setState({status:'signed-out',user:null,profile:null,profiles:[],recovery:false})}
+async function requestPasswordReset(email){
+  const c=initClient();if(!c)throw new Error('Cloud is unavailable.');
+  const target=String(email||'').trim();if(!target)throw new Error('Enter your email address.');
+  const {error}=await c.auth.resetPasswordForEmail(target,{redirectTo:EMBEDDED_CONFIG.redirectTo});
+  if(error)throw error;return true;
+}
+async function updatePassword(password){
+  const c=initClient();if(!c)throw new Error('Cloud is unavailable.');
+  const p=String(password||'');if(p.length<8)throw new Error('Password must be at least 8 characters.');
+  const {error}=await c.auth.updateUser({password:p});if(error)throw error;
+  setState({status:'connected',recovery:false,error:''});return true;
+}
+function endRecovery(){state.recovery=false;if(state.user)setState({status:'connecting',recovery:false});else setState({status:'signed-out',recovery:false})}
 async function getDefaultLocation(){
   let {data,error}=await client.from('locations').select('id,location_code,name').eq('location_code','DEFAULT').maybeSingle();
   if(error)throw error;
@@ -211,7 +230,7 @@ function can(permission){
   const map={addBelt:'can_add_belt',editBelt:'can_modify_belt',deleteBelt:'can_delete_belt',addStock:'can_add_stock',useStock:'can_use_stock',setBalance:'can_set_balance',manageUsers:'can_manage_users',restoreBackup:'can_restore_backup'};
   return !!p[map[permission]];
 }
-window.BRCCloud={state,configured,cfg,saveConfig,clearConfig,signIn,signOut,start,loadCloud,syncFromLocal,pushLocalToCloud,saveBelt,adjustStock,archiveBelt,undoTransaction,updateProfile,markDirty,isDirty,isApplying:()=>applying,can,deviceId};
+window.BRCCloud={state,configured,cfg,saveConfig,clearConfig,signIn,signOut,requestPasswordReset,updatePassword,endRecovery,start,loadCloud,syncFromLocal,pushLocalToCloud,saveBelt,adjustStock,archiveBelt,undoTransaction,updateProfile,markDirty,isDirty,isApplying:()=>applying,can,deviceId,embeddedConfig:EMBEDDED_CONFIG};
 window.addEventListener('offline',()=>{const cp=cachedProfile();if(cp&&!state.profile)state.profile=cp;setState({status:'offline',error:''})});
 window.addEventListener('online',()=>start().catch(e=>setState({status:'error',error:e.message||String(e)})));
 window.addEventListener('load',()=>{if(navigator.onLine)start().catch(e=>setState({status:'error',error:e.message||String(e)}));else{state.profile=cachedProfile();setState({status:'offline'})}});

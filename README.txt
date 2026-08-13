@@ -1,22 +1,18 @@
 Belt Roll Calculator 2.3 Beta · Cloud Edition
-Build 2026.08.12.04.03
+Build 2026.08.13.04.04
 
 DEPLOY
 Upload the contents of this folder to the GitHub Pages site.
 
-FIRST CLOUD SETUP
-1. Open Settings > Cloud Sync (or click the Cloud status button).
-2. Project URL is prefilled for the current BRC Supabase project.
-3. Paste the Supabase Publishable Key (sb_publishable_...). Never use the Secret Key.
-4. Save Cloud Settings; the app reloads.
-5. Click Login and sign in with a Supabase Authentication email/password account.
-6. If cloud inventory is empty and local inventory exists, use Upload Local Inventory once.
-7. Confirm belt_catalog, inventory_balances, and inventory_transactions in Supabase.
-8. Sign in from iPad/another device to verify Realtime synchronization.
+CLOUD
+The Supabase Project URL and Publishable Key are built into this Beta build. Users do not configure them.
+Open Login or Settings > Cloud Sync and sign in with a Supabase Authentication email/password account.
 
-DATA MODEL
-Cloud primary: belt_catalog, inventory_balances, inventory_transactions, locations, profiles.
-Local cache: BRC app data for display/recovery plus calculator/converter history and UI preferences.
+PASSWORD RECOVERY
+Supabase Authentication > URL Configuration must use:
+Site URL: https://dcz838.github.io/belt-roll-calculator-beta/
+Redirect URL: https://dcz838.github.io/belt-roll-calculator-beta/**
+Use Forgot Password in BRC (or Send password recovery in Supabase). The recovery link returns to BRC and opens the New Password dialog.
 
 SECURITY
-The browser uses only the Publishable Key. RLS and the authenticated Supabase user profile enforce permissions. Secret/service-role keys must never be placed in this build or GitHub.
+This build contains only the public Supabase Project URL and Publishable Key. It does NOT contain the Secret Key, service_role key, or database password. RLS and authenticated profiles enforce data permissions.
