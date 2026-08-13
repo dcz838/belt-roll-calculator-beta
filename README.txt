@@ -1,5 +1,5 @@
 Belt Roll Calculator 2.3 Beta · Cloud Edition
-Build 2026.08.13.04.04
+Build 2026.08.13.04.05
 
 DEPLOY
 Upload the contents of this folder to the GitHub Pages site.
@@ -16,3 +16,6 @@ Use Forgot Password in BRC (or Send password recovery in Supabase). The recovery
 
 SECURITY
 This build contains only the public Supabase Project URL and Publishable Key. It does NOT contain the Secret Key, service_role key, or database password. RLS and authenticated profiles enforce data permissions.
+
+
+Build 04.05: deploy the included admin-user Edge Function once to enable administrator password resets. See EDGE_FUNCTION_SETUP.txt.

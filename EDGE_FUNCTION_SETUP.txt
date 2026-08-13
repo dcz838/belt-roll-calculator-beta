@@ -1,0 +1,20 @@
+BRC Build 2026.08.13.04.05 - Admin Password Reset
+
+The BRC front end now has a Reset Password button for cloud users.
+It calls the Supabase Edge Function named: admin-user
+
+Deploy once in Supabase:
+1. Open Supabase Dashboard -> Edge Functions.
+2. Create a function named admin-user.
+3. Replace its code with supabase/functions/admin-user/index.ts from this package.
+4. Deploy the function with JWT verification enabled (default).
+5. No Secret Key needs to be copied into BRC. Hosted Supabase Edge Functions receive SUPABASE_URL and secret keys from the platform environment.
+
+Security:
+- The browser uses only the Publishable Key.
+- The Edge Function verifies the signed-in user.
+- Only role=admin or can_manage_users=true may reset passwords.
+- The secret key remains inside Supabase.
+
+After deployment:
+Users -> Reset Password -> enter the new password twice -> Save.

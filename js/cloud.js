@@ -136,6 +136,9 @@ async function currentBalance(beltId,locationId){
   if(r.error)throw r.error;return r.data;
 }
 async function rpcAdjust(beltId,locationId,type,amount,notes,reference='BRC Cloud Edition'){
+  const allowed=new Set(['add','use','set_balance','transfer_in','transfer_out','initial_import','restore']);
+  if(type==='edit')type='set_balance';
+  if(!allowed.has(type))throw new Error(`Unsupported inventory transaction type: ${type}`);
   const r=await client.rpc('adjust_inventory',{p_belt_id:beltId,p_location_id:locationId,p_transaction_type:type,p_amount:Number(amount),p_reference:reference,p_notes:notes||null,p_device_id:deviceId});
   if(r.error)throw r.error;return r.data?.[0]||null;
 }
@@ -176,6 +179,15 @@ async function undoTransaction(tx){
   const belt=(window.BRCApp?.getData?.().belts||[]).find(b=>b.id===tx.beltId);
   if(!belt)throw new Error('Belt not found.');
   return adjustStock(belt,'set',Number(tx.before),`Undo transaction ${tx.id}`);
+}
+async function adminResetPassword(userId,password){
+  if(!client||!state.user)throw new Error('Cloud sign-in required.');
+  if(!can('manageUsers'))throw new Error('Administrator permission required.');
+  const p=String(password||'');if(p.length<8)throw new Error('Password must be at least 8 characters.');
+  const {data,error}=await client.functions.invoke('admin-user',{body:{action:'reset_password',user_id:userId,password:p}});
+  if(error){let msg=error.message||'Password reset failed.';try{const ctx=error.context;if(ctx?.json){const j=await ctx.json();msg=j?.error||j?.message||msg}}catch{}throw new Error(msg)}
+  if(data?.error)throw new Error(data.error);
+  return true;
 }
 async function updateProfile(id,patch){
   if(!client||!state.user)throw new Error('Cloud sign-in required.');
@@ -230,7 +242,7 @@ function can(permission){
   const map={addBelt:'can_add_belt',editBelt:'can_modify_belt',deleteBelt:'can_delete_belt',addStock:'can_add_stock',useStock:'can_use_stock',setBalance:'can_set_balance',manageUsers:'can_manage_users',restoreBackup:'can_restore_backup'};
   return !!p[map[permission]];
 }
-window.BRCCloud={state,configured,cfg,saveConfig,clearConfig,signIn,signOut,requestPasswordReset,updatePassword,endRecovery,start,loadCloud,syncFromLocal,pushLocalToCloud,saveBelt,adjustStock,archiveBelt,undoTransaction,updateProfile,markDirty,isDirty,isApplying:()=>applying,can,deviceId,embeddedConfig:EMBEDDED_CONFIG};
+window.BRCCloud={state,configured,cfg,saveConfig,clearConfig,signIn,signOut,requestPasswordReset,updatePassword,endRecovery,start,loadCloud,syncFromLocal,pushLocalToCloud,saveBelt,adjustStock,archiveBelt,undoTransaction,adminResetPassword,updateProfile,markDirty,isDirty,isApplying:()=>applying,can,deviceId,embeddedConfig:EMBEDDED_CONFIG};
 window.addEventListener('offline',()=>{const cp=cachedProfile();if(cp&&!state.profile)state.profile=cp;setState({status:'offline',error:''})});
 window.addEventListener('online',()=>start().catch(e=>setState({status:'error',error:e.message||String(e)})));
 window.addEventListener('load',()=>{if(navigator.onLine)start().catch(e=>setState({status:'error',error:e.message||String(e)}));else{state.profile=cachedProfile();setState({status:'offline'})}});

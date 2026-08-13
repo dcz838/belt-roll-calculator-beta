@@ -1,0 +1,7 @@
+Build 2026.08.13.04.05
+- Cloud status semantics fixed: green=connected/healthy, yellow=actively syncing/connecting, red=error/offline, gray=signed out.
+- Initial migration pending no longer looks like an endless sync operation.
+- Added admin Reset Password button for Supabase users.
+- Added secure Supabase Edge Function source for administrator password reset; Secret Key stays server-side.
+- Added defensive inventory transaction enum validation. Product metadata edits are not recorded as transaction_type=edit.
+- Added aggressive cache busting/network-first JS/CSS updates to prevent old cloud.js from surviving a GitHub Pages deployment.
