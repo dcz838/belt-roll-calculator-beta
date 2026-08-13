@@ -1,0 +1,18 @@
+Belt Roll Calculator 2.3 Beta · Cloud Edition
+Build 2026.08.12.04.03
+
+Cloud foundation completion:
+- Supabase Email/Password login is now the primary login when cloud is configured.
+- Supabase profile/RLS permissions now control Add/Edit/Delete Belt and stock actions.
+- Inventory reads from belt_catalog + inventory_balances after cloud sign-in.
+- Stock Add/Use/Set Balance writes directly through adjust_inventory RPC.
+- Inventory transactions/history reload from Supabase after writes.
+- Realtime subscriptions refresh inventory/history across devices.
+- Belt create/edit writes directly to belt_catalog and inventory balance.
+- Product delete is implemented as a cloud-safe archive (is_active=false), preserving transaction history.
+- First-time local inventory migration remains available when cloud is empty.
+- Cloud user list is read from profiles; credentials remain managed by Supabase Authentication.
+- Cloud settings remain available before sign-in.
+- Build/service-worker cache updated to 04.03.
+
+Important: Project URL + sb_publishable_* key must be configured in Settings > Cloud Sync before first login.

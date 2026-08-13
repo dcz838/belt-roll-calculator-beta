@@ -1,29 +1,22 @@
-Belt Roll Calculator - Web Edition 2.3 Beta · Cloud Edition
-Build 2026.08.12.04.02
+Belt Roll Calculator 2.3 Beta · Cloud Edition
+Build 2026.08.12.04.03
 
-Cloud setup:
-1. Deploy this folder to GitHub Pages.
-2. Open Settings > Cloud Sync.
-3. Enter the Supabase Project URL and Publishable Key.
-4. Sign in with a Supabase Authentication email/password account.
-5. If cloud inventory is empty and this device contains local inventory, use Upload Local Inventory once.
+DEPLOY
+Upload the contents of this folder to the GitHub Pages site.
 
-Security:
-- Never place the Supabase Secret Key, service_role key, or database password in this app.
-- Only the Publishable Key belongs in the browser.
-- Supabase RLS remains the database security boundary.
+FIRST CLOUD SETUP
+1. Open Settings > Cloud Sync (or click the Cloud status button).
+2. Project URL is prefilled for the current BRC Supabase project.
+3. Paste the Supabase Publishable Key (sb_publishable_...). Never use the Secret Key.
+4. Save Cloud Settings; the app reloads.
+5. Click Login and sign in with a Supabase Authentication email/password account.
+6. If cloud inventory is empty and local inventory exists, use Upload Local Inventory once.
+7. Confirm belt_catalog, inventory_balances, and inventory_transactions in Supabase.
+8. Sign in from iPad/another device to verify Realtime synchronization.
 
-Build 04.02 highlights:
-- Version information now comes from VERSION.json throughout the UI.
-- Green Beta icon with classic yellow 45-degree BETA ribbon.
-- Manifest/PWA title/icon/cache updated to Beta Cloud Edition.
-- Summary cards are the only inventory filters.
-- Normal/Low/Out use green/amber/red status colors; selected items use an 8px matching status border.
-- Selected inventory item always drives the detail panel.
-- Calculator result selection copies numeric values only; Select All was removed.
-- Paste/Clear controls added for touch-friendly numeric entry.
-- Unit Converter category and unit display labels localized for Chinese and Spanish.
-- Cloud sign-in no longer overwrites local inventory when cloud inventory is empty; one-time migration is explicit.
-- Inventory synchronization skips unchanged balances to avoid unnecessary transaction history.
-- Cloud.js is included in the service-worker cache.
-- Default legacy Raymond/0000 PIN is migrated to 0921.
+DATA MODEL
+Cloud primary: belt_catalog, inventory_balances, inventory_transactions, locations, profiles.
+Local cache: BRC app data for display/recovery plus calculator/converter history and UI preferences.
+
+SECURITY
+The browser uses only the Publishable Key. RLS and the authenticated Supabase user profile enforce permissions. Secret/service-role keys must never be placed in this build or GitHub.
