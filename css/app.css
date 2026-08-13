@@ -32,3 +32,6 @@
 .cloud-quick{display:inline-flex;align-items:center;gap:6px;padding:8px 10px}.cloud-quick i{width:9px;height:9px;border-radius:50%;background:#8e8e93}.cloud-quick.ok{background:#effaf2;color:#16743a;border-color:#9ad6ab}.cloud-quick.ok i{background:#22a559}.cloud-quick.busy{background:#fff7e5;color:#9a6500;border-color:#e9c66d}.cloud-quick.busy i{background:#f5a623}.cloud-quick.bad{background:#fff0f0;color:#b42318;border-color:#eca3a3}.cloud-quick.bad i{background:#d9363e}
 .about #aboutLogo{filter:none}.about #aboutEdition{font-weight:600}.about #aboutBuild{font-variant-numeric:tabular-nums}
 @media(max-width:520px){.cloud-quick span{display:none}.cloud-quick{padding:8px}.input-mini{min-width:44px}.belt-card.active{border-width:7px}.summary-card.active{border-width:7px}}
+
+/* Build 2026.08.13.04.06 - permission toggle state colors only */
+.permission-switch input:checked+i{background:#22c55e}

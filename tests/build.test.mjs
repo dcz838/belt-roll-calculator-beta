@@ -4,7 +4,7 @@ import fs from "node:fs";
 const read=(p)=>fs.readFileSync(new URL(`../${p}`,import.meta.url),"utf8");
 const version=JSON.parse(read("VERSION.json"));
 const html=read("index.html"), manifest=JSON.parse(read("manifest.webmanifest")), sw=read("service-worker.js"), app=read("js/app.js");
-test("build metadata is current and no stale sidebar version remains",()=>{assert.equal(version.build,"2026.08.13.04.05");assert.match(html,/sidebarVersion/);assert.doesNotMatch(html,/2026\.07\.27\.03\.07/);assert.doesNotMatch(html,/Web Edition 2\.2 Beta/)});
+test("build metadata is current and no stale sidebar version remains",()=>{assert.equal(version.build,"2026.08.13.04.06");assert.match(html,/sidebarVersion/);assert.doesNotMatch(html,/2026\.07\.27\.03\.07/);assert.doesNotMatch(html,/Web Edition 2\.2 Beta/)});
 test("Beta PWA identity is distinct",()=>{assert.equal(manifest.short_name,"BRC Beta");assert.match(manifest.name,/Beta/);assert.match(html,/BRC Beta · Belt Roll Calculator/)});
 test("cloud module is available offline",()=>{assert.match(sw,/js\/cloud\.js/);assert.match(app,/localDataNote:'Inventory data is synchronized securely through the cloud/)});
 test("inventory uses summary cards rather than duplicate filter buttons",()=>{assert.doesNotMatch(html,/data-filter=/);assert.match(app,/summary-card/)});
@@ -20,4 +20,7 @@ test("cloud credentials are embedded safely and recovery is implemented",()=>{co
 test("cloud status colors follow conventional semantics",()=>{assert.match(app,/migration-needed'\]\.includes\(st\.status\)/);assert.match(app,/Syncing/);assert.match(app,/st\.status==='error'/)});
 test("cloud catalog edits never send transaction_type edit",()=>{const cloud=read("js/cloud.js");assert.match(cloud,/allowed=new Set\(\['add','use','set_balance'/);assert.match(cloud,/if\(type==='edit'\)type='set_balance'/)});
 test("admin password reset uses server-side Edge Function",()=>{const cloud=read("js/cloud.js"),fn=read("supabase/functions/admin-user/index.ts");assert.match(app,/Reset Password/);assert.match(cloud,/functions\.invoke\('admin-user'/);assert.match(fn,/auth\.admin\.updateUserById/);assert.match(fn,/SUPABASE_SECRET_KEYS/);assert.match(fn,/can_manage_users/)});
-test("GitHub Pages assets are cache-busted",()=>{assert.match(html,/cloud\.js\?v=202608130405/);assert.match(html,/app\.js\?v=202608130405/);assert.match(sw,/cache:'no-store'/)});
+test("GitHub Pages assets are cache-busted",()=>{assert.match(html,/cloud\.js\?v=202608130406/);assert.match(html,/app\.js\?v=202608130406/);assert.match(sw,/cache:'no-store'/)});
+
+
+test("permission toggles use gray off and green on without layout changes",()=>{const css=read("css/app.css");assert.match(css,/permission-switch i,.switch-row i\{width:54px;height:32px;border-radius:20px;background:#cbd5e1/);assert.match(css,/permission-switch input:checked\+i\{background:#22c55e\}/)});

@@ -1,0 +1,6 @@
+Build 2026.08.13.04.06
+
+- Permission toggle color refinement only.
+- OFF state remains light gray.
+- ON state is now clearly green.
+- No layout, sizing, scrolling, interaction, or permission logic changes.
