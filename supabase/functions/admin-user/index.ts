@@ -30,7 +30,8 @@ Deno.serve(async (req: Request) => {
 
     const url = Deno.env.get('SUPABASE_URL')!
     const secretMap = JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS') || '{}')
-    const secretKey = secretMap.default || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    const generatedSecrets = Object.values(secretMap).filter((v): v is string => typeof v === 'string' && v.length > 20)
+    const secretKey = secretMap.default || secretMap.secret || generatedSecrets[0] || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
     if (!secretKey) throw new Error('Supabase secret key is unavailable to the Edge Function.')
 
     const admin = createClient(url, secretKey, { auth: { persistSession: false, autoRefreshToken: false } })
@@ -55,6 +56,15 @@ Deno.serve(async (req: Request) => {
       const { error: updateError } = await admin.auth.admin.updateUserById(userId, { password })
       if (updateError) throw updateError
       await admin.from('audit_log').insert({ actor_id: authData.user.id, action: 'user_password_reset', entity_type: 'auth_user', entity_id: userId, new_data: { reset: true } })
+      return new Response(JSON.stringify({ ok: true }), { status: 200, headers })
+    }
+
+    if (action === 'set_inventory_password') {
+      const pin = String(body.pin || '')
+      if (!/^\d{4,}$/.test(pin)) return new Response(JSON.stringify({ error: 'Inventory password must contain at least 4 digits' }), { status: 400, headers })
+      const { error: pinError } = await admin.rpc('admin_set_inventory_pin', { p_user_id: userId, p_pin: pin })
+      if (pinError) throw pinError
+      await admin.from('audit_log').insert({ actor_id: authData.user.id, action: 'inventory_password_reset', entity_type: 'profile', entity_id: userId, new_data: { reset: true } })
       return new Response(JSON.stringify({ ok: true }), { status: 200, headers })
     }
 

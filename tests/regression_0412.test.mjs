@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const read=p=>fs.readFileSync(new URL(`../${p}`,import.meta.url),'utf8');
+const app=read('js/app.js'),cloud=read('js/cloud.js'),css=read('css/app.css'),edge=read('supabase/functions/admin-user/index.ts'),sql=read('supabase/migrations/20260814_0412_inventory_credentials.sql');
+test('cloud user UI exposes separate login and inventory password controls',()=>{assert.match(app,/Reset Login Password/);assert.match(app,/data-cloud-invpass/);assert.match(app,/cloudInventoryPasswordEditor/)});
+test('inventory password is 4+ digits and separate from auth password',()=>{assert.match(app,/\^\\d\{4,\}\$/);assert.match(cloud,/adminSetInventoryPin/);assert.match(edge,/set_inventory_password/)});
+test('inventory hashes are moved to private storage',()=>{assert.match(sql,/private\.inventory_credentials/);assert.match(sql,/drop column if exists inventory_pin_hash/);assert.match(sql,/grant execute on function public\.admin_set_inventory_pin\(uuid,text\) to service_role/)});
+test('cloud admin invocation surfaces server details',()=>{assert.match(cloud,/edgeErrorMessage/);assert.match(cloud,/error\?\.context/);assert.match(edge,/generatedSecrets/)});
+test('belt detail order and list location are present',()=>{assert.match(app,/\['manufacturer',x\.manufacturer\],\['application',x\.application\],\['width'/);assert.match(app,/belt-location/);assert.match(css,/\.belt-location/)});
+test('iPad gets an additional touch-only top offset',()=>{assert.match(css,/min-width:521px/);assert.match(css,/pointer:coarse/);assert.match(css,/safe-area-inset-top\) \+ 44px/)});

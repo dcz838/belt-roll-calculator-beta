@@ -193,13 +193,29 @@ async function undoTransaction(tx){
   if(!belt)throw new Error('Belt not found.');
   return adjustStock(belt,'set',Number(tx.before),`Undo transaction ${tx.id}`);
 }
+async function edgeErrorMessage(error,fallback){
+  let detail='';
+  try{const r=error?.context;if(r&&typeof r.clone==='function'){const c=r.clone();const j=await c.json();detail=j?.error||j?.message||''}}catch{}
+  return detail||error?.message||fallback;
+}
+async function invokeAdmin(body,fallback){
+  const {data,error}=await client.functions.invoke('admin-user',{body});
+  if(error)throw new Error(await edgeErrorMessage(error,fallback));
+  if(data?.error)throw new Error(data.error);
+  return data;
+}
 async function adminResetPassword(userId,password){
   if(!client||!state.user)throw new Error('Cloud sign-in required.');
   if(!can('manageUsers'))throw new Error('Administrator permission required.');
   const p=String(password||'');if(p.length<8)throw new Error('Password must be at least 8 characters.');
-  const {data,error}=await client.functions.invoke('admin-user',{body:{action:'reset_password',user_id:userId,password:p}});
-  if(error)throw new Error(error.message||'Password reset failed.');
-  if(data?.error)throw new Error(data.error);
+  await invokeAdmin({action:'reset_password',user_id:userId,password:p},'Password reset failed.');
+  return true;
+}
+async function adminSetInventoryPin(userId,pin){
+  if(!client||!state.user)throw new Error('Cloud sign-in required.');
+  if(!can('manageUsers'))throw new Error('Administrator permission required.');
+  const p=String(pin||'');if(!/^\d{4,}$/.test(p))throw new Error('Inventory password must contain at least 4 digits.');
+  await invokeAdmin({action:'set_inventory_password',user_id:userId,pin:p},'Inventory password update failed.');
   return true;
 }
 async function updateProfile(id,patch){
@@ -207,11 +223,10 @@ async function updateProfile(id,patch){
   if(!can('manageUsers'))throw new Error('Administrator permission required.');
   const allowed=['display_name','role','is_active','can_add_belt','can_modify_belt','can_delete_belt','can_add_stock','can_use_stock','can_set_balance','can_manage_users','can_backup','can_restore_backup'];
   const safe=Object.fromEntries(Object.entries(patch||{}).filter(([k])=>allowed.includes(k)));
-  const {data,error}=await client.functions.invoke('admin-user',{body:{action:'update_profile',user_id:id,patch:safe}});
-  if(error)throw new Error(error.message||'Permission update failed.');if(data?.error)throw new Error(data.error);await loadProfile();await loadCloud();return data?.profile;
+  const data=await invokeAdmin({action:'update_profile',user_id:id,patch:safe},'Permission update failed.');await loadProfile();await loadCloud();return data?.profile;
 }
-async function verifyInventoryPin(pin){if(!client||!state.user)throw new Error('Cloud sign-in required.');const r=await client.rpc('verify_inventory_pin',{p_pin:String(pin||'')});if(r.error)throw r.error;return !!r.data}
-async function setInventoryPin(pin){if(!client||!state.user)throw new Error('Cloud sign-in required.');const p=String(pin||'');if(p.length<4)throw new Error('Inventory password must be at least 4 characters.');const r=await client.rpc('set_inventory_pin',{p_pin:p});if(r.error)throw r.error;return true}
+async function verifyInventoryPin(pin){if(!client||!state.user)throw new Error('Cloud sign-in required.');const r=await client.rpc('verify_inventory_pin',{p_pin:String(pin||'')});if(r.error)throw r.error;return r.data===null?null:!!r.data}
+async function setInventoryPin(pin){if(!client||!state.user)throw new Error('Cloud sign-in required.');const p=String(pin||'');if(!/^\d{4,}$/.test(p))throw new Error('Inventory password must contain at least 4 digits.');const r=await client.rpc('set_inventory_pin',{p_pin:p});if(r.error)throw r.error;return true}
 
 async function syncFromLocal(localData,force=false){
   if(applying||!client||!state.user||(!force&&state.status==='syncing'))return;
@@ -260,7 +275,7 @@ function can(permission){
   if(p.role==='admin'&&permission==='manageUsers')return true;
   const field=map[permission];return field?!!p[field]:false;
 }
-window.BRCCloud={state,configured,cfg,saveConfig,clearConfig,signIn,signOut,requestPasswordReset,updatePassword,endRecovery,start,loadCloud,syncFromLocal,pushLocalToCloud,saveBelt,adjustStock,archiveBelt,undoTransaction,adminResetPassword,updateProfile,verifyInventoryPin,setInventoryPin,markDirty,isDirty,isApplying:()=>applying,can,deviceId,embeddedConfig:EMBEDDED_CONFIG};
+window.BRCCloud={state,configured,cfg,saveConfig,clearConfig,signIn,signOut,requestPasswordReset,updatePassword,endRecovery,start,loadCloud,syncFromLocal,pushLocalToCloud,saveBelt,adjustStock,archiveBelt,undoTransaction,adminResetPassword,adminSetInventoryPin,updateProfile,verifyInventoryPin,setInventoryPin,markDirty,isDirty,isApplying:()=>applying,can,deviceId,embeddedConfig:EMBEDDED_CONFIG};
 window.addEventListener('offline',()=>{const cp=cachedProfile();if(cp&&!state.profile)state.profile=cp;setState({status:'offline',error:''})});
 window.addEventListener('online',()=>start().catch(e=>setState({status:'error',error:e.message||String(e)})));
 window.addEventListener('load',()=>{if(navigator.onLine)start().catch(e=>setState({status:'error',error:e.message||String(e)}));else{state.profile=cachedProfile();setState({status:'offline'})}});

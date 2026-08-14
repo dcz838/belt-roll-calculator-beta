@@ -1,0 +1,15 @@
+BRC Build 2026.08.14.04.12
+
+Fixes in this build:
+- Adds administrator control to set/reset each cloud user's independent inventory password.
+- Inventory password is numeric and at least 4 digits, independent of the Supabase cloud login password.
+- Moves inventory credential hashes out of public.profiles into private.inventory_credentials.
+- Improves Edge Function secret-key resolution and surfaces server error details for password/permission operations.
+- Keeps cloud login password reset in Users and distinguishes it from Inventory Password.
+- Reorders Belt Detail fields: Manufacturer | Application, Width | Thickness.
+- Shows Location at the bottom-right of each Inventory List card.
+- Adds an iPad-only/coarse-pointer safe-area offset of one additional button height without moving iPhone further down.
+
+Supabase steps required before testing:
+1. Run supabase/migrations/20260814_0412_inventory_credentials.sql once.
+2. Redeploy supabase/functions/admin-user/index.ts as admin-user with Verify JWT with legacy secret OFF.

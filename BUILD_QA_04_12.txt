@@ -1,0 +1,22 @@
+BRC Build 2026.08.14.04.12 - Release QA
+
+Automated regression suite: 53/53 passed.
+Syntax checks:
+- js/app.js parsed successfully as an ES module.
+- js/cloud.js parsed successfully.
+
+Focused checks added for 04.12:
+- Separate Cloud Login Password and Inventory Password controls in Users.
+- Inventory Password requires at least 4 digits.
+- Admin inventory-password reset routes through admin-user Edge Function.
+- Inventory credential hashes migrate out of public.profiles into private.inventory_credentials.
+- Edge Function errors expose backend details instead of only "non-2xx status code".
+- Belt Detail order: Manufacturer | Application, Width | Thickness.
+- Inventory List shows Location at lower right.
+- iPad/coarse-pointer header gets an additional 44px top offset; iPhone rule is unchanged.
+- Service worker cache and asset query versions are isolated to 04.12.
+
+Supabase prerequisites before testing password administration:
+1. Run supabase/migrations/20260814_0412_inventory_credentials.sql once.
+2. Redeploy supabase/functions/admin-user/index.ts as admin-user.
+3. Keep "Verify JWT with legacy secret" OFF.

@@ -1,4 +1,4 @@
-BRC Cloud Setup - Build 2026.08.14.04.11
+BRC Cloud Setup - Build 2026.08.14.04.12
 
 IMPORTANT - the 04.09 database migration must already be applied before testing this build:
   supabase/migrations/20260814_0409_inventory_security.sql

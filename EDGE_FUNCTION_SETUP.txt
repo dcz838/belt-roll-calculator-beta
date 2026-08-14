@@ -1,4 +1,4 @@
-BRC Cloud Admin Edge Function - Build 2026.08.14.04.11
+BRC Cloud Admin Edge Function - Build 2026.08.14.04.12
 
 Purpose:
 - Lets an authorized BRC administrator reset a Supabase user's password.
