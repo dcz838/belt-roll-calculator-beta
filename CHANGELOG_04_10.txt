@@ -1,4 +1,4 @@
-BRC Build 2026.08.14.04.10
+BRC Build 2026.08.14.04.11
 
 Reliability hardening release.
 
@@ -8,6 +8,6 @@ Reliability hardening release.
 - App marks itself ready only after the normal initialization/translation/render path succeeds.
 - Added regression tests that fail the build if fallback text or startup guard is removed.
 - Aligned supabase/config.toml admin-user verify_jwt=false with the deployed custom authentication setup.
-- Bumped service worker/cache identity so 04.10 cannot reuse the 04.09 application cache namespace.
+- Bumped service worker/cache identity so 04.11 cannot reuse the 04.09 application cache namespace.
 
 No database migration is required beyond the already-applied 04.09 migration.

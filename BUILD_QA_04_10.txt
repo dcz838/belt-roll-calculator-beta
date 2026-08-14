@@ -1,4 +1,4 @@
-BRC Build 2026.08.14.04.10 - Release QA
+BRC Build 2026.08.14.04.11 - Release QA
 
 Purpose: prevent recurrence of the half-loaded/blank-label UI failure.
 
@@ -9,7 +9,7 @@ Release gates completed:
 - Startup watchdog/error UI is required before app module execution
 - App must explicitly mark startup ready after normal initialization succeeds
 - Edge Function CLI config must keep verify_jwt=false
-- Service Worker cache namespace must match 04.10
+- Service Worker cache namespace must match 04.11
 - No localStorage.clear() recovery behavior is present in the startup guard
 
-Note: no new database migration is required for 04.10. The previously applied 04.09 migration remains required.
+Note: no new database migration is required for 04.11. The previously applied 04.09 migration remains required.

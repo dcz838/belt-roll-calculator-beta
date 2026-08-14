@@ -1,0 +1,7 @@
+BRC Build 2026.08.14.04.11
+
+Critical startup hotfix:
+- Fixed a missing closing parenthesis in the Share Backup click handler that caused app.js to fail parsing in browsers.
+- Startup watchdog now preserves the first concrete startup error instead of replacing it with a later timeout message.
+- Added module-mode syntax verification for app.js by checking it as .mjs during QA.
+- No database migration changes. Supabase 04.09 migration and admin-user function remain valid.

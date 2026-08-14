@@ -1,0 +1,16 @@
+BRC Build 2026.08.14.04.11 QA
+
+Critical root cause fixed:
+- app.js had a missing closing parenthesis in the Share Backup click handler.
+- The previous QA mistakenly syntax-checked app.js as a classic .js script, so Node did not enforce ES module parsing in that check.
+
+New release gates:
+- app.js is copied to a temporary .mjs file and checked with `node --check` in ES module mode.
+- Included automated regression suite: 47/47 passing.
+- Startup watchdog preserves the first concrete parser/runtime error and no longer overwrites it with a later timeout message.
+- No local inventory data is cleared by startup error handling.
+
+Supabase:
+- No new migration required.
+- Existing 04.09 database migration remains valid.
+- Existing admin-user Edge Function remains valid.

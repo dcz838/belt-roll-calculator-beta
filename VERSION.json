@@ -2,7 +2,7 @@
   "name": "Belt Roll Calculator",
   "short_name": "BRC Beta",
   "edition": "Web Edition 2.3 Beta · Cloud Edition",
-  "build": "2026.08.14.04.10",
+  "build": "2026.08.14.04.11",
   "channel": "beta",
   "cloud": true
 }

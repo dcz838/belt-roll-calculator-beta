@@ -1,4 +1,4 @@
-BRC Cloud Setup - Build 2026.08.14.04.10
+BRC Cloud Setup - Build 2026.08.14.04.11
 
 IMPORTANT - the 04.09 database migration must already be applied before testing this build:
   supabase/migrations/20260814_0409_inventory_security.sql
@@ -23,7 +23,7 @@ Authentication URL Configuration remains:
 
 Never place a Secret Key, service_role key, or database password in GitHub or the browser build.
 
-04.10 reliability hardening:
+04.11 reliability hardening:
 - Critical labels have HTML fallback text.
 - Startup failures show an explicit error screen instead of a half-blank interface.
 - Startup error handling does not clear localStorage or inventory cache.
