@@ -45,24 +45,29 @@ Deno.serve(async (req: Request) => {
     }
 
     const body = await req.json()
-    if (body?.action !== 'reset_password') return new Response(JSON.stringify({ error: 'Unsupported action' }), { status: 400, headers })
-    const userId = String(body.user_id || '')
-    const password = String(body.password || '')
+    const action = String(body?.action || '')
+    const userId = String(body?.user_id || '')
     if (!userId) return new Response(JSON.stringify({ error: 'User ID is required' }), { status: 400, headers })
-    if (password.length < 8) return new Response(JSON.stringify({ error: 'Password must be at least 8 characters' }), { status: 400, headers })
 
-    const { error: updateError } = await admin.auth.admin.updateUserById(userId, { password })
-    if (updateError) throw updateError
+    if (action === 'reset_password') {
+      const password = String(body.password || '')
+      if (password.length < 8) return new Response(JSON.stringify({ error: 'Password must be at least 8 characters' }), { status: 400, headers })
+      const { error: updateError } = await admin.auth.admin.updateUserById(userId, { password })
+      if (updateError) throw updateError
+      await admin.from('audit_log').insert({ actor_id: authData.user.id, action: 'user_password_reset', entity_type: 'auth_user', entity_id: userId, new_data: { reset: true } })
+      return new Response(JSON.stringify({ ok: true }), { status: 200, headers })
+    }
 
-    await admin.from('audit_log').insert({
-      actor_id: authData.user.id,
-      action: 'user_password_reset',
-      entity_type: 'auth_user',
-      entity_id: userId,
-      new_data: { reset: true },
-    })
+    if (action === 'update_profile') {
+      const allowed = new Set(['display_name','role','is_active','can_add_belt','can_modify_belt','can_delete_belt','can_add_stock','can_use_stock','can_set_balance','can_manage_users','can_backup','can_restore_backup'])
+      const patch = Object.fromEntries(Object.entries(body.patch || {}).filter(([key]) => allowed.has(key)))
+      const { data: profile, error: updateError } = await admin.from('profiles').update(patch).eq('id', userId).select().single()
+      if (updateError) throw updateError
+      await admin.from('audit_log').insert({ actor_id: authData.user.id, action: 'user_permissions_update', entity_type: 'profile', entity_id: userId, new_data: patch })
+      return new Response(JSON.stringify({ ok: true, profile }), { status: 200, headers })
+    }
 
-    return new Response(JSON.stringify({ ok: true }), { status: 200, headers })
+    return new Response(JSON.stringify({ error: 'Unsupported action' }), { status: 400, headers })
   } catch (error) {
     console.error(error)
     return new Response(JSON.stringify({ error: error instanceof Error ? error.message : String(error) }), { status: 500, headers })

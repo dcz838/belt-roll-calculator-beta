@@ -1,0 +1,16 @@
+BRC Build 2026.08.14.04.09
+
+- iPhone/iPad safe-area top spacing; larger touch targets and equal-height header controls.
+- Header order changed to Language, Cloud, Lock, User to reduce accidental logout.
+- Unit Converter From/To now share the same large input + right-side unit layout; added one-tap unit swap.
+- Critical cloud inventory edit fix: metadata edits no longer write stock transactions or zero quantity; location moves preserve the existing balance row; editing no longer creates a duplicate product.
+- Product detail shows Width and Thickness as separate labeled fields.
+- Removed Set Balance from inventory detail; Add Stock is green and Use Stock is red.
+- Inventory length display unit selector added (m/ft/yd/in/mm); database remains meters.
+- Cloud permission dialog action buttons right-aligned; switches remain gray OFF / green ON.
+- Settings switches standardized to gray OFF / green ON.
+- Per-user inventory password RPC added (separate from Cloud login password) and enforced for cloud product edits / stock changes when protection is ON.
+- Backup permission defaults ON; Restore permission defaults OFF and remains administrator-granted.
+- Admin permission saves now use the admin-user Edge Function, avoiding profiles RLS update errors.
+- About logo reduced to 75% of previous size.
+- Includes Supabase SQL migration: supabase/migrations/20260814_0409_inventory_security.sql

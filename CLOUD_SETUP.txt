@@ -1,14 +1,24 @@
-BRC Cloud Setup - Build 2026.08.13.04.08
+BRC Cloud Setup - Build 2026.08.14.04.09
 
+IMPORTANT - run the 04.09 database migration once before testing this build:
+  supabase/migrations/20260814_0409_inventory_security.sql
+
+In Supabase Dashboard:
+  SQL Editor -> New query -> paste the migration SQL -> Run
+
+Then deploy/redeploy the admin-user Edge Function (see EDGE_FUNCTION_SETUP.txt).
+
+After that:
 1. Deploy this build to https://dcz838.github.io/belt-roll-calculator-beta/.
 2. Project URL and Publishable Key are already embedded.
-3. Create users in Supabase Authentication and make sure their public.profiles rows are active.
-4. Admin users should have role=admin (or the required permission flags).
-5. Configure Supabase Authentication > URL Configuration:
-   Site URL: https://dcz838.github.io/belt-roll-calculator-beta/
-   Redirect URL: https://dcz838.github.io/belt-roll-calculator-beta/**
-6. Sign in from BRC using email/password.
-7. If cloud inventory is empty and local inventory exists, use Upload Local Inventory once.
-8. Test Forgot Password: send recovery email, open link, set a new password in the BRC recovery dialog.
+3. Sign in using the Supabase Authentication email/password.
+4. In Settings, set/change each user's Inventory Password. This is separate from the Cloud login password.
+5. Test editing a product: metadata changes must preserve stock and must not create duplicate products.
+6. Test Add Stock / Use Stock; Set Balance is intentionally removed from the product UI.
+7. Test Cloud Permissions. Backup defaults ON; Restore defaults OFF until an administrator enables it.
+
+Authentication URL Configuration remains:
+  Site URL: https://dcz838.github.io/belt-roll-calculator-beta/
+  Redirect URL: https://dcz838.github.io/belt-roll-calculator-beta/**
 
 Never place a Secret Key, service_role key, or database password in GitHub or the browser build.

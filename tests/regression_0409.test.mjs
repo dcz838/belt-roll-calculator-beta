@@ -1,0 +1,18 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const read=p=>fs.readFileSync(new URL(`../${p}`,import.meta.url),'utf8');
+const app=read('js/app.js'), cloud=read('js/cloud.js'), css=read('css/app.css'), html=read('index.html'), edge=read('supabase/functions/admin-user/index.ts'), sql=read('supabase/migrations/20260814_0409_inventory_security.sql');
+test('mobile safe area is applied',()=>{assert.match(css,/env\(safe-area-inset-top\)/);assert.match(css,/env\(safe-area-inset-bottom\)/)});
+test('header language control is first',()=>{const a=html.indexOf('id="lang"'),b=html.indexOf('id="cloudQuickStatus"');assert.ok(a>0&&a<b)});
+test('converter uses symmetric from/to rows and swap',()=>{assert.match(html,/id="convToValue"/);assert.match(html,/id="convSwap"/);assert.match(app,/swapConverterUnits/);assert.match(css,/converter-large/)});
+test('set balance is removed from inventory detail and stock buttons are semantic colors',()=>{assert.doesNotMatch(app,/data-stock="set"/);assert.match(css,/\.stock-add\{background:#16a34a/);assert.match(css,/\.stock-use\{background:#dc2626/)});
+test('detail identifies width and thickness separately',()=>{assert.match(app,/\['width'/);assert.match(app,/\['thickness'/);assert.match(app,/Width/)});
+test('cloud metadata edit does not adjust quantity',()=>{const m=cloud.match(/async function saveBelt[\s\S]*?async function adjustStock/)[0];const edit=m.match(/if\(original\)\{[\s\S]*?\}else\{/)[0];assert.doesNotMatch(edit,/rpcAdjust/);assert.match(edit,/inventory_balances'\)\.update\(\{location_id/)});
+test('existing belt editor does not expose stock field',()=>{assert.match(app,/\.\.\.\(existing\?\[\]:\['stock'\]\)/);assert.match(app,/stock:existing\?Number\(original\.stock/)});
+test('inventory display unit can change without changing database meters',()=>{assert.match(html,/id="inventoryLengthUnit"/);assert.match(app,/metersToDisplay/);assert.match(app,/displayToMeters/)});
+test('settings and permissions use green on and gray off',()=>{assert.match(css,/permission-switch input:checked\+i[^}]*#22c55e/);assert.match(css,/toggle-button\.on\{background:#22c55e/);assert.match(css,/toggle-button\.off\{background:#cbd5e1/)});
+test('per-user inventory password is RPC-backed and separate from auth password',()=>{assert.match(cloud,/verify_inventory_pin/);assert.match(cloud,/set_inventory_pin/);assert.match(sql,/inventory_pin_hash/);assert.match(app,/Inventory Verification/)});
+test('backup and restore are distinct permissions',()=>{assert.match(cloud,/can_backup/);assert.match(app,/canBackup/);assert.match(app,/canRestoreBackup/);assert.match(sql,/can_backup boolean not null default true/)});
+test('admin profile updates are routed through edge function',()=>{assert.match(cloud,/action:'update_profile'/);assert.match(edge,/action === 'update_profile'/);assert.match(edge,/user_permissions_update/)});
+test('about logo is 75 percent of prior max size',()=>{assert.match(css,/about #aboutLogo\{max-width:min\(390px,60%\)\}/)});

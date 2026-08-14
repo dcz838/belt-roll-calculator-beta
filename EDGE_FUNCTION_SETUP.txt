@@ -1,14 +1,15 @@
-BRC Cloud Admin Edge Function — Build 2026.08.13.04.08
+BRC Cloud Admin Edge Function - Build 2026.08.14.04.09
 
 Purpose:
-- Lets an authorized BRC administrator reset a Supabase user's password without exposing any secret key in the browser.
+- Lets an authorized BRC administrator reset a Supabase user's password.
+- Lets an authorized BRC administrator update Cloud Permissions without exposing a secret key in the browser.
 
 Function included:
   supabase/functions/admin-user/index.ts
 
-Deploy with Supabase CLI from the project folder:
+Deploy/redeploy with Supabase CLI from the project folder:
   supabase login
   supabase link --project-ref wbitcssptqllibnfcxsg
   supabase functions deploy admin-user
 
-No Secret Key should be copied into the BRC web build. Supabase Edge Functions receive server-side project secrets from the Supabase environment.
+No Secret Key should be copied into the BRC web build.

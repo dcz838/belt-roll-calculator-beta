@@ -1,4 +1,4 @@
-const CACHE_NAME = "brc-beta-2026-08-13-04-08";
+const CACHE_NAME = "brc-beta-2026-08-14-04-09";
 const ASSETS = [
   "./",
   "./index.html",

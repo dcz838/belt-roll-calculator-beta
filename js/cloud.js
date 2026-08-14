@@ -87,7 +87,7 @@ function mapCloud(rows,txns,profiles){
     id:r.belt_id,cloudId:r.belt_id,balanceId:r.id,
     name:r.belt_catalog?.description||r.belt_catalog?.belt_code||'Unnamed',part:r.belt_catalog?.belt_code||'',
     manufacturer:r.belt_catalog?.manufacturer||'',width:Number(r.belt_catalog?.width_mm||0),thickness:Number(r.belt_catalog?.thickness_mm||0),
-    color:r.belt_catalog?.color||'',application:r.belt_catalog?.supplier||'',coreDiameter:0,stock:Number(r.quantity||0),
+    color:r.belt_catalog?.color||'',application:r.belt_catalog?.application||r.belt_catalog?.supplier||'',coreDiameter:Number(r.belt_catalog?.core_diameter_mm||0),stock:Number(r.quantity||0),
     minStock:Number(r.belt_catalog?.minimum_stock||0),location:r.locations?.location_code||'DEFAULT',notes:r.belt_catalog?.notes||'',
     modified:r.updated_at||r.belt_catalog?.updated_at||new Date().toISOString()
   }));
@@ -105,9 +105,9 @@ async function loadCloud(){
   setState({status:'syncing',error:''});
   const local=window.BRCApp?.getData?.()||{belts:[]};
   const [b,t,p]=await Promise.all([
-    client.from('inventory_balances').select('id,belt_id,location_id,quantity,updated_at,belt_catalog(id,belt_code,description,manufacturer,width_mm,thickness_mm,color,supplier,minimum_stock,notes,updated_at,is_active),locations(id,location_code,name)').order('updated_at',{ascending:false}),
+    client.from('inventory_balances').select('id,belt_id,location_id,quantity,updated_at,belt_catalog(id,belt_code,description,manufacturer,width_mm,thickness_mm,color,supplier,core_diameter_mm,application,minimum_stock,notes,updated_at,is_active),locations(id,location_code,name)').order('updated_at',{ascending:false}),
     client.from('inventory_transactions').select('id,belt_id,location_id,transaction_type,quantity_change,quantity_before,quantity_after,notes,performed_by,created_at,belt_catalog(belt_code,description)').order('created_at',{ascending:true}).limit(5000),
-    client.from('profiles').select('id,display_name,role,is_active,can_add_belt,can_modify_belt,can_delete_belt,can_add_stock,can_use_stock,can_set_balance,can_manage_users,can_restore_backup')
+    client.from('profiles').select('id,display_name,role,is_active,can_add_belt,can_modify_belt,can_delete_belt,can_add_stock,can_use_stock,can_set_balance,can_manage_users,can_backup,can_restore_backup')
   ]);
   for(const r of [b,t])if(r.error)throw r.error;
   if(p.error)p.data=state.profile?[state.profile]:[];
@@ -125,7 +125,7 @@ async function findBeltByCode(code){
 async function upsertBelt(b,knownId=null){
   const code=String(b.part||b.id||crypto.randomUUID()).trim();
   if(!code)throw new Error('Part number is required for cloud inventory.');
-  const payload={belt_code:code,description:b.name||code,manufacturer:b.manufacturer||null,width_mm:Number(b.width)||null,thickness_mm:Number(b.thickness)||null,color:b.color||null,supplier:b.application||null,minimum_stock:Number(b.minStock)||0,notes:b.notes||null,is_active:true,updated_by:state.user.id};
+  const payload={belt_code:code,description:b.name||code,manufacturer:b.manufacturer||null,width_mm:Number(b.width)||null,thickness_mm:Number(b.thickness)||null,color:b.color||null,supplier:b.application||null,application:b.application||null,core_diameter_mm:Number(b.coreDiameter)||0,minimum_stock:Number(b.minStock)||0,notes:b.notes||null,is_active:true,updated_by:state.user.id};
   const existing=isUuid(knownId)?{id:knownId}:await findBeltByCode(code);
   let r;
   if(existing){r=await client.from('belt_catalog').update(payload).eq('id',existing.id).select('id').single()}
@@ -147,15 +147,25 @@ async function saveBelt(rec,original=null){
   if(!client||!state.user)throw new Error('Cloud sign-in required.');
   setState({status:'syncing',error:''});
   try{
-    const beltId=await upsertBelt(rec,isUuid(original?.cloudId)?original.cloudId:(isUuid(original?.id)?original.id:null));
-    const newLocationId=await ensureLocation(rec.location);
-    const bal=await currentBalance(beltId,newLocationId);
-    const target=Number(rec.stock)||0;
-    if(!bal||Math.abs(Number(bal.quantity||0)-target)>1e-9){await rpcAdjust(beltId,newLocationId,original?'set_balance':'initial_import',target,original?'Belt record updated':'Belt created')}
-    if(original?.cloudId&&String(original.location||'DEFAULT').trim().toLowerCase()!==String(rec.location||'DEFAULT').trim().toLowerCase()){
-      const oldLocationId=await ensureLocation(original.location);
-      const oldBal=await currentBalance(beltId,oldLocationId);
-      if(oldBal&&Number(oldBal.quantity)>0)await rpcAdjust(beltId,oldLocationId,'set_balance',0,'Inventory moved to another location');
+    const knownId=isUuid(original?.cloudId)?original.cloudId:(isUuid(original?.id)?original.id:null);
+    const beltId=await upsertBelt(rec,knownId);
+    if(original){
+      // Product metadata edits never change quantity. Location changes move the existing balance row in-place.
+      if(String(original.location||'DEFAULT').trim().toLowerCase()!==String(rec.location||'DEFAULT').trim().toLowerCase()){
+        const newLocationId=await ensureLocation(rec.location);
+        let balanceId=original.balanceId;
+        if(!balanceId){const oldLocationId=await ensureLocation(original.location);const old=await currentBalance(beltId,oldLocationId);balanceId=old?.id}
+        if(balanceId){
+          const collision=await currentBalance(beltId,newLocationId);
+          if(collision&&collision.id!==balanceId)throw new Error('This product already has inventory at the selected location. Choose a different location.');
+          const moved=await client.from('inventory_balances').update({location_id:newLocationId,updated_by:state.user.id}).eq('id',balanceId);
+          if(moved.error)throw moved.error;
+        }
+      }
+    }else{
+      const locationId=await ensureLocation(rec.location);
+      const target=Number(rec.stock)||0;
+      await rpcAdjust(beltId,locationId,'initial_import',target,'Belt created');
     }
     await loadCloud();return beltId;
   }catch(e){setState({status:'error',error:e.message||String(e)});throw e}
@@ -194,11 +204,15 @@ async function adminResetPassword(userId,password){
 }
 async function updateProfile(id,patch){
   if(!client||!state.user)throw new Error('Cloud sign-in required.');
-  const allowed=['display_name','role','is_active','can_add_belt','can_modify_belt','can_delete_belt','can_add_stock','can_use_stock','can_set_balance','can_manage_users','can_restore_backup'];
+  if(!can('manageUsers'))throw new Error('Administrator permission required.');
+  const allowed=['display_name','role','is_active','can_add_belt','can_modify_belt','can_delete_belt','can_add_stock','can_use_stock','can_set_balance','can_manage_users','can_backup','can_restore_backup'];
   const safe=Object.fromEntries(Object.entries(patch||{}).filter(([k])=>allowed.includes(k)));
-  const r=await client.from('profiles').update(safe).eq('id',id).select().single();
-  if(r.error)throw r.error;await loadProfile();await loadCloud();return r.data;
+  const {data,error}=await client.functions.invoke('admin-user',{body:{action:'update_profile',user_id:id,patch:safe}});
+  if(error)throw new Error(error.message||'Permission update failed.');if(data?.error)throw new Error(data.error);await loadProfile();await loadCloud();return data?.profile;
 }
+async function verifyInventoryPin(pin){if(!client||!state.user)throw new Error('Cloud sign-in required.');const r=await client.rpc('verify_inventory_pin',{p_pin:String(pin||'')});if(r.error)throw r.error;return !!r.data}
+async function setInventoryPin(pin){if(!client||!state.user)throw new Error('Cloud sign-in required.');const p=String(pin||'');if(p.length<4)throw new Error('Inventory password must be at least 4 characters.');const r=await client.rpc('set_inventory_pin',{p_pin:p});if(r.error)throw r.error;return true}
+
 async function syncFromLocal(localData,force=false){
   if(applying||!client||!state.user||(!force&&state.status==='syncing'))return;
   setState({status:'syncing',error:''});
@@ -241,11 +255,12 @@ async function start(){
   await loadCloud();startRealtime();
 }
 function can(permission){
-  const p=state.profile;if(!p||!p.is_active)return false;if(p.role==='admin')return true;
-  const map={addBelt:'can_add_belt',editBelt:'can_modify_belt',deleteBelt:'can_delete_belt',addStock:'can_add_stock',useStock:'can_use_stock',setBalance:'can_set_balance',manageUsers:'can_manage_users',restoreBackup:'can_restore_backup'};
-  return !!p[map[permission]];
+  const p=state.profile;if(!p||!p.is_active)return false;
+  const map={addBelt:'can_add_belt',editBelt:'can_modify_belt',deleteBelt:'can_delete_belt',addStock:'can_add_stock',useStock:'can_use_stock',setBalance:'can_set_balance',manageUsers:'can_manage_users',backup:'can_backup',restoreBackup:'can_restore_backup'};
+  if(p.role==='admin'&&permission==='manageUsers')return true;
+  const field=map[permission];return field?!!p[field]:false;
 }
-window.BRCCloud={state,configured,cfg,saveConfig,clearConfig,signIn,signOut,requestPasswordReset,updatePassword,endRecovery,start,loadCloud,syncFromLocal,pushLocalToCloud,saveBelt,adjustStock,archiveBelt,undoTransaction,adminResetPassword,updateProfile,markDirty,isDirty,isApplying:()=>applying,can,deviceId,embeddedConfig:EMBEDDED_CONFIG};
+window.BRCCloud={state,configured,cfg,saveConfig,clearConfig,signIn,signOut,requestPasswordReset,updatePassword,endRecovery,start,loadCloud,syncFromLocal,pushLocalToCloud,saveBelt,adjustStock,archiveBelt,undoTransaction,adminResetPassword,updateProfile,verifyInventoryPin,setInventoryPin,markDirty,isDirty,isApplying:()=>applying,can,deviceId,embeddedConfig:EMBEDDED_CONFIG};
 window.addEventListener('offline',()=>{const cp=cachedProfile();if(cp&&!state.profile)state.profile=cp;setState({status:'offline',error:''})});
 window.addEventListener('online',()=>start().catch(e=>setState({status:'error',error:e.message||String(e)})));
 window.addEventListener('load',()=>{if(navigator.onLine)start().catch(e=>setState({status:'error',error:e.message||String(e)}));else{state.profile=cachedProfile();setState({status:'offline'})}});
