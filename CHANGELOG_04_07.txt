@@ -1,0 +1,8 @@
+BRC Build 2026.08.13.04.07
+
+Startup reliability hotfix:
+- Fix blank navigation/labels seen in Build 04.06 when the ES module dependency fails to initialize.
+- Bundle core calculator helpers into app.js and load the main application as a classic script.
+- Keep Cloud, authentication, inventory, history, password-reset and permission behavior unchanged.
+- Keep permission toggles gray when OFF and green when ON.
+- Update cache-busting and Service Worker build identifiers.

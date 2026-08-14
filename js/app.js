@@ -1,6 +1,119 @@
-import{calculateRoll,csvCell,validateBeltRecord}from'./core.mjs';
+const MM_PER_INCH = 25.4;
+
+const finite = (value) => Number.isFinite(Number(value));
+
+function convertDimension(value, fromUnit, toUnit) {
+  const number = Number(value);
+  if (!Number.isFinite(number) || fromUnit === toUnit) return number;
+  return fromUnit === "MM" ? number / MM_PER_INCH : number * MM_PER_INCH;
+}
+
+function calculateRoll({ unit, mode, thickness, coreDiameter, remaining }) {
+  const normalizedUnit = unit === "IN" ? "IN" : "MM";
+  const normalizedMode = mode === "turns" ? "turns" : "od";
+  const rawValues = [thickness, coreDiameter, remaining];
+  if (rawValues.some((value) => value === null || value === undefined || String(value).trim() === "")) {
+    return { ok: false, error: "required" };
+  }
+  const values = rawValues.map(Number);
+  const [beltThickness, core, remainingValue] = values;
+
+  if (!values.every(finite)) {
+    return { ok: false, error: "required" };
+  }
+  if (beltThickness <= 0 || core <= 0 || remainingValue <= 0) {
+    return { ok: false, error: "positive" };
+  }
+  if (normalizedMode === "od" && remainingValue <= core) {
+    return { ok: false, error: "odGreaterThanCore" };
+  }
+
+  let lengthNative;
+  let turns;
+  let outsideDiameter;
+
+  if (normalizedMode === "od") {
+    lengthNative = Math.PI * (remainingValue ** 2 - core ** 2) / (4 * beltThickness);
+    turns = (remainingValue - core) / (2 * beltThickness);
+    outsideDiameter = remainingValue;
+  } else {
+    turns = remainingValue;
+    lengthNative = Math.PI * turns * (core + beltThickness * (turns - 1));
+    outsideDiameter = core + 2 * beltThickness * turns;
+  }
+
+  const lengthMm = normalizedUnit === "MM" ? lengthNative : lengthNative * MM_PER_INCH;
+  const outsideDiameterMm = normalizedUnit === "MM"
+    ? outsideDiameter
+    : outsideDiameter * MM_PER_INCH;
+
+  return {
+    ok: true,
+    unit: normalizedUnit,
+    mode: normalizedMode,
+    lengthNative,
+    lengthMm,
+    lengthM: lengthMm / 1000,
+    lengthIn: lengthMm / MM_PER_INCH,
+    lengthFt: lengthMm / (MM_PER_INCH * 12),
+    lengthYd: lengthMm / (MM_PER_INCH * 36),
+    turns,
+    outsideDiameter,
+    outsideDiameterMm,
+  };
+}
+
+function calculateInventoryBalance({ operation, before, amount }) {
+  const startingBalance = Number(before);
+  const quantity = Number(amount);
+
+  if (!Number.isFinite(startingBalance) || startingBalance < 0) {
+    return { ok: false, error: "invalidBalance" };
+  }
+  if (!Number.isFinite(quantity)) {
+    return { ok: false, error: "requiredAmount" };
+  }
+  if (operation === "set") {
+    return quantity < 0
+      ? { ok: false, error: "nonNegativeAmount" }
+      : { ok: true, after: quantity };
+  }
+  if (quantity <= 0) {
+    return { ok: false, error: "positiveAmount" };
+  }
+  if (operation === "add") {
+    return { ok: true, after: startingBalance + quantity };
+  }
+  if (operation === "use") {
+    return quantity > startingBalance
+      ? { ok: false, error: "insufficientStock" }
+      : { ok: true, after: startingBalance - quantity };
+  }
+  return { ok: false, error: "invalidOperation" };
+}
+
+function validateBeltRecord(record) {
+  const name = String(record.name ?? "").trim();
+  const width = Number(record.width);
+  const thickness = Number(record.thickness);
+  const stock = Number(record.stock);
+  const minStock = Number(record.minStock);
+
+  if (!name) return { ok: false, error: "beltNameRequired" };
+  if (!Number.isFinite(width) || width <= 0) return { ok: false, error: "widthPositive" };
+  if (!Number.isFinite(thickness) || thickness <= 0) return { ok: false, error: "thicknessPositive" };
+  if (!Number.isFinite(stock) || stock < 0) return { ok: false, error: "stockNonNegative" };
+  if (!Number.isFinite(minStock) || minStock < 0) return { ok: false, error: "minStockNonNegative" };
+  return { ok: true };
+}
+
+function csvCell(value) {
+  const text = String(value ?? "");
+  return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+}
+
 const $=id=>document.getElementById(id),KEY='brc_data';
-let BUILD='2026.08.13.04.06',APP_META={name:'Belt Roll Calculator',edition:'Web Edition 2.3 Beta · Cloud Edition',build:BUILD,short_name:'BRC Beta'};
+let BUILD='2026.08.13.04.07',APP_META={name:'Belt Roll Calculator',edition:'Web Edition 2.3 Beta · Cloud Edition',build:BUILD,short_name:'BRC Beta'};
 const T={
 en:{calculator:'Calculator',tools:'Tools',inventory:'Inventory',history:'History',users:'Users',settings:'Settings',about:'About',input:'Input',result:'Result',units:'Units',thickness:'Thickness',core:'Core Diameter',calculateBy:'Calculate By',outsideDiameter:'Outside Diameter',turns:'Turns',remainingOD:'Remaining OD',remainingTurns:'Remaining Turns',clear:'Clear',copy:'Copy Result',lengthMillimeters:'Length (millimeters)',lengthMeters:'Length (meters)',lengthInches:'Length (inches)',lengthFeet:'Length (feet)',lengthYards:'Length (yards)',estimatedTurns:'Estimated Turns',estimatedOD:'Estimated Outside Diameter',standardCalculator:'Standard Calculator',unitConverter:'Unit Converter',category:'Category',from:'From',to:'To',beltDetail:'Belt Detail',inventoryList:'Inventory List',searchAll:'Search all fields',addBelt:'Add Belt',all:'All',lowStock:'Low Stock',outOfStock:'Out of Stock',sortName:'Sort: Name',sortStockAsc:'Sort: Stock Low to High',sortStockDesc:'Sort: Stock High to Low',sortModified:'Sort: Last Modified',searchHistory:'Search history',exportCsv:'Export CSV',addUser:'Add User',passwordProtection:'Inventory Password Protection',security:'Security',backupCenter:'Backup Center',automaticBackup:'Automatic Backup',backupFrequency:'Backup Frequency',backupDay:'Weekday',backupDate:'Day of Month',backupTime:'Backup Time',retention:'Keep Recent Backups',backupDestination:'Backup Destination',lastBackup:'Last Backup',nextBackup:'Next Backup',backupNow:'Back Up Now',exportBackup:'Export Backup',shareBackup:'Share Backup',importBackup:'Import Backup',localDataNote:'Inventory data is synchronized securely through the cloud. Local cache is retained for offline access and recovery.',login:'Login',logout:'Log out',guest:'Guest',required:'Enter thickness, core diameter, and remaining value.',positive:'All values must be greater than zero.',odGreaterThanCore:'Remaining outside diameter must exceed the core diameter.',copied:'Result copied.',name:'Name',part:'Part Number',manufacturer:'Manufacturer',width:'Width',color:'Color',application:'Application',coreDiameter:'Core Diameter',stock:'Stock',minimumStock:'Minimum Stock',location:'Location',notes:'Notes',save:'Save',cancel:'Cancel',delete:'Delete Belt',edit:'Edit',undo:'Undo',view:'View',addStock:'Add Stock',useStock:'Use Stock',setBalance:'Set Balance',amount:'Amount (m)',operation:'Operation',adminPin:'Administrator PIN',wrongPin:'Incorrect administrator PIN.',adminRequired:'Administrator login required.',saved:'Saved.',confirmDelete:'Delete this belt? This cannot be undone.',confirmUndo:'Undo this transaction?',confirmSet:'Set Balance will overwrite current stock. Continue?',total:'Total',normal:'Normal',low:'Low',out:'Out',before:'Before',after:'After',user:'User',action:'Action',date:'Date',pin:'4-digit PIN',role:'Role',standard:'Standard',admin:'Administrator',reveal:'Reveal PIN',changePin:'Change PIN',newPin:'New PIN',username:'Username',on:'ON',off:'OFF',searchNoResults:'No matching records.',empty:'No records yet.',reason:'Notes',transaction:'Transaction',edited:'Edited transaction',undone:'Undo transaction',invalidPin:'PIN must be exactly four digits.',duplicateUser:'Username already exists.',backupImported:'Backup imported.',invalidBackup:'Invalid backup file.',adminTimeout:'Admin Authentication Timeout',adminTimeoutHelp:'After successful verification, sensitive operations stay unlocked for this period.',everyTime:'Verify every time',custom:'Custom',lockNow:'Lock now',locked:'Locked',unlocked:'Admin unlocked',expiresIn:'Expires in',customMinutes:'Custom minutes',deviceUnlock:'Device Unlock',deviceUnlockHelp:'Use Face ID, Touch ID, fingerprint, Windows Hello, or device PIN when supported.',enableDeviceUnlock:'Enable device unlock',disableDeviceUnlock:'Disable device unlock',useDeviceUnlock:'Use device unlock',deviceUnlockReady:'Device unlock enabled.',deviceUnlockUnavailable:'Device unlock is not supported on this device or browser.',deviceUnlockFailed:'Device verification failed.',backupComplete:'Backup created.',shareUnavailable:'File sharing is unavailable. The backup was downloaded instead.',destinationDevice:'This Device',destinationICloud:'iCloud Drive',destinationGoogle:'Google Drive',destinationOneDrive:'OneDrive',destinationDropbox:'Dropbox',destinationSMB:'SMB Network Folder',destinationNote:'Cloud and network destinations require the browser or system file picker. Current automatic backups are retained securely inside this app; use Export or Share to copy them elsewhere.',daily:'Daily',weekly:'Weekly',monthly:'Monthly',onClose:'Every time App closes',onChange:'Every inventory change',monday:'Monday',tuesday:'Tuesday',wednesday:'Wednesday',thursday:'Thursday',friday:'Friday',saturday:'Saturday',sunday:'Sunday',waitingChange:'Waiting for inventory change',onCloseText:'When App closes',noSelection:'Select an inventory item.',standardMode:'Standard',scientificMode:'Scientific',calculationHistory:'History',angleDegrees:'DEG',angleRadians:'RAD',specification:'Specification',selectAll:'Select all',clearSelection:'Clear selection',conversionHistory:'Conversion History',backupHistory:'Backup History',inventoryBackup:'Inventory Backup',settingsBackup:'Settings Backup',restore:'Restore',backupType:'Backup Type',paste:'Paste',cloudMigration:'Upload Local Inventory',cloudMigrationHelp:'Cloud inventory is empty. Upload the inventory currently stored on this device.'},
 zh:{calculator:'计算器',tools:'工具',inventory:'库存',history:'历史',users:'用户',settings:'设置',about:'关于',input:'输入',result:'结果',units:'单位',thickness:'皮带厚度',core:'卷芯直径',calculateBy:'计算方式',outsideDiameter:'外径',turns:'圈数',remainingOD:'剩余外径',remainingTurns:'剩余圈数',clear:'清除',copy:'复制结果',lengthMillimeters:'长度（毫米）',lengthMeters:'长度（米）',lengthInches:'长度（英寸）',lengthFeet:'长度（英尺）',lengthYards:'长度（码）',estimatedTurns:'预估圈数',estimatedOD:'预估外径',standardCalculator:'普通计算器',unitConverter:'单位转换',category:'类别',from:'从',to:'转换为',beltDetail:'皮带详情',inventoryList:'库存列表',searchAll:'搜索所有字段',addBelt:'增加皮带',all:'全部',lowStock:'低库存',outOfStock:'无库存',sortName:'排序：名称',sortStockAsc:'排序：库存由低到高',sortStockDesc:'排序：库存由高到低',sortModified:'排序：最近修改',searchHistory:'搜索历史',exportCsv:'导出 CSV',addUser:'增加用户',passwordProtection:'库存密码保护',security:'安全',backupCenter:'备份中心',automaticBackup:'自动备份',backupFrequency:'备份频率',backupDay:'星期',backupDate:'每月日期',backupTime:'备份时间',retention:'保留最近备份数量',backupDestination:'备份位置',lastBackup:'最近备份',nextBackup:'下一次备份',backupNow:'立即备份',exportBackup:'导出备份',shareBackup:'分享备份',importBackup:'导入备份',localDataNote:'库存数据通过云端安全同步；本设备保留本地缓存，用于离线访问及恢复。',login:'登录',logout:'退出',guest:'访客',required:'请输入厚度、卷芯直径和剩余值。',positive:'所有数值必须大于零。',odGreaterThanCore:'剩余外径必须大于卷芯直径。',copied:'结果已复制。',name:'名称',part:'料号',manufacturer:'制造商',width:'宽度',color:'颜色',application:'用途',coreDiameter:'卷芯直径',stock:'库存',minimumStock:'最低库存',location:'位置',notes:'备注',save:'保存',cancel:'取消',delete:'删除皮带',edit:'修改',undo:'撤销',view:'查看',addStock:'增加库存',useStock:'使用库存',setBalance:'设定余额',amount:'数量（米）',operation:'操作',adminPin:'管理员密码',wrongPin:'管理员密码错误。',adminRequired:'需要管理员登录。',saved:'已保存。',confirmDelete:'确定删除这项皮带？此操作无法撤销。',confirmUndo:'撤销这项记录？',confirmSet:'设定余额会覆盖当前库存，是否继续？',total:'总数',normal:'正常',low:'低库存',out:'无库存',before:'之前',after:'之后',user:'用户',action:'操作',date:'日期',pin:'4位密码',role:'角色',standard:'普通用户',admin:'管理员',reveal:'显示密码',changePin:'修改密码',newPin:'新密码',username:'用户名',on:'开启',off:'关闭',searchNoResults:'没有符合的记录。',empty:'暂无记录。',reason:'备注',transaction:'交易编号',edited:'修改记录',undone:'撤销记录',invalidPin:'密码必须是4位数字。',duplicateUser:'用户名已存在。',backupImported:'备份已导入。',invalidBackup:'无效的备份文件。',adminTimeout:'管理员验证有效时间',adminTimeoutHelp:'验证成功后，敏感操作在此时间内无需重复输入密码。',everyTime:'每次都验证',custom:'自定义',lockNow:'立即锁定',locked:'已锁定',unlocked:'管理员已解锁',expiresIn:'剩余',customMinutes:'自定义分钟数',deviceUnlock:'设备解锁',deviceUnlockHelp:'设备支持时使用 Face ID、Touch ID、指纹、Windows Hello 或设备密码。',enableDeviceUnlock:'启用设备解锁',disableDeviceUnlock:'停用设备解锁',useDeviceUnlock:'使用设备解锁',deviceUnlockReady:'设备解锁已启用。',deviceUnlockUnavailable:'此设备或浏览器不支持设备解锁。',deviceUnlockFailed:'设备验证失败。',backupComplete:'备份已建立。',shareUnavailable:'此设备不支持文件分享，已改为下载备份。',destinationDevice:'本设备',destinationICloud:'iCloud Drive',destinationGoogle:'Google Drive',destinationOneDrive:'OneDrive',destinationDropbox:'Dropbox',destinationSMB:'SMB 网络文件夹',destinationNote:'云端及网络位置需要系统或浏览器文件选择器。当前自动备份会保留在 App 内；请使用“导出”或“分享”复制到其他位置。',daily:'每天',weekly:'每周',monthly:'每月',onClose:'每次关闭 App',onChange:'每次库存变更',monday:'星期一',tuesday:'星期二',wednesday:'星期三',thursday:'星期四',friday:'星期五',saturday:'星期六',sunday:'星期日',waitingChange:'等待库存变更',onCloseText:'关闭 App 时执行',noSelection:'请选择库存项目。',standardMode:'标准',scientificMode:'科学',calculationHistory:'计算记录',angleDegrees:'角度',angleRadians:'弧度',specification:'规格',selectAll:'全选',clearSelection:'清除选择',conversionHistory:'换算记录',backupHistory:'备份记录',inventoryBackup:'库存备份',settingsBackup:'软件设定备份',restore:'恢复',backupType:'备份类型',paste:'粘贴',cloudMigration:'上传本地库存',cloudMigrationHelp:'云端库存为空。可将此设备当前保存的库存上传至云端。'},
@@ -73,7 +186,20 @@ function renderHistory(){const q=$('historySearch').value.toLowerCase().trim(),a
 function undoHistory(id){const x=data.history.find(t=>t.id===id),belt=data.belts.find(b=>b.id===x?.beltId);if(!x||!belt||!confirm(tr('confirmUndo')))return;if(x.cloud||cloudProfile()){if(!can('setBalance'))return toast(tr('adminRequired'));window.BRCCloud.undoTransaction(x).then(()=>toast(tr('saved'))).catch(e=>toast(e.message));return}const before=belt.stock,delta=x.before-x.after;belt.stock=before+delta;data.history.push({id:uid('tx'),date:new Date().toISOString(),beltId:belt.id,belt:belt.name,part:belt.part,action:'undo',amount:delta,before,after:belt.stock,user:actorName(),note:`${tr('undone')}: ${id}`,protected:true});save(true);renderAll()}
 function renderUsers(){if(cloudProfile()){const ps=window.BRCCloud?.state?.profiles||[cloudProfile()];$('addUserBtn').style.display='none';$('userList').innerHTML=ps.map(x=>`<div class="user-card"><div><b>${esc(x.display_name||'Cloud User')}</b><small> · ${esc(x.role||'viewer')}</small><div>${x.is_active?'Active':'Inactive'}</div><small>${lang==='zh'?'云端账号由 Supabase Authentication 管理。':'Cloud account credentials are managed by Supabase Authentication.'}</small></div><div class="actions">${can('manageUsers')?`<button data-cloud-pass="${x.id}">${lang==='zh'?'重设密码':'Reset Password'}</button><button data-cloud-perm="${x.id}">${lang==='zh'?'权限':'Permissions'}</button>`:''}</div></div>`).join('');document.querySelectorAll('[data-cloud-pass]').forEach(b=>b.onclick=()=>cloudPasswordEditor(b.dataset.cloudPass));document.querySelectorAll('[data-cloud-perm]').forEach(b=>b.onclick=()=>cloudPermissionEditor(b.dataset.cloudPerm));return}$('addUserBtn').style.display='';$('userList').innerHTML=data.users.map(x=>`<div class="user-card"><div><b>${esc(x.name)}</b><small> · ${tr(x.role)}</small><div>PIN: <span id="pin-${x.id}">••••</span></div>${x.role!=='admin'?`<small>${lang==='zh'?'权限':'Permissions'}: ${x.permissions?.editBelt?'Edit ':''}${x.permissions?.addBelt?'Add ':''}${x.permissions?.deleteBelt?'Delete':''}</small>`:''}</div><div class="actions"><button data-reveal="${x.id}">${tr('reveal')}</button><button data-pin="${x.id}">${tr('changePin')}</button>${x.role!=='admin'?`<button data-perm="${x.id}">${lang==='zh'?'权限':'Permissions'}</button><button class="danger" data-deluser="${x.id}">${lang==='zh'?'删除用户':'Delete User'}</button>`:''}</div></div>`).join('');document.querySelectorAll('[data-reveal]').forEach(b=>b.onclick=()=>adminAuth(()=>{const x=data.users.find(u=>u.id===b.dataset.reveal),s=$(`pin-${x.id}`);s.textContent=x.pin;setTimeout(()=>s.textContent='••••',5000)}));document.querySelectorAll('[data-pin]').forEach(b=>b.onclick=()=>adminAuth(()=>pinEditor(b.dataset.pin)));document.querySelectorAll('[data-perm]').forEach(b=>b.onclick=()=>adminAuth(()=>permissionEditor(b.dataset.perm)));document.querySelectorAll('[data-deluser]').forEach(b=>b.onclick=()=>adminAuth(()=>{if(confirm(lang==='zh'?'确定删除此用户？':'Delete this user?')){data.users=data.users.filter(u=>u.id!==b.dataset.deluser);save();renderUsers()}}))}
 function cloudPermissionEditor(id){const x=(window.BRCCloud?.state?.profiles||[]).find(p=>p.id===id);if(!x)return;const wrap=document.createElement('div');wrap.className='permission-stack';const defs=[['can_add_belt',lang==='zh'?'增加产品':'Add products'],['can_modify_belt',lang==='zh'?'修改产品':'Modify products'],['can_delete_belt',lang==='zh'?'删除产品':'Delete products'],['can_add_stock',lang==='zh'?'增加库存':'Add stock'],['can_use_stock',lang==='zh'?'使用库存':'Use stock'],['can_set_balance',lang==='zh'?'设定余额':'Set balance'],['can_manage_users',lang==='zh'?'管理用户':'Manage users'],['can_restore_backup',lang==='zh'?'恢复备份':'Restore backup']],checks={};defs.forEach(([k,title])=>{const row=document.createElement('label'),c=document.createElement('input'),sw=document.createElement('i');c.type='checkbox';c.checked=!!x[k];checks[k]=c;row.className='permission-switch';row.innerHTML=`<span><b>${title}</b></span>`;row.append(c,sw);wrap.append(row)});openModal(`${lang==='zh'?'云端权限':'Cloud Permissions'} — ${x.display_name}`,wrap,[btn(tr('cancel'),closeModal),btn(tr('save'),async()=>{try{await window.BRCCloud.updateProfile(id,Object.fromEntries(Object.entries(checks).map(([k,c])=>[k,c.checked])));closeModal();renderUsers();toast(tr('saved'))}catch(e){toast(e.message)}},'primary')])}
-function cloudPasswordEditor(id){const x=(window.BRCCloud?.state?.profiles||[]).find(p=>p.id===id);if(!x)return;const wrap=document.createElement('div'),p1=document.createElement('input'),p2=document.createElement('input');wrap.className='form-stack';p1.type=p2.type='password';p1.autocomplete=p2.autocomplete='new-password';wrap.append(stackField(lang==='zh'?'新密码':'New Password',p1),stackField(lang==='zh'?'确认新密码':'Confirm Password',p2));openModal(`${lang==='zh'?'重设密码':'Reset Password'} — ${x.display_name||'Cloud User'}`,wrap,[btn(tr('cancel'),closeModal),btn(tr('save'),async()=>{if(p1.value!==p2.value)return toast(lang==='zh'?'两次密码输入不一致。':'Passwords do not match.');if(p1.value.length<8)return toast(lang==='zh'?'密码至少需要 8 个字符。':'Password must be at least 8 characters.');try{await window.BRCCloud.adminResetPassword(id,p1.value);closeModal();toast(lang==='zh'?'密码已重设。':'Password reset successfully.')}catch(e){toast(e.message)},'primary'})])}
+function cloudPasswordEditor(id){
+ const x=(window.BRCCloud?.state?.profiles||[]).find(p=>p.id===id);if(!x)return;
+ const wrap=document.createElement('div'),p1=document.createElement('input'),p2=document.createElement('input');
+ wrap.className='form-stack';p1.type=p2.type='password';p1.autocomplete=p2.autocomplete='new-password';
+ wrap.append(stackField(lang==='zh'?'新密码':'New Password',p1),stackField(lang==='zh'?'确认新密码':'Confirm Password',p2));
+ openModal(`${lang==='zh'?'重设密码':'Reset Password'} — ${x.display_name||'Cloud User'}`,wrap,[
+   btn(tr('cancel'),closeModal),
+   btn(tr('save'),async()=>{
+     if(p1.value!==p2.value)return toast(lang==='zh'?'两次密码输入不一致。':'Passwords do not match.');
+     if(p1.value.length<8)return toast(lang==='zh'?'密码至少需要 8 个字符。':'Password must be at least 8 characters.');
+     try{await window.BRCCloud.adminResetPassword(id,p1.value);closeModal();toast(lang==='zh'?'密码已重设。':'Password reset successfully.')}catch(e){toast(e.message)}
+   },'primary')
+ ])
+}
 function permissionEditor(id){const x=data.users.find(u=>u.id===id),wrap=document.createElement('div');wrap.className='permission-stack';const labels={editBelt:[lang==='zh'?'修改皮带参数':'Edit belt parameters',lang==='zh'?'允许修改皮带规格、制造商及其他资料。':'Allow editing belt specifications and details.'],addBelt:[lang==='zh'?'增加新产品':'Add new products',lang==='zh'?'允许建立新的库存产品。':'Allow creating new inventory products.'],deleteBelt:[lang==='zh'?'删除产品':'Delete products',lang==='zh'?'允许永久删除库存产品。':'Allow permanently deleting inventory products.']},checks={};Object.entries(labels).forEach(([k,[title,desc]])=>{const row=document.createElement('label'),c=document.createElement('input'),sw=document.createElement('i');c.type='checkbox';c.checked=!!x.permissions?.[k];checks[k]=c;row.className='permission-switch';row.innerHTML=`<span><b>${title}</b><small>${desc}</small></span>`;row.append(c,sw);wrap.append(row)});openModal(`${lang==='zh'?'用户权限':'User Permissions'} — ${x.name}`,wrap,[btn(tr('cancel'),closeModal),btn(tr('save'),()=>{const before={...x.permissions};x.permissions=Object.fromEntries(Object.entries(checks).map(([k,c])=>[k,c.checked]));data.history.push({id:uid('tx'),date:new Date().toISOString(),belt:'System',action:'user-permissions',user:user()?.name,note:`${x.name}: ${JSON.stringify(before)} -> ${JSON.stringify(x.permissions)}`,protected:true});save();closeModal();renderUsers()},'primary')])}
 function pinEditor(id){const x=data.users.find(u=>u.id===id),p=document.createElement('input');p.type='password';p.maxLength=4;openModal(tr('changePin'),stackField(tr('newPin'),p),[btn(tr('cancel'),closeModal),btn(tr('save'),()=>{if(!/^\d{4}$/.test(p.value))return toast(tr('invalidPin'));x.pin=p.value;save();closeModal();renderUsers()},'primary')])}
 function addUser(){adminAuth(()=>{const wrap=document.createElement('div'),n=document.createElement('input'),p=document.createElement('input');wrap.className='form-stack';p.type='password';p.maxLength=4;wrap.append(stackField(tr('username'),n),stackField(tr('pin'),p));openModal(tr('addUser'),wrap,[btn(tr('cancel'),closeModal),btn(tr('save'),()=>{if(!n.value.trim()||!/^\d{4}$/.test(p.value))return toast(tr('invalidPin'));if(data.users.some(x=>x.name.toLowerCase()===n.value.trim().toLowerCase()))return toast(tr('duplicateUser'));data.users.push({id:uid('u'),name:n.value.trim(),pin:p.value,role:'standard',permissions:{editBelt:false,addBelt:false,deleteBelt:false}});save();closeModal();renderUsers()},'primary')])})}

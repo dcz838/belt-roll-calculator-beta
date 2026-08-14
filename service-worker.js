@@ -1,7 +1,7 @@
 const CACHE_NAME = "brc-beta-2026-08-13-04-06";
 const ASSETS = [
   "./", "./index.html", "./manifest.webmanifest", "./VERSION.json",
-  "./css/app.css?v=202608130406", "./js/app.js?v=202608130406", "./js/cloud.js?v=202608130406", "./js/core.mjs",
+  "./css/app.css?v=202608130407", "./js/app.js?v=202608130407", "./js/cloud.js?v=202608130407", "./js/core.mjs",
   "./assets/logo/brc-logo.png", "./assets/icons/icon-180.png", "./assets/icons/icon-192.png", "./assets/icons/icon-256.png", "./assets/icons/icon-512.png"
 ];
 self.addEventListener("install",event=>{event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(ASSETS)));self.skipWaiting()});
