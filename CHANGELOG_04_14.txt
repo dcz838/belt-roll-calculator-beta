@@ -1,0 +1,16 @@
+BRC Build 2026.08.14.04.14
+
+Inventory editor safety and usability
+- Sticky Edit header keeps title, Cancel, and Save visible while the form scrolls.
+- Adds spacing between Cancel and Save.
+- Inventory verification primary action renamed Login -> Confirm.
+- Stock is visible in Edit, locked/grey by default, with a right-side Unlock button.
+- Unlock requires independent Inventory Password; direct stock editing also requires Set Balance permission.
+- Stock edits are written via adjust_inventory(set_balance), never via a direct table UPDATE.
+- Location uses a controlled list of active Supabase locations.
+- Location moves are atomic through move_inventory_location; no browser UPDATE permission is added to inventory_balances.
+- Location transfer writes transfer_out and transfer_in history records and preserves total quantity.
+
+Supabase
+- Run 20260814_0414_inventory_location_move.sql once.
+- admin-user Edge Function does not need an update for 04.14.

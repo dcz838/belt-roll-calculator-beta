@@ -1,0 +1,17 @@
+BRC Build 2026.08.14.04.14 QA
+
+- JavaScript ES module syntax: PASS
+- cloud.js syntax: PASS
+- Automated regression/core/build tests: 66/66 PASS
+- Inventory Verification action text: Confirm
+- Product Edit sticky header: PASS
+- Cancel/Save spacing: PASS
+- Stock visible + locked by default: PASS
+- Stock unlock requires inventory password + set-balance permission: PASS
+- Stock direct edit uses adjust_inventory(set_balance): PASS
+- Browser direct UPDATE to inventory_balances for Location: REMOVED
+- Location edit uses move_inventory_location RPC: PASS
+- Location RPC transfer audit: transfer_out + transfer_in
+- Location quantity merge/preservation checks: PASS (static regression)
+- Admin-user Edge Function update required: NO
+- Supabase migration required: YES (20260814_0414_inventory_location_move.sql)

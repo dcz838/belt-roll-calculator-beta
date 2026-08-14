@@ -75,3 +75,16 @@ button,select,input{min-height:42px}
  header{padding-top:calc(env(safe-area-inset-top) + 44px);height:calc(64px + env(safe-area-inset-top) + 44px);min-height:calc(64px + env(safe-area-inset-top) + 44px)}
  aside{padding-top:calc(16px + env(safe-area-inset-top) + 44px)}
 }
+
+/* Build 2026.08.14.04.14 — safer product editor */
+.dialog.sticky-editor{padding:0;overflow:hidden;display:flex;flex-direction:column}
+.dialog.sticky-editor .dialog-title{position:sticky;top:0;z-index:3;margin:0;padding:18px;background:#fff;border-bottom:1px solid var(--border);flex:none}
+.dialog.sticky-editor #modalTopActions{display:flex;align-items:center;gap:10px;flex:none}
+.dialog.sticky-editor #modalBody{overflow:auto;min-height:0;padding:18px;overscroll-behavior:contain}
+.dialog.sticky-editor #modalActions{padding:0 18px 18px}
+.stock-lock-row input:disabled{background:#eef2f6;color:#667085;opacity:1;cursor:not-allowed}
+.stock-lock-row{background:#eef2f6}
+.stock-lock-row.unlocked{background:#fff;border-color:#86d8a5;box-shadow:0 0 0 2px #dcfce7 inset}
+.stock-lock-row .stock-unlock{border:0;border-left:1px solid #c8d2df;border-radius:0;min-width:112px;background:#f8fafc;font-weight:700;white-space:nowrap}
+.stock-lock-row.unlocked .stock-unlock{background:#e9f9ef;color:#147d3f}
+@media(max-width:520px){.dialog.sticky-editor .dialog-title{padding:14px}.dialog.sticky-editor #modalBody{padding:14px}.dialog.sticky-editor #modalTopActions{gap:8px}.stock-lock-row .stock-unlock{min-width:96px;padding-left:8px;padding-right:8px}}
