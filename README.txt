@@ -1,5 +1,5 @@
 Belt Roll Calculator 2.3 Beta · Cloud Edition
-Build 2026.08.14.04.09
+Build 2026.08.14.04.10
 
 DEPLOY
 Upload the contents of this folder to the GitHub Pages site.
@@ -18,4 +18,4 @@ SECURITY
 This build contains only the public Supabase Project URL and Publishable Key. It does NOT contain the Secret Key, service_role key, or database password. RLS and authenticated profiles enforce data permissions.
 
 
-Build 2026.08.14.04.09 is rebuilt from the confirmed-working 04.04 baseline.
+Build 2026.08.14.04.10 is a reliability-hardened continuation of the validated 04.09 cloud build.

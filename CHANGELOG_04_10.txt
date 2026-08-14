@@ -1,0 +1,13 @@
+BRC Build 2026.08.14.04.10
+
+Reliability hardening release.
+
+- Added static fallback labels for critical navigation and calculator UI.
+- Added startup watchdog and explicit startup-error screen instead of silent blank labels.
+- Added module load failure reporting without clearing localStorage or cached inventory data.
+- App marks itself ready only after the normal initialization/translation/render path succeeds.
+- Added regression tests that fail the build if fallback text or startup guard is removed.
+- Aligned supabase/config.toml admin-user verify_jwt=false with the deployed custom authentication setup.
+- Bumped service worker/cache identity so 04.10 cannot reuse the 04.09 application cache namespace.
+
+No database migration is required beyond the already-applied 04.09 migration.

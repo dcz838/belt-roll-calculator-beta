@@ -63,3 +63,7 @@ button,select,input{min-height:42px}
 @media(max-width:520px){
  header{height:calc(70px + env(safe-area-inset-top));min-height:calc(70px + env(safe-area-inset-top));padding-top:env(safe-area-inset-top);gap:4px}#menuBtn{margin-right:4px;min-width:42px;padding-left:8px;padding-right:8px}#pageTitle{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px}.header-actions{gap:4px;min-width:0}.header-actions>button,.header-actions>select{height:44px;min-height:44px;padding-left:8px;padding-right:8px;font-size:14px}.header-actions #lang{max-width:92px}.header-actions #loginBtn{max-width:112px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.converter-row{grid-template-columns:minmax(0,1fr) 110px}.converter-large input{font-size:22px}.inventory-sort{justify-content:stretch}.inventory-sort select{min-width:0;flex:1}
 }
+
+
+/* Build 2026.08.14.04.10 — startup failure containment */
+.startup-error{position:fixed;inset:0;z-index:9999;background:rgba(13,27,42,.92);display:grid;place-items:center;padding:24px}.startup-error[hidden]{display:none}.startup-error>div{width:min(560px,100%);background:#fff;border:2px solid #dc2626;border-radius:16px;padding:20px;box-shadow:0 20px 70px #0008;display:grid;gap:12px;color:#1f2937}.startup-error b{font-size:22px;color:#b91c1c}.startup-error button{justify-self:start;background:#2563eb;color:#fff;border-color:#1d4ed8;min-height:46px;padding:10px 16px}.startup-error span{line-height:1.5}

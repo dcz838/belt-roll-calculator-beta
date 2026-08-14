@@ -1,0 +1,15 @@
+BRC Build 2026.08.14.04.10 - Release QA
+
+Purpose: prevent recurrence of the half-loaded/blank-label UI failure.
+
+Release gates completed:
+- JavaScript syntax checks: js/app.js, js/cloud.js
+- Automated regression suite: 44/44 passed
+- Static fallback text is required for critical navigation and calculator labels
+- Startup watchdog/error UI is required before app module execution
+- App must explicitly mark startup ready after normal initialization succeeds
+- Edge Function CLI config must keep verify_jwt=false
+- Service Worker cache namespace must match 04.10
+- No localStorage.clear() recovery behavior is present in the startup guard
+
+Note: no new database migration is required for 04.10. The previously applied 04.09 migration remains required.
