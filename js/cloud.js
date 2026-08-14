@@ -18,6 +18,7 @@ const isDirty=()=>localStorage.getItem(DIRTY_KEY)==='1';
 function emit(){window.dispatchEvent(new CustomEvent('brc-cloud-state',{detail:{...state}}))}
 function setState(p){Object.assign(state,p);emit()}
 function configured(){const c=cfg();return /^https:\/\/.+\.supabase\.co$/.test(c.url||'')&&String(c.key||'').startsWith('sb_publishable_')}
+function isUuid(value){return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value||''))}
 function initClient(){
   if(client)return client;
   if(!configured()||!window.supabase){setState({status:configured()?'library-error':'not-configured'});return null}
@@ -125,7 +126,7 @@ async function upsertBelt(b,knownId=null){
   const code=String(b.part||b.id||crypto.randomUUID()).trim();
   if(!code)throw new Error('Part number is required for cloud inventory.');
   const payload={belt_code:code,description:b.name||code,manufacturer:b.manufacturer||null,width_mm:Number(b.width)||null,thickness_mm:Number(b.thickness)||null,color:b.color||null,supplier:b.application||null,minimum_stock:Number(b.minStock)||0,notes:b.notes||null,is_active:true,updated_by:state.user.id};
-  const existing=knownId?{id:knownId}:await findBeltByCode(code);
+  const existing=isUuid(knownId)?{id:knownId}:await findBeltByCode(code);
   let r;
   if(existing){r=await client.from('belt_catalog').update(payload).eq('id',existing.id).select('id').single()}
   else{payload.created_by=state.user.id;r=await client.from('belt_catalog').insert(payload).select('id').single()}
@@ -146,7 +147,7 @@ async function saveBelt(rec,original=null){
   if(!client||!state.user)throw new Error('Cloud sign-in required.');
   setState({status:'syncing',error:''});
   try{
-    const beltId=await upsertBelt(rec,original?.cloudId||original?.id||null);
+    const beltId=await upsertBelt(rec,isUuid(original?.cloudId)?original.cloudId:(isUuid(original?.id)?original.id:null));
     const newLocationId=await ensureLocation(rec.location);
     const bal=await currentBalance(beltId,newLocationId);
     const target=Number(rec.stock)||0;
@@ -170,7 +171,9 @@ async function adjustStock(belt,op,amount,notes=''){
 }
 async function archiveBelt(belt){
   if(!client||!state.user)throw new Error('Cloud sign-in required.');
-  const id=belt.cloudId||belt.id;
+  let id=isUuid(belt.cloudId)?belt.cloudId:(isUuid(belt.id)?belt.id:null);
+  if(!id){const found=await findBeltByCode(belt.part||belt.id);id=found?.id}
+  if(!id)throw new Error('Cloud belt record not found.');
   const r=await client.from('belt_catalog').update({is_active:false,updated_by:state.user.id}).eq('id',id);
   if(r.error)throw r.error;await loadCloud();
 }
@@ -185,7 +188,7 @@ async function adminResetPassword(userId,password){
   if(!can('manageUsers'))throw new Error('Administrator permission required.');
   const p=String(password||'');if(p.length<8)throw new Error('Password must be at least 8 characters.');
   const {data,error}=await client.functions.invoke('admin-user',{body:{action:'reset_password',user_id:userId,password:p}});
-  if(error){let msg=error.message||'Password reset failed.';try{const ctx=error.context;if(ctx?.json){const j=await ctx.json();msg=j?.error||j?.message||msg}}catch{}throw new Error(msg)}
+  if(error)throw new Error(error.message||'Password reset failed.');
   if(data?.error)throw new Error(data.error);
   return true;
 }

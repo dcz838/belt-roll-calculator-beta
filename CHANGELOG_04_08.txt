@@ -1,0 +1,10 @@
+Build 2026.08.13.04.08
+
+Rebuilt from the last confirmed-working 04.04 baseline.
+- Keeps existing 04.04 UI and Cloud foundation.
+- Permission switches: OFF gray, ON green only; no layout changes.
+- Cloud indicator: green=connected, yellow=connecting/syncing, red=error/offline, gray=signed out.
+- Adds administrator password reset UI backed by admin-user Edge Function.
+- Fixes cloud product editing when a local legacy ID is not a UUID.
+- Prevents unsupported inventory transaction enum values.
+- Beta JS/CSS load network-first to reduce mixed-version asset failures.

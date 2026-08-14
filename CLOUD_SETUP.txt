@@ -1,4 +1,4 @@
-BRC Cloud Setup - Build 2026.08.13.04.05
+BRC Cloud Setup - Build 2026.08.13.04.08
 
 1. Deploy this build to https://dcz838.github.io/belt-roll-calculator-beta/.
 2. Project URL and Publishable Key are already embedded.
