@@ -69,7 +69,7 @@ button,select,input{min-height:42px}
 .startup-error{position:fixed;inset:0;z-index:9999;background:rgba(13,27,42,.92);display:grid;place-items:center;padding:24px}.startup-error[hidden]{display:none}.startup-error>div{width:min(560px,100%);background:#fff;border:2px solid #dc2626;border-radius:16px;padding:20px;box-shadow:0 20px 70px #0008;display:grid;gap:12px;color:#1f2937}.startup-error b{font-size:22px;color:#b91c1c}.startup-error button{justify-self:start;background:#2563eb;color:#fff;border-color:#1d4ed8;min-height:46px;padding:10px 16px}.startup-error span{line-height:1.5}
 
 
-/* Build 2026.08.14.04.12 — inventory auth/admin controls, detail layout, iPad safe-area refinement */
+/* Build 2026.08.14.04.13 — inventory auth/admin controls, detail layout, iPad safe-area refinement */
 .belt-location{display:block;text-align:right;margin-top:4px;color:var(--muted);font-weight:600}
 @media (min-width:521px) and (max-width:1366px) and (hover:none) and (pointer:coarse){
  header{padding-top:calc(env(safe-area-inset-top) + 44px);height:calc(64px + env(safe-area-inset-top) + 44px);min-height:calc(64px + env(safe-area-inset-top) + 44px)}

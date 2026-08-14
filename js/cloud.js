@@ -206,21 +206,18 @@ async function invokeAdmin(body,fallback){
 }
 async function adminResetPassword(userId,password){
   if(!client||!state.user)throw new Error('Cloud sign-in required.');
-  if(!can('manageUsers'))throw new Error('Administrator permission required.');
   const p=String(password||'');if(p.length<8)throw new Error('Password must be at least 8 characters.');
   await invokeAdmin({action:'reset_password',user_id:userId,password:p},'Password reset failed.');
   return true;
 }
 async function adminSetInventoryPin(userId,pin){
   if(!client||!state.user)throw new Error('Cloud sign-in required.');
-  if(!can('manageUsers'))throw new Error('Administrator permission required.');
   const p=String(pin||'');if(!/^\d{4,}$/.test(p))throw new Error('Inventory password must contain at least 4 digits.');
   await invokeAdmin({action:'set_inventory_password',user_id:userId,pin:p},'Inventory password update failed.');
   return true;
 }
 async function updateProfile(id,patch){
   if(!client||!state.user)throw new Error('Cloud sign-in required.');
-  if(!can('manageUsers'))throw new Error('Administrator permission required.');
   const allowed=['display_name','role','is_active','can_add_belt','can_modify_belt','can_delete_belt','can_add_stock','can_use_stock','can_set_balance','can_manage_users','can_backup','can_restore_backup'];
   const safe=Object.fromEntries(Object.entries(patch||{}).filter(([k])=>allowed.includes(k)));
   const data=await invokeAdmin({action:'update_profile',user_id:id,patch:safe},'Permission update failed.');await loadProfile();await loadCloud();return data?.profile;

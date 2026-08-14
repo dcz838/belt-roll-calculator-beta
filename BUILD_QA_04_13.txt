@@ -1,0 +1,12 @@
+BRC Build 2026.08.14.04.13 - Release QA
+
+Release focus: privileged authorization chain.
+
+Checks:
+- App and cloud JavaScript parse successfully.
+- Admin actions no longer depend on stale client-side permission cache.
+- Edge Function uses caller JWT + publishable key for identity/profile authorization.
+- Secret key is isolated to privileged writes after authorization.
+- Caller profile lookup errors are distinct from actual permission denial.
+- Existing 04.12 inventory credential migration remains compatible.
+- Legacy JWT verification remains disabled in supabase/config.toml.

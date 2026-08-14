@@ -1,0 +1,10 @@
+BRC Build 2026.08.14.04.13
+
+Authorization-chain reliability fix.
+
+- Removed client-side cached-profile hard blocking from admin password, inventory-password, and permissions update calls. The browser UI may still use permissions for presentation, but Supabase is now the only authority for privileged actions.
+- Edge Function now verifies the caller using the caller JWT with a publishable-key client, then uses a separate secret-key client only for privileged writes.
+- Caller profile lookup failures now return a distinct diagnostic error instead of being mislabeled as "Administrator permission required".
+- Admin, active-account, and can_manage_users checks remain enforced server-side.
+- No new database migration is required beyond the already-applied 04.12 migration.
+- admin-user Edge Function must be redeployed from this build.
