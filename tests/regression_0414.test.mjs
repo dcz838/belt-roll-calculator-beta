@@ -4,7 +4,7 @@ import fs from 'node:fs';
 const read=p=>fs.readFileSync(new URL(`../${p}`,import.meta.url),'utf8');
 const app=read('js/app.js'),cloud=read('js/cloud.js'),css=read('css/app.css'),sql=read('supabase/migrations/20260814_0414_inventory_location_move.sql'),version=JSON.parse(read('VERSION.json'));
 
-test('04.14 build metadata',()=>assert.equal(version.build,'2026.08.14.04.14'));
+test('04.14 build metadata',()=>assert.equal(version.build,'2026.08.14.04.15'));
 test('inventory verification says Confirm rather than Login',()=>{
   const section=app.slice(app.indexOf('async function inventoryAuth'),app.indexOf('function changeInventoryPin'));
   assert.match(section,/确认':'Confirm/);
@@ -32,10 +32,10 @@ test('location edits call dedicated atomic RPC',()=>{
   assert.match(section,/client\.rpc\('move_inventory_location'/);
   assert.doesNotMatch(section,/inventory_balances'\)\.update/);
 });
-test('location options are loaded from active Supabase locations',()=>{
+test('location editor remains compatible with active Supabase locations',()=>{
   assert.match(cloud,/from\('locations'\)\.select\('id,location_code,name,is_active'\)\.eq\('is_active',true\)/);
-  assert.match(app,/cloudLocations=window\.BRCCloud\?\.state\?\.locations/);
-  assert.match(app,/document\.createElement\('select'\)/);
+  assert.match(app,/buildLocationValue/);
+  assert.match(app,/Custom Location/);
 });
 test('location move SQL preserves quantity and writes transfer audit records',()=>{
   assert.match(sql,/create or replace function public\.move_inventory_location/);

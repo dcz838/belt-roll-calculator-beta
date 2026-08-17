@@ -1,0 +1,12 @@
+BRC Build 2026.08.14.04.15
+
+- Fixed Stock Unlock so inventory verification no longer destroys/closes the underlying Edit dialog.
+- Inventory verification primary action remains Confirm, not Login.
+- Edit form Enter key now advances to the next single-line field; it no longer triggers Save. Textareas keep normal newline behavior.
+- Replaced the flat Location dropdown with structured free-entry fields: Site, Department, Shelf/Cabinet, Layer, Bin, plus Custom Location for temporary/non-standard storage.
+- Structured Location values are serialized into the existing Location string, so no new database migration is required.
+- Removed the misleading Backup Destination selector and removed Share Backup.
+- Export now offers PDF, Excel (.xlsx), TXT, and restorable BRC JSON.
+- Added mile (mi) to Length conversion.
+- Added US quart (US qt) and US pint (US pt) to Volume conversion.
+- Preserved 04.14 atomic Location Move RPC and 04.13 admin authorization chain.

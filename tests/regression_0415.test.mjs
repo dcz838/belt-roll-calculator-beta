@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const read=p=>fs.readFileSync(new URL(`../${p}`,import.meta.url),'utf8');
+const app=read('js/app.js'),html=read('index.html'),css=read('css/app.css'),version=JSON.parse(read('VERSION.json'));
+test('04.15 build metadata',()=>assert.equal(version.build,'2026.08.14.04.15'));
+test('unit converter includes mile, US quart and US pint',()=>{assert.match(app,/mi:1609\.344/);assert.match(app,/'US qt':\.000946352946/);assert.match(app,/'US pt':\.000473176473/)});
+test('inventory verification is a secondary overlay that preserves editor',()=>{assert.match(app,/verify-overlay/);assert.match(app,/e\.stopPropagation\(\)/);assert.match(css,/\.verify-overlay/)});
+test('editor Enter advances rather than submitting Save',()=>{assert.match(app,/\$\('modalBody'\)\.contains\(e\.target\)/);assert.match(app,/fields\[i\+1\]\.focus\(\)/)});
+test('structured location has five levels plus custom free text',()=>{for(const k of ['site','department','shelfCabinet','layer','bin','customLocation'])assert.match(app,new RegExp(k));assert.match(app,/location-grid/);assert.match(app,/buildLocationValue/)});
+test('backup destination and share controls are removed',()=>{assert.doesNotMatch(html,/id="backupDestination"/);assert.doesNotMatch(html,/id="shareBackup"/);assert.match(html,/id="exportBackup"/)});
+test('export menu provides PDF Excel TXT and restorable JSON',()=>{assert.match(app,/exportPdf/);assert.match(app,/exportExcel/);assert.match(app,/exportTxt/);assert.match(app,/exportJson/);assert.match(app,/xlsx@0\.18\.5/);assert.match(app,/jspdf@2\.5\.2/)});

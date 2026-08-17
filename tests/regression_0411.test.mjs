@@ -18,8 +18,9 @@ test('app.js parses in ES module mode', () => {
   assert.equal(r.status, 0, r.stderr || r.stdout);
 });
 
-test('share backup handler closes all call parentheses', () => {
-  assert.ok(app.includes("adminAuth(()=>shareBackup().catch(()=>toast(tr('shareUnavailable'))))}"));
+test('obsolete Share Backup control and handler are removed', () => {
+  assert.doesNotMatch(html,/id=\"shareBackup\"/);
+  assert.doesNotMatch(app,/\$\('shareBackup'\)\.onclick/);
 });
 
 test('startup watchdog preserves first concrete failure', () => {

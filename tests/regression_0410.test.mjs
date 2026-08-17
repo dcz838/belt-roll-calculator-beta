@@ -30,6 +30,6 @@ test('edge function CLI config matches dashboard custom auth mode',()=>{
 });
 
 test('service worker cache is isolated to current build',()=>{
-  assert.match(sw,/04-14/);
+  assert.match(sw,/04-15/);
   assert.doesNotMatch(sw,/04-09/);
 });

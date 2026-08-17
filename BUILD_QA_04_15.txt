@@ -1,0 +1,16 @@
+BRC Build 2026.08.14.04.15 QA
+
+Automated regression tests: 73/73 PASS
+ES module syntax check: PASS
+cloud.js syntax check: PASS
+
+Focused checks:
+- Stock Unlock uses a secondary verification overlay and preserves the Edit dialog.
+- Enter advances through Edit single-line fields; Notes and Custom Location keep newline behavior.
+- Location editor includes Site, Department, Shelf/Cabinet, Layer, Bin, and Custom Location.
+- Backup Destination and Share Backup controls are removed.
+- Export menu includes PDF, Excel (.xlsx), TXT, and restorable BRC JSON.
+- Length converter includes mile (mi).
+- Volume converter includes US quart (US qt) and US pint (US pt).
+- 04.14 atomic location-move RPC remains packaged and unchanged.
+- No new Supabase migration is required for 04.15.
