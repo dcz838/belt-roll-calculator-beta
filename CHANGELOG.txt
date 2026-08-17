@@ -178,3 +178,9 @@ BRC Build 2026.08.14.04.15
 - Added mile (mi) to Length conversion.
 - Added US quart (US qt) and US pint (US pt) to Volume conversion.
 - Preserved 04.14 atomic Location Move RPC and 04.13 admin authorization chain.
+
+
+===== Build 2026.08.17.04.17 =====
+- Removed the Stock field's × clear button to prevent accidental zeroing/clearing of inventory input. Users must explicitly type the intended stock value; stock changes still require the high-visibility final confirmation.
+- Fixed structured Location localization. English now shows only English labels, Chinese shows only Chinese labels, and Spanish continues to use its own translations.
+- No Supabase migration or Edge Function update is required.

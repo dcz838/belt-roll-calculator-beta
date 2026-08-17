@@ -284,3 +284,21 @@ Focused checks:
 - Volume converter includes US quart (US qt) and US pint (US pt).
 - 04.14 atomic location-move RPC remains packaged and unchanged.
 - No new Supabase migration is required for 04.15.
+
+
+===== Build 2026.08.17.04.17 =====
+Date: 2026-08-17
+Release focus: inventory editor safety and localization cleanup.
+
+QA:
+- Consolidated build + regression tests: 35/35 PASS.
+- ES module syntax check included in regression suite.
+
+Changes:
+- Removed the one-click clear (×) control from the Stock field only; Stock remains explicitly editable and protected by the stock-adjustment confirmation flow.
+- Structured Location labels now follow the selected app language instead of hard-coded bilingual Chinese/English labels.
+- Existing 04.16 stock, location, delete-password, and inventory transaction safeguards are preserved.
+
+Supabase:
+- No new migration required.
+- No admin-user Edge Function update required.

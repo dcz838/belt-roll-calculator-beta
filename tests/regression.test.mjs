@@ -81,8 +81,8 @@ test("CSV cells quote commas, quotes, and newlines", () => {
   assert.equal(csvCell('a,"b"'), '"a,""b"""');
 });
 
-// Consolidated regression suite (04.08 -> 04.16)
-test('04.16 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.08.17.04.16');assert.match(sw,/04-16/);assert.match(html,/app\.js\?v=202608170416/);assert.match(html,/app\.css\?v=202608170416/)});
+// Consolidated regression suite (04.08 -> 04.17)
+test('04.17 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.08.17.04.17');assert.match(sw,/04-17/);assert.match(html,/app\.js\?v=202608170417/);assert.match(html,/app\.css\?v=202608170417/)});
 test('app.js parses in ES module mode',()=>{const tmp=path.join(os.tmpdir(),`brc-app-${process.pid}.mjs`);fs.writeFileSync(tmp,app);const r=spawnSync(process.execPath,['--check',tmp],{encoding:'utf8'});fs.unlinkSync(tmp);assert.equal(r.status,0,r.stderr||r.stdout)});
 test('mobile safe areas and iPad offset remain',()=>{assert.match(css,/safe-area-inset-top/);assert.match(css,/min-width:521px/);assert.match(css,/pointer:coarse/)});
 test('sticky edit header remains and Enter advances through editor fields',()=>{assert.match(css,/\.dialog\.sticky-editor \.dialog-title\{position:sticky/);assert.match(app,/fields\[i\+1\]\.focus\(\)/)});
@@ -98,3 +98,6 @@ test('backup UI remains simplified and export formats remain available',()=>{ass
 test('unit converter includes mile, US quart, and US pint',()=>{assert.match(app,/mi:1609\.344/);assert.match(app,/'US qt':\.000946352946/);assert.match(app,/'US pt':\.000473176473/)});
 test('static startup guard and fallback labels remain',()=>{assert.match(html,/window\.BRCBootFail/);assert.match(html,/id="startupError"/);assert.match(html,/>Calculator<\/button>/);assert.match(html,/data-i="input">Input<\/h2>/)});
 test('publishable key may be embedded but secret keys are absent from browser code',()=>{assert.match(cloud,/sb_publishable_bBGvL1QwSX27Eu5bfrERRQ_c9qgziE0/);assert.doesNotMatch(cloud,/sb_secret_/);assert.doesNotMatch(cloud,/service_role/)});
+
+test('04.17 stock field intentionally has no one-click clear control',()=>{const section=app.slice(app.indexOf('function beltEditor'),app.indexOf('function stockAction'));assert.match(section,/smartNumberField\(`\$\{tr\('stock'\)\} \(\$\{inventoryUnit\(\)\}\)`,stock,\{allowClear:false\}\)/);assert.match(app,/function smartNumberField\(label,input,\{allowClear=true\}=\{\}\)/)});
+test('04.17 structured location labels follow the selected language without bilingual hard-coding',()=>{assert.match(app,/site:'厂区',department:'部门',shelfCabinet:'货架 \/ 柜',layer:'层',bin:'箱位'/);assert.doesNotMatch(app,/site:'Site \/ 厂区'/);assert.doesNotMatch(app,/department:'Department \/ 部门'/);assert.doesNotMatch(app,/shelfCabinet:'Shelf \/ Cabinet \/ 架柜'/);assert.match(app,/site:'Site',department:'Department',shelfCabinet:'Shelf \/ Cabinet',layer:'Layer',bin:'Bin'/)});
