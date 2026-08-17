@@ -1,0 +1,286 @@
+Belt Roll Calculator — Cumulative Build Log
+
+===== Build 2026.08.17.04.16 =====
+Date: 2026-08-17
+Focus: Inventory safety hardening; editable structured Location; log/test consolidation.
+Supabase Migration: No new migration required (04.14 migration remains current).
+Edge Function Update: No update required (04.13 admin-user remains current).
+QA: 33/33 PASS (consolidated build + regression suite)
+Critical file SHA256:
+db121128daef1122d322bf901dc078d78cb373f701ee898ee32d58db8390c2e1  index.html
+4664db79def64f05cf9871cd95b1fea21eca431a59d51ecb2728e152097ede1f  css/app.css
+7df3cadc6ee9ad34dfa4123ec96c5ced79dbfb3208cc076df41b03fcc69f06de  js/app.js
+953dd739adf05e96fd6eb9645d0dcff9e05a0666c9e6a3ca62b6c1086f6f1d96  js/cloud.js
+9fb38902f0dcd39fed3e6f56478954ce181b1891c36bc4921813e9417ee59425  js/core.mjs
+ffd3a5cc3a99d8e100c090d4003c5c076a75da093497949a483992c353172fef  service-worker.js
+d67398553b337a86ee3440354cba3ca3ab8bf0ad1f3b91a0f1e216cd9e0ea499  VERSION.json
+eeb8e4eef583ae69da228bf18cffbdf82a51819f50b9cf38f2de34f369223179  supabase/config.toml
+514564e13d5e4563d9f401c1cba255eeefb1f8f1581eaaf02759515029849633  supabase/functions/admin-user/index.ts
+
+===== BUILD_04_10_SHA256.txt =====
+0dc4b3b98b3cec426805aad20031f617bd807a0a6dedf8dd3d48a924d3c178df  index.html
+e16fc56251718ebc46114e854032d4695cda1be9fe0a66224689a3805c243a8e  css/app.css
+a02f9a3680fe1845626fc517283b14e2a814e8e9fb98281e91b4c20708dc06b2  js/app.js
+b57acf3c7d26ddf201d1ff2bc4df063c6c0f44382f7f94e06a450a19999a6521  js/cloud.js
+9fb38902f0dcd39fed3e6f56478954ce181b1891c36bc4921813e9417ee59425  js/core.mjs
+10604cd24ec61aef31dec8a4c270e68e88938b1a27e2a031688057e20bb7e948  service-worker.js
+8900f59edf5b2573a2d403fb8b94915349f47df46e65b5f1827343018a1c6a9d  VERSION.json
+eeb8e4eef583ae69da228bf18cffbdf82a51819f50b9cf38f2de34f369223179  supabase/config.toml
+7ebd015ff8c44cf6e2bc9b45a718c5be207477d3fdfd4a440e1e278a5a7d350f  supabase/functions/admin-user/index.ts
+
+===== BUILD_04_11_SHA256.txt =====
+e1cf74fef0251a70b091bea8937727f7f1ab68cc7271b086bd6123fb10232255  ./BUILD_04_10_SHA256.txt
+ecb08116b8d6a5b1ea55c4f9dade6b4c44fbe955ccac11343a5820eadd5bd1ea  ./BUILD_QA_04_10.txt
+d5aabb0e67d0c8923ca345153dcf5d89c8c9f37fef1a4662fcda4e78ad2d9ede  ./BUILD_QA_04_11.txt
+9331d0fd904fdd82f89ed8d407fa941e9cd94d684d047e5276aa0a7673d3f6be  ./CHANGELOG_04_02.txt
+558a81dbe2c6722a38338696d2369b5b09b542ad701f76eddd729584db15368c  ./CHANGELOG_04_03.txt
+7310763b23737746449534121ec26f57696e98bf11f099d661e558b85ea4ec8d  ./CHANGELOG_04_04.txt
+bead2fdcaf81338c761443eddb243694b3eb8b4e3b9a66445bf5b6243a10fe6b  ./CHANGELOG_04_08.txt
+08608fa72400080c6e246b7a6942e811e0658fda1f95b1925d3404d850d6b105  ./CHANGELOG_04_09.txt
+2620ca2481a6f916d8e6194ebe565258fa554e19c7c2686da83031969f8dbe7f  ./CHANGELOG_04_10.txt
+ea2ac1252fd65398bd65a228ba91634e60bd2b03df8af03542b3be676b2f94f0  ./CHANGELOG_04_11.txt
+f4e4281c2179a1b8ef82a87d6e97df5cb143ba3ce98a9b09760b9bb086820718  ./CLOUD_SETUP.txt
+c57ad9b89aa39fdd4caf8a7be16f3cb3156c789ace290d8e79405624affe1c23  ./EDGE_FUNCTION_SETUP.txt
+7b03abb057dd040d2e15e90ac3cffb3837f62fd050bfad66364fbeead6fc2537  ./README.txt
+d607f36122f6276df7af98ceef160b78efa61ca8439832474d5d1b2fb9e5099d  ./VERSION.json
+228818a3036b922c08d49453ec55e48fa78390faf5be3af433bb0de53a74e29b  ./assets/icons/icon-180.png
+7c7858546bd5c1eb312ab9ea4d76df4853b2e6046fac291503eafc463cfc1d2c  ./assets/icons/icon-192.png
+b1d9dfb063b4103c1a31f09b145e199b9859d0c066285c8a40e6333225ae496a  ./assets/icons/icon-256.png
+b1f7bd897022077a94e906dcf55cecf12de08d901b1c4e863915c3ceaf29b44c  ./assets/icons/icon-512.png
+b1f7bd897022077a94e906dcf55cecf12de08d901b1c4e863915c3ceaf29b44c  ./assets/logo/brc-logo.png
+e16fc56251718ebc46114e854032d4695cda1be9fe0a66224689a3805c243a8e  ./css/app.css
+1bf394377f900633eae8de0c78237d9e01b1b2aecdd8bfcd6d12e7c0afe684c9  ./index.html
+9c7c603c78548e8856859fca7376c452a3fc200b6814246d39ab0172aac4538e  ./js/app.js
+b57acf3c7d26ddf201d1ff2bc4df063c6c0f44382f7f94e06a450a19999a6521  ./js/cloud.js
+9fb38902f0dcd39fed3e6f56478954ce181b1891c36bc4921813e9417ee59425  ./js/core.mjs
+6401d43314fa27e882f344ef3b369333114bc784cea282dae14390aab00a580e  ./manifest.webmanifest
+10604cd24ec61aef31dec8a4c270e68e88938b1a27e2a031688057e20bb7e948  ./service-worker.js
+eeb8e4eef583ae69da228bf18cffbdf82a51819f50b9cf38f2de34f369223179  ./supabase/config.toml
+7ebd015ff8c44cf6e2bc9b45a718c5be207477d3fdfd4a440e1e278a5a7d350f  ./supabase/functions/admin-user/index.ts
+0f27f589582b9eeef47119846f73d4e240bd8740d278e9b432cec0364741ad8a  ./supabase/migrations/20260814_0409_inventory_security.sql
+0488f22befa2430716818fc3eb173ad76317b02d5c4b92b73863326df911557d  ./tests/build.test.mjs
+7f6d6c85468226ed1a004c1b8c5f19e90e8ad22b3d0f7d164b6e718adff950e7  ./tests/core.test.mjs
+537ca1d8a6ff27538f675cd3d431e4f4e5ae48ab80e5edf5e404012a3810f0b0  ./tests/regression_0408.test.mjs
+fab8602df166086b136a4a10111fcb6ee6977ad874b8f7675f288e17ab4c2edf  ./tests/regression_0409.test.mjs
+f0005e91251105c63284d9b4b5f2710d476390636a430132ea8c41859cb9cfd1  ./tests/regression_0410.test.mjs
+9b98761b9dff3ab9f6bf8026a65a5162e96fdfc93bee0f13b8c972b0669ad73f  ./tests/regression_0411.test.mjs
+
+===== BUILD_04_12_SHA256.txt =====
+e1cf74fef0251a70b091bea8937727f7f1ab68cc7271b086bd6123fb10232255  ./BUILD_04_10_SHA256.txt
+4824721615939871103076259fac902434a089bd26ddf399f2042ba9f3ee05a9  ./BUILD_04_11_SHA256.txt
+ecb08116b8d6a5b1ea55c4f9dade6b4c44fbe955ccac11343a5820eadd5bd1ea  ./BUILD_QA_04_10.txt
+d5aabb0e67d0c8923ca345153dcf5d89c8c9f37fef1a4662fcda4e78ad2d9ede  ./BUILD_QA_04_11.txt
+6d21fd0dc309331c9ec91806b34489631298821b534d6a2c1023fc3676226f50  ./BUILD_QA_04_12.txt
+9331d0fd904fdd82f89ed8d407fa941e9cd94d684d047e5276aa0a7673d3f6be  ./CHANGELOG_04_02.txt
+558a81dbe2c6722a38338696d2369b5b09b542ad701f76eddd729584db15368c  ./CHANGELOG_04_03.txt
+7310763b23737746449534121ec26f57696e98bf11f099d661e558b85ea4ec8d  ./CHANGELOG_04_04.txt
+bead2fdcaf81338c761443eddb243694b3eb8b4e3b9a66445bf5b6243a10fe6b  ./CHANGELOG_04_08.txt
+08608fa72400080c6e246b7a6942e811e0658fda1f95b1925d3404d850d6b105  ./CHANGELOG_04_09.txt
+2620ca2481a6f916d8e6194ebe565258fa554e19c7c2686da83031969f8dbe7f  ./CHANGELOG_04_10.txt
+ea2ac1252fd65398bd65a228ba91634e60bd2b03df8af03542b3be676b2f94f0  ./CHANGELOG_04_11.txt
+f4a9f54510a4650f94e926967cece57e22a7e835aeacb45f23d3e930b92be46a  ./CHANGELOG_04_12.txt
+16205565e44d471750bc71ff32a6caf705a888bc712fdece716fd8fbea772cd1  ./CLOUD_SETUP.txt
+aba7831831a134974a52e342be8f99522c7cc3d3ce8fd921b1765016a77fccfd  ./EDGE_FUNCTION_SETUP.txt
+f98102da731a868adcaaf3ccaed50a972d453aa1b2b592c14cc31639f69d2979  ./README.txt
+61f57e406b3ade81fe1b2c0a11fb8928d7ad88ebf736f4fe106e4d04165ee634  ./VERSION.json
+228818a3036b922c08d49453ec55e48fa78390faf5be3af433bb0de53a74e29b  ./assets/icons/icon-180.png
+7c7858546bd5c1eb312ab9ea4d76df4853b2e6046fac291503eafc463cfc1d2c  ./assets/icons/icon-192.png
+b1d9dfb063b4103c1a31f09b145e199b9859d0c066285c8a40e6333225ae496a  ./assets/icons/icon-256.png
+b1f7bd897022077a94e906dcf55cecf12de08d901b1c4e863915c3ceaf29b44c  ./assets/icons/icon-512.png
+b1f7bd897022077a94e906dcf55cecf12de08d901b1c4e863915c3ceaf29b44c  ./assets/logo/brc-logo.png
+0e8ad04dccc608c70c3b6a5355d3521388a506c1f4b2a7ca80bdb687e4360e78  ./css/app.css
+55aad5b2e5ebe079daea45b0a321684a1d4c2b6f2f0530c06c71fbef395d2b03  ./index.html
+49a0b0dd631564dbc010814e6cb573511a5409e8e09fe86f5e42fdb24e3804b7  ./js/app.js
+442789780f3c8330ae2b1ef7c858c7b37cd3c2797afd4bc782c39b894a774aa8  ./js/cloud.js
+9fb38902f0dcd39fed3e6f56478954ce181b1891c36bc4921813e9417ee59425  ./js/core.mjs
+6401d43314fa27e882f344ef3b369333114bc784cea282dae14390aab00a580e  ./manifest.webmanifest
+7346f08a7cdde86627032eb50f76f391db799be0524705e3bfcab73e65c8f154  ./service-worker.js
+eeb8e4eef583ae69da228bf18cffbdf82a51819f50b9cf38f2de34f369223179  ./supabase/config.toml
+f47e1b5594414f6f8c628a2556da5680f72672edec1b5d90a6c8c1bc164f1095  ./supabase/functions/admin-user/index.ts
+0f27f589582b9eeef47119846f73d4e240bd8740d278e9b432cec0364741ad8a  ./supabase/migrations/20260814_0409_inventory_security.sql
+a39de21eed7aafe77146a419ccd1578b0147c184a17f26906f49edbb36a80ea6  ./supabase/migrations/20260814_0412_inventory_credentials.sql
+5346317ef37106ab5b049b27d97995ebf59388aa6e12b46c8dda424f61771a9c  ./tests/build.test.mjs
+7f6d6c85468226ed1a004c1b8c5f19e90e8ad22b3d0f7d164b6e718adff950e7  ./tests/core.test.mjs
+a5855b4aab54e559ac03995247ddf54276b86f414b13694ed99973c72a389e7c  ./tests/regression_0408.test.mjs
+fab8602df166086b136a4a10111fcb6ee6977ad874b8f7675f288e17ab4c2edf  ./tests/regression_0409.test.mjs
+f8941998ab5bcd7b644a19fc93e311336333ec6ef6078997353d502059a592a2  ./tests/regression_0410.test.mjs
+9b98761b9dff3ab9f6bf8026a65a5162e96fdfc93bee0f13b8c972b0669ad73f  ./tests/regression_0411.test.mjs
+ebafaccfbb6d2e4fc6a0a44c7c25919a5eb43dc032525dc8376f5481edb16cd0  ./tests/regression_0412.test.mjs
+
+===== BUILD_04_13_SHA256.txt =====
+e1cf74fef0251a70b091bea8937727f7f1ab68cc7271b086bd6123fb10232255  ./BUILD_04_10_SHA256.txt
+4824721615939871103076259fac902434a089bd26ddf399f2042ba9f3ee05a9  ./BUILD_04_11_SHA256.txt
+005718ea3b3b30e44f81b7e017a6ef4c6ec8f1e516902a200fb367a1ff01c6ed  ./BUILD_04_12_SHA256.txt
+ecb08116b8d6a5b1ea55c4f9dade6b4c44fbe955ccac11343a5820eadd5bd1ea  ./BUILD_QA_04_10.txt
+d5aabb0e67d0c8923ca345153dcf5d89c8c9f37fef1a4662fcda4e78ad2d9ede  ./BUILD_QA_04_11.txt
+6d21fd0dc309331c9ec91806b34489631298821b534d6a2c1023fc3676226f50  ./BUILD_QA_04_12.txt
+265f16401bab4285a40fa69a5783653e66f2d62be3c11134d8c8eeedd4e78ad9  ./BUILD_QA_04_13.txt
+9331d0fd904fdd82f89ed8d407fa941e9cd94d684d047e5276aa0a7673d3f6be  ./CHANGELOG_04_02.txt
+558a81dbe2c6722a38338696d2369b5b09b542ad701f76eddd729584db15368c  ./CHANGELOG_04_03.txt
+7310763b23737746449534121ec26f57696e98bf11f099d661e558b85ea4ec8d  ./CHANGELOG_04_04.txt
+bead2fdcaf81338c761443eddb243694b3eb8b4e3b9a66445bf5b6243a10fe6b  ./CHANGELOG_04_08.txt
+08608fa72400080c6e246b7a6942e811e0658fda1f95b1925d3404d850d6b105  ./CHANGELOG_04_09.txt
+2620ca2481a6f916d8e6194ebe565258fa554e19c7c2686da83031969f8dbe7f  ./CHANGELOG_04_10.txt
+ea2ac1252fd65398bd65a228ba91634e60bd2b03df8af03542b3be676b2f94f0  ./CHANGELOG_04_11.txt
+f4a9f54510a4650f94e926967cece57e22a7e835aeacb45f23d3e930b92be46a  ./CHANGELOG_04_12.txt
+9d2344f2b4762a2c949542179a1bc12744309f7c99912d956460d2ba3eac0024  ./CHANGELOG_04_13.txt
+d1936baa9e0c74e9a02f5944342d4c09ea284fb404255a388abc6912c6dfd117  ./CLOUD_SETUP.txt
+150c359112726ed0d7f6ed8f77e85e883053b70ec2d9c4c419806e8cb19d4326  ./EDGE_FUNCTION_SETUP.txt
+08af95ce163a107ec760a4eb07c38c935649488805655d3d8f4fb6007509954e  ./README.txt
+4bfc9fb134784553b7bf262158d2b2d6b972a828a0d35a3ed31c3c06284d0692  ./VERSION.json
+228818a3036b922c08d49453ec55e48fa78390faf5be3af433bb0de53a74e29b  ./assets/icons/icon-180.png
+7c7858546bd5c1eb312ab9ea4d76df4853b2e6046fac291503eafc463cfc1d2c  ./assets/icons/icon-192.png
+b1d9dfb063b4103c1a31f09b145e199b9859d0c066285c8a40e6333225ae496a  ./assets/icons/icon-256.png
+b1f7bd897022077a94e906dcf55cecf12de08d901b1c4e863915c3ceaf29b44c  ./assets/icons/icon-512.png
+b1f7bd897022077a94e906dcf55cecf12de08d901b1c4e863915c3ceaf29b44c  ./assets/logo/brc-logo.png
+b29e12b0d37066cdcc55591a16b99cf7256695ba1d7ca52f219adbf0862c5c2d  ./css/app.css
+d1a9e1a34dbfe601f10d5ae0673e3b5ceeb75b163c13e0f5d2d9e018131e4d25  ./index.html
+76d087cc7c83c3eeda94c5d8901238d9710277214cf0bb7295d33f69d6a77294  ./js/app.js
+ab26b24e0fdd44357a4cab637d97fd68a980236eb8f25dcb21811393c3dcd20b  ./js/cloud.js
+9fb38902f0dcd39fed3e6f56478954ce181b1891c36bc4921813e9417ee59425  ./js/core.mjs
+6401d43314fa27e882f344ef3b369333114bc784cea282dae14390aab00a580e  ./manifest.webmanifest
+cdb44041031ed4b4042c318e45df5cfe674be4b229de847fed979ac40fd38327  ./service-worker.js
+eeb8e4eef583ae69da228bf18cffbdf82a51819f50b9cf38f2de34f369223179  ./supabase/config.toml
+514564e13d5e4563d9f401c1cba255eeefb1f8f1581eaaf02759515029849633  ./supabase/functions/admin-user/index.ts
+0f27f589582b9eeef47119846f73d4e240bd8740d278e9b432cec0364741ad8a  ./supabase/migrations/20260814_0409_inventory_security.sql
+a39de21eed7aafe77146a419ccd1578b0147c184a17f26906f49edbb36a80ea6  ./supabase/migrations/20260814_0412_inventory_credentials.sql
+4bfbad8ea235c66ca2e14c2189fe4586d138b43387c5b175a1d060b64a6ec409  ./tests/build.test.mjs
+7f6d6c85468226ed1a004c1b8c5f19e90e8ad22b3d0f7d164b6e718adff950e7  ./tests/core.test.mjs
+d7165bf1008bdd998a87132494f0d70bebffef306719de36c86f1d4d81b8aacb  ./tests/regression_0408.test.mjs
+fab8602df166086b136a4a10111fcb6ee6977ad874b8f7675f288e17ab4c2edf  ./tests/regression_0409.test.mjs
+e39ba8e69ca6ca95c6cccd23260f2a3e038b26af1f675277f1a23c145555dd86  ./tests/regression_0410.test.mjs
+9b98761b9dff3ab9f6bf8026a65a5162e96fdfc93bee0f13b8c972b0669ad73f  ./tests/regression_0411.test.mjs
+4894a8d2dcf72768f27d6d788440d4bfc6b36de37be44fc6af2a5c7bc08271c1  ./tests/regression_0412.test.mjs
+3d142bcae8430b3487f2090fcbf095ec703e7cc0f86677eb1569b8a19fcb7ee8  ./tests/regression_0413.test.mjs
+
+===== BUILD_04_14_SHA256.txt =====
+b9361a6037723372234e0a2225579526bcc5801d5b3d854dd86a452f0272e4ed  index.html
+69c18f668cd9ad9d46291da59eca77395128d67df9be2ea5c1531259d353fe7c  css/app.css
+cfa2cc43ac96679911b0ada88744d6355064b5010809f26fb8196c02ea11259e  js/app.js
+953dd739adf05e96fd6eb9645d0dcff9e05a0666c9e6a3ca62b6c1086f6f1d96  js/cloud.js
+9fb38902f0dcd39fed3e6f56478954ce181b1891c36bc4921813e9417ee59425  js/core.mjs
+b2a3777a3eff225deba744bd77106d12cba469388340e65f8eadffa15b1b308e  VERSION.json
+e006265e473ba481cbcf93b849ac54991db3c134048332c1188a2a0d20063479  service-worker.js
+63b4a7108d155d04473db307144dbbaea0f98ad3758373b97fdac606be98eb6c  supabase/migrations/20260814_0414_inventory_location_move.sql
+
+===== BUILD_04_15_SHA256.txt =====
+d0c0451c626977e742aff012630f4607c3b0f56e9206200ac48a7343f616736c  index.html
+d7a4c3d3fcce76a0619dc38aab59b6d2502b68966c9d5951866b2f6a154fd48c  VERSION.json
+6401d43314fa27e882f344ef3b369333114bc784cea282dae14390aab00a580e  manifest.webmanifest
+16ef0e909f9f4e05e5b7ec5b0d668e983ef8014ae430c4d1613014ad79f538cf  service-worker.js
+907bacf2ae8136d78eeb04ed8812ec32dc749bcbcfd8ace46f1b52be20d04ee3  css/app.css
+661d78c9322ad46594b885d6e89203b4634bbe50266cc353132edeed2febfeb2  js/app.js
+953dd739adf05e96fd6eb9645d0dcff9e05a0666c9e6a3ca62b6c1086f6f1d96  js/cloud.js
+9fb38902f0dcd39fed3e6f56478954ce181b1891c36bc4921813e9417ee59425  js/core.mjs
+b61380777433ca30c5495c7461a8b57cdfa61f75249afd2669ac58653a5bb19a  CHANGELOG_04_15.txt
+c51c876ad3143b1afa251398a54064bcee929f499e832633022ab5c6567dfc5a  BUILD_QA_04_15.txt
+
+===== BUILD_QA_04_10.txt =====
+BRC Build 2026.08.14.04.11 - Release QA
+
+Purpose: prevent recurrence of the half-loaded/blank-label UI failure.
+
+Release gates completed:
+- JavaScript syntax checks: js/app.js, js/cloud.js
+- Automated regression suite: 44/44 passed
+- Static fallback text is required for critical navigation and calculator labels
+- Startup watchdog/error UI is required before app module execution
+- App must explicitly mark startup ready after normal initialization succeeds
+- Edge Function CLI config must keep verify_jwt=false
+- Service Worker cache namespace must match 04.11
+- No localStorage.clear() recovery behavior is present in the startup guard
+
+Note: no new database migration is required for 04.11. The previously applied 04.09 migration remains required.
+
+===== BUILD_QA_04_11.txt =====
+BRC Build 2026.08.14.04.11 QA
+
+Critical root cause fixed:
+- app.js had a missing closing parenthesis in the Share Backup click handler.
+- The previous QA mistakenly syntax-checked app.js as a classic .js script, so Node did not enforce ES module parsing in that check.
+
+New release gates:
+- app.js is copied to a temporary .mjs file and checked with `node --check` in ES module mode.
+- Included automated regression suite: 47/47 passing.
+- Startup watchdog preserves the first concrete parser/runtime error and no longer overwrites it with a later timeout message.
+- No local inventory data is cleared by startup error handling.
+
+Supabase:
+- No new migration required.
+- Existing 04.09 database migration remains valid.
+- Existing admin-user Edge Function remains valid.
+
+===== BUILD_QA_04_12.txt =====
+BRC Build 2026.08.14.04.12 - Release QA
+
+Automated regression suite: 53/53 passed.
+Syntax checks:
+- js/app.js parsed successfully as an ES module.
+- js/cloud.js parsed successfully.
+
+Focused checks added for 04.12:
+- Separate Cloud Login Password and Inventory Password controls in Users.
+- Inventory Password requires at least 4 digits.
+- Admin inventory-password reset routes through admin-user Edge Function.
+- Inventory credential hashes migrate out of public.profiles into private.inventory_credentials.
+- Edge Function errors expose backend details instead of only "non-2xx status code".
+- Belt Detail order: Manufacturer | Application, Width | Thickness.
+- Inventory List shows Location at lower right.
+- iPad/coarse-pointer header gets an additional 44px top offset; iPhone rule is unchanged.
+- Service worker cache and asset query versions are isolated to 04.12.
+
+Supabase prerequisites before testing password administration:
+1. Run supabase/migrations/20260814_0412_inventory_credentials.sql once.
+2. Redeploy supabase/functions/admin-user/index.ts as admin-user.
+3. Keep "Verify JWT with legacy secret" OFF.
+
+===== BUILD_QA_04_13.txt =====
+BRC Build 2026.08.14.04.13 - Release QA
+
+Release focus: privileged authorization chain.
+
+Checks:
+- App and cloud JavaScript parse successfully.
+- Admin actions no longer depend on stale client-side permission cache.
+- Edge Function uses caller JWT + publishable key for identity/profile authorization.
+- Secret key is isolated to privileged writes after authorization.
+- Caller profile lookup errors are distinct from actual permission denial.
+- Existing 04.12 inventory credential migration remains compatible.
+- Legacy JWT verification remains disabled in supabase/config.toml.
+
+===== BUILD_QA_04_14.txt =====
+BRC Build 2026.08.14.04.14 QA
+
+- JavaScript ES module syntax: PASS
+- cloud.js syntax: PASS
+- Automated regression/core/build tests: 66/66 PASS
+- Inventory Verification action text: Confirm
+- Product Edit sticky header: PASS
+- Cancel/Save spacing: PASS
+- Stock visible + locked by default: PASS
+- Stock unlock requires inventory password + set-balance permission: PASS
+- Stock direct edit uses adjust_inventory(set_balance): PASS
+- Browser direct UPDATE to inventory_balances for Location: REMOVED
+- Location edit uses move_inventory_location RPC: PASS
+- Location RPC transfer audit: transfer_out + transfer_in
+- Location quantity merge/preservation checks: PASS (static regression)
+- Admin-user Edge Function update required: NO
+- Supabase migration required: YES (20260814_0414_inventory_location_move.sql)
+
+===== BUILD_QA_04_15.txt =====
+BRC Build 2026.08.14.04.15 QA
+
+Automated regression tests: 73/73 PASS
+ES module syntax check: PASS
+cloud.js syntax check: PASS
+
+Focused checks:
+- Stock Unlock uses a secondary verification overlay and preserves the Edit dialog.
+- Enter advances through Edit single-line fields; Notes and Custom Location keep newline behavior.
+- Location editor includes Site, Department, Shelf/Cabinet, Layer, Bin, and Custom Location.
+- Backup Destination and Share Backup controls are removed.
+- Export menu includes PDF, Excel (.xlsx), TXT, and restorable BRC JSON.
+- Length converter includes mile (mi).
+- Volume converter includes US quart (US qt) and US pint (US pt).
+- 04.14 atomic location-move RPC remains packaged and unchanged.
+- No new Supabase migration is required for 04.15.

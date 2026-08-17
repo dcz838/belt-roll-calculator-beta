@@ -1,0 +1,180 @@
+Belt Roll Calculator — Cumulative Change Log
+
+===== Build 2026.08.17.04.16 =====
+- Stock is directly editable in the product editor; the unreliable Stock Unlock/password control was removed.
+- A prominent final confirmation shows current stock, new stock, and the delta before a direct stock adjustment is committed.
+- Product-detail edits continue to use Inventory Password protection when enabled; a stock-only adjustment uses the explicit stock confirmation instead.
+- Delete Belt now requires both a high-risk deletion warning and successful Inventory Password verification before cloud deletion/archive.
+- Location editing is explicitly free-form and structured: Site, Department, Shelf/Cabinet, Layer, Bin, plus a long Custom Location field for temporary or exceptional storage.
+- Location remains stored through the existing atomic 04.14 move RPC so stock quantity is preserved during location changes.
+- Asset cache-busters and service-worker cache namespace were advanced to 04.16 to prevent stale editor UI from being reused.
+- Historical BUILD/QA logs were consolidated into BUILD_LOG.txt; historical change logs were consolidated into CHANGELOG.txt.
+- Versioned regression test files were consolidated into tests/regression.test.mjs.
+
+===== CHANGELOG_04_02.txt =====
+- Version information now comes from VERSION.json throughout the UI.
+- Green Beta icon with classic yellow 45-degree BETA ribbon.
+- Manifest/PWA title/icon/cache updated to Beta Cloud Edition.
+- Summary cards are the only inventory filters.
+- Normal/Low/Out use green/amber/red status colors; selected items use an 8px matching status border.
+- Selected inventory item always drives the detail panel.
+- Calculator result selection copies numeric values only; Select All was removed.
+- Paste/Clear controls added for touch-friendly numeric entry.
+- Unit Converter category and unit display labels localized for Chinese and Spanish.
+- Cloud sign-in no longer overwrites local inventory when cloud inventory is empty; one-time migration is explicit.
+- Inventory synchronization skips unchanged balances to avoid unnecessary transaction history.
+- Cloud.js is included in the service-worker cache.
+- Default legacy Raymond/0000 PIN is migrated to 0921.
+
+===== CHANGELOG_04_03.txt =====
+Belt Roll Calculator 2.3 Beta · Cloud Edition
+Build 2026.08.12.04.03
+
+Cloud foundation completion:
+- Supabase Email/Password login is now the primary login when cloud is configured.
+- Supabase profile/RLS permissions now control Add/Edit/Delete Belt and stock actions.
+- Inventory reads from belt_catalog + inventory_balances after cloud sign-in.
+- Stock Add/Use/Set Balance writes directly through adjust_inventory RPC.
+- Inventory transactions/history reload from Supabase after writes.
+- Realtime subscriptions refresh inventory/history across devices.
+- Belt create/edit writes directly to belt_catalog and inventory balance.
+- Product delete is implemented as a cloud-safe archive (is_active=false), preserving transaction history.
+- First-time local inventory migration remains available when cloud is empty.
+- Cloud user list is read from profiles; credentials remain managed by Supabase Authentication.
+- Cloud settings remain available before sign-in.
+- Build/service-worker cache updated to 04.03.
+
+Important: Project URL + sb_publishable_* key must be configured in Settings > Cloud Sync before first login.
+
+===== CHANGELOG_04_04.txt =====
+Belt Roll Calculator 2.3 Beta · Cloud Edition
+Build 2026.08.13.04.04
+
+AUTH / CLOUD
+- Embedded the BRC Supabase Project URL and Publishable Key in the browser build.
+- Removed normal-user editing of Project URL / Publishable Key from Cloud Sync.
+- Added Forgot Password from the Cloud login UI.
+- Added Supabase password recovery handling after the recovery email redirects back to GitHub Pages.
+- Added New Password + Confirm Password recovery dialog.
+- Password update uses supabase.auth.updateUser() and never exposes the Secret/service-role key.
+- Cloud Settings now shows DCZ Cloud / project / region instead of credentials.
+
+SECURITY
+- Only the Publishable Key is embedded.
+- No Secret Key, service_role key, or database password is included.
+- RLS remains the database authorization boundary.
+
+===== CHANGELOG_04_08.txt =====
+Build 2026.08.13.04.08
+
+Rebuilt from the last confirmed-working 04.04 baseline.
+- Keeps existing 04.04 UI and Cloud foundation.
+- Permission switches: OFF gray, ON green only; no layout changes.
+- Cloud indicator: green=connected, yellow=connecting/syncing, red=error/offline, gray=signed out.
+- Adds administrator password reset UI backed by admin-user Edge Function.
+- Fixes cloud product editing when a local legacy ID is not a UUID.
+- Prevents unsupported inventory transaction enum values.
+- Beta JS/CSS load network-first to reduce mixed-version asset failures.
+
+===== CHANGELOG_04_09.txt =====
+BRC Build 2026.08.14.04.09
+
+- iPhone/iPad safe-area top spacing; larger touch targets and equal-height header controls.
+- Header order changed to Language, Cloud, Lock, User to reduce accidental logout.
+- Unit Converter From/To now share the same large input + right-side unit layout; added one-tap unit swap.
+- Critical cloud inventory edit fix: metadata edits no longer write stock transactions or zero quantity; location moves preserve the existing balance row; editing no longer creates a duplicate product.
+- Product detail shows Width and Thickness as separate labeled fields.
+- Removed Set Balance from inventory detail; Add Stock is green and Use Stock is red.
+- Inventory length display unit selector added (m/ft/yd/in/mm); database remains meters.
+- Cloud permission dialog action buttons right-aligned; switches remain gray OFF / green ON.
+- Settings switches standardized to gray OFF / green ON.
+- Per-user inventory password RPC added (separate from Cloud login password) and enforced for cloud product edits / stock changes when protection is ON.
+- Backup permission defaults ON; Restore permission defaults OFF and remains administrator-granted.
+- Admin permission saves now use the admin-user Edge Function, avoiding profiles RLS update errors.
+- About logo reduced to 75% of previous size.
+- Includes Supabase SQL migration: supabase/migrations/20260814_0409_inventory_security.sql
+
+===== CHANGELOG_04_10.txt =====
+BRC Build 2026.08.14.04.11
+
+Reliability hardening release.
+
+- Added static fallback labels for critical navigation and calculator UI.
+- Added startup watchdog and explicit startup-error screen instead of silent blank labels.
+- Added module load failure reporting without clearing localStorage or cached inventory data.
+- App marks itself ready only after the normal initialization/translation/render path succeeds.
+- Added regression tests that fail the build if fallback text or startup guard is removed.
+- Aligned supabase/config.toml admin-user verify_jwt=false with the deployed custom authentication setup.
+- Bumped service worker/cache identity so 04.11 cannot reuse the 04.09 application cache namespace.
+
+No database migration is required beyond the already-applied 04.09 migration.
+
+===== CHANGELOG_04_11.txt =====
+BRC Build 2026.08.14.04.11
+
+Critical startup hotfix:
+- Fixed a missing closing parenthesis in the Share Backup click handler that caused app.js to fail parsing in browsers.
+- Startup watchdog now preserves the first concrete startup error instead of replacing it with a later timeout message.
+- Added module-mode syntax verification for app.js by checking it as .mjs during QA.
+- No database migration changes. Supabase 04.09 migration and admin-user function remain valid.
+
+===== CHANGELOG_04_12.txt =====
+BRC Build 2026.08.14.04.12
+
+Fixes in this build:
+- Adds administrator control to set/reset each cloud user's independent inventory password.
+- Inventory password is numeric and at least 4 digits, independent of the Supabase cloud login password.
+- Moves inventory credential hashes out of public.profiles into private.inventory_credentials.
+- Improves Edge Function secret-key resolution and surfaces server error details for password/permission operations.
+- Keeps cloud login password reset in Users and distinguishes it from Inventory Password.
+- Reorders Belt Detail fields: Manufacturer | Application, Width | Thickness.
+- Shows Location at the bottom-right of each Inventory List card.
+- Adds an iPad-only/coarse-pointer safe-area offset of one additional button height without moving iPhone further down.
+
+Supabase steps required before testing:
+1. Run supabase/migrations/20260814_0412_inventory_credentials.sql once.
+2. Redeploy supabase/functions/admin-user/index.ts as admin-user with Verify JWT with legacy secret OFF.
+
+===== CHANGELOG_04_13.txt =====
+BRC Build 2026.08.14.04.13
+
+Authorization-chain reliability fix.
+
+- Removed client-side cached-profile hard blocking from admin password, inventory-password, and permissions update calls. The browser UI may still use permissions for presentation, but Supabase is now the only authority for privileged actions.
+- Edge Function now verifies the caller using the caller JWT with a publishable-key client, then uses a separate secret-key client only for privileged writes.
+- Caller profile lookup failures now return a distinct diagnostic error instead of being mislabeled as "Administrator permission required".
+- Admin, active-account, and can_manage_users checks remain enforced server-side.
+- No new database migration is required beyond the already-applied 04.12 migration.
+- admin-user Edge Function must be redeployed from this build.
+
+===== CHANGELOG_04_14.txt =====
+BRC Build 2026.08.14.04.14
+
+Inventory editor safety and usability
+- Sticky Edit header keeps title, Cancel, and Save visible while the form scrolls.
+- Adds spacing between Cancel and Save.
+- Inventory verification primary action renamed Login -> Confirm.
+- Stock is visible in Edit, locked/grey by default, with a right-side Unlock button.
+- Unlock requires independent Inventory Password; direct stock editing also requires Set Balance permission.
+- Stock edits are written via adjust_inventory(set_balance), never via a direct table UPDATE.
+- Location uses a controlled list of active Supabase locations.
+- Location moves are atomic through move_inventory_location; no browser UPDATE permission is added to inventory_balances.
+- Location transfer writes transfer_out and transfer_in history records and preserves total quantity.
+
+Supabase
+- Run 20260814_0414_inventory_location_move.sql once.
+- admin-user Edge Function does not need an update for 04.14.
+
+===== CHANGELOG_04_15.txt =====
+BRC Build 2026.08.14.04.15
+
+- Fixed Stock Unlock so inventory verification no longer destroys/closes the underlying Edit dialog.
+- Inventory verification primary action remains Confirm, not Login.
+- Edit form Enter key now advances to the next single-line field; it no longer triggers Save. Textareas keep normal newline behavior.
+- Replaced the flat Location dropdown with structured free-entry fields: Site, Department, Shelf/Cabinet, Layer, Bin, plus Custom Location for temporary/non-standard storage.
+- Structured Location values are serialized into the existing Location string, so no new database migration is required.
+- Removed the misleading Backup Destination selector and removed Share Backup.
+- Export now offers PDF, Excel (.xlsx), TXT, and restorable BRC JSON.
+- Added mile (mi) to Length conversion.
+- Added US quart (US qt) and US pint (US pt) to Volume conversion.
+- Preserved 04.14 atomic Location Move RPC and 04.13 admin authorization chain.
