@@ -81,8 +81,8 @@ test("CSV cells quote commas, quotes, and newlines", () => {
   assert.equal(csvCell('a,"b"'), '"a,""b"""');
 });
 
-// Consolidated regression suite (04.08 -> 04.17)
-test('04.17 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.08.17.04.17');assert.match(sw,/04-17/);assert.match(html,/app\.js\?v=202608170417/);assert.match(html,/app\.css\?v=202608170417/)});
+// Consolidated regression suite (04.08 -> 04.18)
+test('04.18 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.08.17.04.18');assert.match(sw,/04-18/);assert.match(html,/app\.js\?v=202608170418/);assert.match(html,/app\.css\?v=202608170418/)});
 test('app.js parses in ES module mode',()=>{const tmp=path.join(os.tmpdir(),`brc-app-${process.pid}.mjs`);fs.writeFileSync(tmp,app);const r=spawnSync(process.execPath,['--check',tmp],{encoding:'utf8'});fs.unlinkSync(tmp);assert.equal(r.status,0,r.stderr||r.stdout)});
 test('mobile safe areas and iPad offset remain',()=>{assert.match(css,/safe-area-inset-top/);assert.match(css,/min-width:521px/);assert.match(css,/pointer:coarse/)});
 test('sticky edit header remains and Enter advances through editor fields',()=>{assert.match(css,/\.dialog\.sticky-editor \.dialog-title\{position:sticky/);assert.match(app,/fields\[i\+1\]\.focus\(\)/)});
@@ -101,3 +101,7 @@ test('publishable key may be embedded but secret keys are absent from browser co
 
 test('04.17 stock field intentionally has no one-click clear control',()=>{const section=app.slice(app.indexOf('function beltEditor'),app.indexOf('function stockAction'));assert.match(section,/smartNumberField\(`\$\{tr\('stock'\)\} \(\$\{inventoryUnit\(\)\}\)`,stock,\{allowClear:false\}\)/);assert.match(app,/function smartNumberField\(label,input,\{allowClear=true\}=\{\}\)/)});
 test('04.17 structured location labels follow the selected language without bilingual hard-coding',()=>{assert.match(app,/site:'厂区',department:'部门',shelfCabinet:'货架 \/ 柜',layer:'层',bin:'箱位'/);assert.doesNotMatch(app,/site:'Site \/ 厂区'/);assert.doesNotMatch(app,/department:'Department \/ 部门'/);assert.doesNotMatch(app,/shelfCabinet:'Shelf \/ Cabinet \/ 架柜'/);assert.match(app,/site:'Site',department:'Department',shelfCabinet:'Shelf \/ Cabinet',layer:'Layer',bin:'Bin'/)});
+
+
+test('04.18 structured location serializer reads DOM field values instead of stringifying elements',()=>{assert.match(app,/function locationFieldValue\(v\)\{return String\(v&&typeof v==='object'&&'value' in v\?v\.value/);assert.match(app,/map\(locationFieldValue\)/);assert.match(app,/custom=locationFieldValue\(parts\.custom\)/)})
+test('04.18 detects and suppresses legacy corrupted DOM-object location strings',()=>{assert.match(app,/function locationValueIsCorrupt/);assert.match(app,/Location needs correction/);assert.match(app,/位置需要重新填写/);assert.match(app,/if\(!raw\|\|locationValueIsCorrupt\(raw\)\)return out/)})

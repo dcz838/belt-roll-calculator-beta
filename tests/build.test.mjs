@@ -4,7 +4,7 @@ import fs from "node:fs";
 const read=(p)=>fs.readFileSync(new URL(`../${p}`,import.meta.url),"utf8");
 const version=JSON.parse(read("VERSION.json"));
 const html=read("index.html"), manifest=JSON.parse(read("manifest.webmanifest")), sw=read("service-worker.js"), app=read("js/app.js");
-test("build metadata is current and no stale sidebar version remains",()=>{assert.equal(version.build,"2026.08.17.04.17");assert.match(html,/sidebarVersion/);assert.doesNotMatch(html,/2026\.07\.27\.03\.07/);assert.doesNotMatch(html,/Web Edition 2\.2 Beta/)});
+test("build metadata is current and no stale sidebar version remains",()=>{assert.equal(version.build,"2026.08.17.04.18");assert.match(html,/sidebarVersion/);assert.doesNotMatch(html,/2026\.07\.27\.03\.07/);assert.doesNotMatch(html,/Web Edition 2\.2 Beta/)});
 test("Beta PWA identity is distinct",()=>{assert.equal(manifest.short_name,"BRC Beta");assert.match(manifest.name,/Beta/);assert.match(html,/BRC Beta · Belt Roll Calculator/)});
 test("cloud module is available offline",()=>{assert.match(sw,/js\/cloud\.js/);assert.match(app,/localDataNote:'Inventory data is synchronized securely through the cloud/)});
 test("inventory uses summary cards rather than duplicate filter buttons",()=>{assert.doesNotMatch(html,/data-filter=/);assert.match(app,/summary-card/)});

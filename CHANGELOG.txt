@@ -184,3 +184,10 @@ BRC Build 2026.08.14.04.15
 - Removed the Stock field's × clear button to prevent accidental zeroing/clearing of inventory input. Users must explicitly type the intended stock value; stock changes still require the high-visibility final confirmation.
 - Fixed structured Location localization. English now shows only English labels, Chinese shows only Chinese labels, and Spanish continues to use its own translations.
 - No Supabase migration or Edge Function update is required.
+
+
+===== Build 2026.08.17.04.18 =====
+Fixed
+- Structured Location save no longer serializes HTML form controls as text.
+- Existing corrupted Location display is sanitized and prompts the user to re-enter the Location once.
+- Inventory quantity and Location move RPC behavior are unchanged.

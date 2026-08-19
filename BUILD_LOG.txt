@@ -302,3 +302,10 @@ Changes:
 Supabase:
 - No new migration required.
 - No admin-user Edge Function update required.
+
+
+===== Build 2026.08.17.04.18 =====
+- QA: 37/37 PASS; ES module syntax check PASS.
+- Hotfix for structured Location serialization. The editor now reads each input/textarea .value before composing the Location string, preventing [object HTMLInputElement] / [object HTMLTextAreaElement] from being stored.
+- Detects Location strings corrupted by 04.16/04.17 and shows a clear 'Location needs correction' marker instead of raw DOM-object text.
+- No Supabase migration or Edge Function update is required.
