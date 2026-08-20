@@ -191,3 +191,15 @@ Fixed
 - Structured Location save no longer serializes HTML form controls as text.
 - Existing corrupted Location display is sanitized and prompts the user to re-enter the Location once.
 - Inventory quantity and Location move RPC behavior are unchanged.
+
+===== Build 2026.08.19.04.19 =====
+Inventory safety and visual-weight update.
+
+- Stock edits now require a high-risk confirmation dialog containing large Current Stock, New Stock, and Change values plus the independent Inventory Password.
+- Incorrect Inventory Password messages stay inside the active verification dialog instead of appearing behind the modal.
+- Direct stock balance edits require Set Balance permission in addition to the Inventory Password.
+- Structured Location codes now use the compact Site-Department-Shelf/Cabinet-Layer-Bin format (example: COI-Maint-1-3-3).
+- Empty hierarchy segments remain represented (example: COI-Maint--3-3) so the five location levels retain their meaning.
+- Inventory search includes the normalized Location code, allowing searches such as COI, Maint, 1-3-3, or the full code.
+- Interactive controls and calculator keys now use approximately double-weight borders for a clearer, more substantial touch interface.
+- No Supabase migration or Edge Function redeployment is required.

@@ -309,3 +309,24 @@ Supabase:
 - Hotfix for structured Location serialization. The editor now reads each input/textarea .value before composing the Location string, preventing [object HTMLInputElement] / [object HTMLTextAreaElement] from being stored.
 - Detects Location strings corrupted by 04.16/04.17 and shows a clear 'Location needs correction' marker instead of raw DOM-object text.
 - No Supabase migration or Edge Function update is required.
+
+===== Build 2026.08.19.04.19 =====
+Date: 2026-08-19
+Release focus: inventory confirmation safety, location-code search, stronger control borders.
+
+QA:
+- Consolidated build + regression tests: 42/42 PASS.
+- ES module syntax check: PASS.
+- ZIP integrity check: PASS.
+
+Changes:
+- Stock balance edits remain directly typeable but now require Set Balance permission and an Inventory Password before the change is committed.
+- Stock confirmation dialog shows large Current -> New -> Change values and writes only through the existing controlled set_balance RPC.
+- Inventory-password errors now render inside the active verification dialog with a red error state and refocus the password field.
+- Structured Location displays and stores a five-segment Site-Department-Shelf/Cabinet-Layer-Bin code, with empty segments preserved for stable hierarchy.
+- Inventory search indexes the normalized hyphen Location code.
+- Input, select, textarea, button, calculator-key, smart-number, and converter control borders use a stronger 2px treatment; inventory status-card emphasis is unchanged.
+
+Supabase:
+- No new migration required.
+- No admin-user Edge Function update required.
