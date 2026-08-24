@@ -330,3 +330,17 @@ Changes:
 Supabase:
 - No new migration required.
 - No admin-user Edge Function update required.
+
+
+===== Build 2026.08.24.04.20 =====
+Date: 2026-08-24
+Release focus: Tools / Unit Converter reliability and calculator interaction feedback.
+
+QA:
+- Consolidated build + regression tests: 45/45 PASS.
+- ES module syntax check: PASS.
+- ZIP integrity check: PASS.
+
+Supabase:
+- No new migration required.
+- No admin-user Edge Function update required.

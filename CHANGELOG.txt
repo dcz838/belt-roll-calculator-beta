@@ -203,3 +203,16 @@ Inventory safety and visual-weight update.
 - Inventory search includes the normalized Location code, allowing searches such as COI, Maint, 1-3-3, or the full code.
 - Interactive controls and calculator keys now use approximately double-weight borders for a clearer, more substantial touch interface.
 - No Supabase migration or Edge Function redeployment is required.
+
+
+===== Build 2026.08.24.04.20 =====
+Tools reliability repair.
+
+- Repaired Unit Converter event wiring lost during later UI refactors.
+- Category changes now immediately rebuild From/To unit lists for the selected category.
+- Numeric input now recalculates live; From/To changes and unit Swap recalculate and record correctly.
+- Restored Standard/Scientific calculator mode controls and calculator-history Clear wiring.
+- Calculator keys now use heavier text and visible pressed/touch feedback.
+- Added converter regression gates covering 20 m³ = 20,000 L, 1 mi = 5,280 ft, US gal/qt/pt relationships, 100 °C = 212 °F, and kg/lb reference conversion.
+- Inventory module was intentionally left unchanged.
+- No Supabase migration or Edge Function redeployment is required.
