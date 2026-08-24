@@ -4,9 +4,10 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import {spawnSync} from "node:child_process";
-import {MM_PER_INCH,calculateInventoryBalance,calculateRoll,convertDimension,csvCell,validateBeltRecord} from "../js/core.mjs";
+import crypto from "node:crypto";
+import {MM_PER_INCH,calculateInventoryBalance,calculateRoll,convertDimension,csvCell,validateBeltRecord,compoundImperialToInches,inchesToCompoundImperial,ENGINEERING_UNITS,convertEngineeringValue} from "../js/core.mjs";
 const read=(p)=>fs.readFileSync(new URL(`../${p}`,import.meta.url),"utf8");
-const app=read("js/app.js"), cloud=read("js/cloud.js"), css=read("css/app.css"), html=read("index.html"), sw=read("service-worker.js");
+const app=read("js/app.js"), core=read("js/core.mjs"), cloud=read("js/cloud.js"), css=read("css/app.css"), html=read("index.html"), sw=read("service-worker.js");
 const edge=read("supabase/functions/admin-user/index.ts"), sql09=read("supabase/migrations/20260814_0409_inventory_security.sql"), sql12=read("supabase/migrations/20260814_0412_inventory_credentials.sql"), sql14=read("supabase/migrations/20260814_0414_inventory_location_move.sql");
 const version=JSON.parse(read("VERSION.json"));
 
@@ -82,7 +83,7 @@ test("CSV cells quote commas, quotes, and newlines", () => {
 });
 
 // Consolidated regression suite (04.08 -> 04.18)
-test('04.19 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.08.19.04.19');assert.match(sw,/04-19/);assert.match(html,/app\.js\?v=202608190419/);assert.match(html,/app\.css\?v=202608190419/)});
+test('04.21 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.08.24.04.21');assert.match(sw,/04-21/);assert.match(html,/app\.js\?v=202608240421/);assert.match(html,/app\.css\?v=202608240421/)});
 test('app.js parses in ES module mode',()=>{const tmp=path.join(os.tmpdir(),`brc-app-${process.pid}.mjs`);fs.writeFileSync(tmp,app);const r=spawnSync(process.execPath,['--check',tmp],{encoding:'utf8'});fs.unlinkSync(tmp);assert.equal(r.status,0,r.stderr||r.stdout)});
 test('mobile safe areas and iPad offset remain',()=>{assert.match(css,/safe-area-inset-top/);assert.match(css,/min-width:521px/);assert.match(css,/pointer:coarse/)});
 test('sticky edit header remains and Enter advances through editor fields',()=>{assert.match(css,/\.dialog\.sticky-editor \.dialog-title\{position:sticky/);assert.match(app,/fields\[i\+1\]\.focus\(\)/)});
@@ -95,7 +96,7 @@ test('location moves remain atomic and quantity-preserving',()=>{assert.match(cl
 test('inventory passwords remain private and separate from cloud auth password',()=>{assert.match(sql12,/private\.inventory_credentials/);assert.match(sql12,/drop column if exists inventory_pin_hash/);assert.match(cloud,/verify_inventory_pin/);assert.match(edge,/set_inventory_password/)});
 test('admin-user retains server-side authorization chain',()=>{assert.match(edge,/const userClient = createClient/);assert.match(edge,/const admin = createClient\(url, secretKey/);assert.match(edge,/Administrator permission required/);assert.match(edge,/admin\.auth\.admin\.updateUserById/)});
 test('backup UI remains simplified and export formats remain available',()=>{assert.doesNotMatch(html,/id="shareBackup"/);assert.doesNotMatch(html,/id="backupDestination"/);for(const x of ['exportPdf','exportExcel','exportTxt','exportJson'])assert.match(app,new RegExp(x))});
-test('unit converter includes mile, US quart, and US pint',()=>{assert.match(app,/mi:1609\.344/);assert.match(app,/'US qt':\.000946352946/);assert.match(app,/'US pt':\.000473176473/)});
+test('unit converter includes mile, US quart, and US pint',()=>{assert.equal(ENGINEERING_UNITS.length.units.mi,1609.344);assert.equal(ENGINEERING_UNITS.volume.units['US qt'],.000946352946);assert.equal(ENGINEERING_UNITS.volume.units['US pt'],.000473176473)});
 test('static startup guard and fallback labels remain',()=>{assert.match(html,/window\.BRCBootFail/);assert.match(html,/id="startupError"/);assert.match(html,/>Calculator<\/button>/);assert.match(html,/data-i="input">Input<\/h2>/)});
 test('publishable key may be embedded but secret keys are absent from browser code',()=>{assert.match(cloud,/sb_publishable_bBGvL1QwSX27Eu5bfrERRQ_c9qgziE0/);assert.doesNotMatch(cloud,/sb_secret_/);assert.doesNotMatch(cloud,/service_role/)});
 
@@ -112,3 +113,88 @@ test('04.19 stock balance changes require inventory-password verification in the
 test('04.19 structured locations serialize and display as fixed five-segment hyphen codes',()=>{assert.match(app,/values\.join\('-'\)/);assert.match(app,/displayLocationValue\(x\.location\)/);assert.match(app,/\.includes\('-'\)/);assert.doesNotMatch(app,/filter\(Boolean\)\.join\(' > '\)/)});
 test('04.19 inventory search indexes normalized location codes',()=>{assert.match(app,/\[\.\.\.Object\.values\(x\),displayLocationValue\(x\.location\)\]/)});
 test('04.19 interactive controls use double-weight borders without thickening inventory status cards globally',()=>{assert.match(css,/button,select,input,textarea\{border-width:2px\}/);assert.match(css,/\.smart-number,.deskdisplay,.conv-output/);assert.doesNotMatch(css,/\.belt-card\{[^}]*border-width:2px/)});
+
+
+test('04.20 converter event chain is wired and category changes rebuild unit lists',()=>{
+  assert.match(app,/function setupConverterEvents\(\)/);
+  assert.match(app,/category\.onchange=\(\)=>\{populateConverterUnits\(\{reset:true\}\)/);
+  assert.match(app,/input\.oninput=\(\)=>convert\(false\)/);
+  assert.match(app,/from\.onchange=\(\)=>\{updateCompoundVisibility\(\);convert\(true\)\}/);
+  assert.match(app,/to\.onchange=\(\)=>\{updateCompoundVisibility\(\);convert\(true\)\}/);
+  assert.match(app,/swap\.onclick=swapConverterUnits/);
+  assert.match(app,/setupConverterEvents\(\);setupCalculatorControls\(\);translate\(\)/);
+});
+
+test('04.20 converter formulas cover required reference conversions',()=>{
+  assert.match(app,/convertEngineeringValue\(n,cat,a,b\)/);
+  assert.equal(convertEngineeringValue(20,'volume','m³','L'),20000);
+  assert.equal(convertEngineeringValue(1,'length','mi','ft'),5280);
+  assert.ok(Math.abs(convertEngineeringValue(1,'volume','US gal','US qt')-4)<1e-9);
+  assert.ok(Math.abs(convertEngineeringValue(1,'volume','US gal','US pt')-8)<1e-9);
+  assert.equal(convertEngineeringValue(100,'temperature','°C','°F'),212);
+  assert.ok(Math.abs(convertEngineeringValue(1,'weight','kg','lb')-2.2046226218487757)<1e-12);
+});
+
+test('04.20 calculator controls are wired and keys have pressed feedback',()=>{
+  assert.match(app,/function setupCalculatorControls\(\)/);
+  assert.match(app,/standard\.onclick=\(\)=>\{calcMode='standard';setupDeskCalc\(\)\}/);
+  assert.match(app,/scientific\.onclick=\(\)=>\{calcMode='scientific';setupDeskCalc\(\)\}/);
+  assert.match(css,/\.calc-keys button\{font-weight:800/);
+  assert.match(css,/\.calc-keys button:active\{background:#dbeafe/);
+  assert.match(css,/\.calc-keys button\.primary:active\{background:#075fd6/);
+});
+
+
+test('04.21 length converter supports compound feet-inches with fraction/decimal mode conversion',()=>{
+  assert.equal(ENGINEERING_UNITS.length.units['ft+in'],null);
+  assert.match(app,/function compoundTotalInches\(\)/);
+  assert.match(app,/compoundImperialToInches/);
+  assert.match(app,/inchesToCompoundImperial/);
+  assert.match(app,/function setCompoundMode\(mode\)/);
+  assert.match(app,/function formatFeetInches\(totalInches/);
+  assert.match(app,/setupCompoundLength\(\)/);
+  assert.doesNotMatch(css,/Fraction precision/i);
+});
+
+test('04.21 compound imperial controls are aligned and have no fraction-precision row',()=>{
+  assert.match(html,/id="compoundFeet"/);
+  assert.match(html,/id="compoundInches"/);
+  assert.match(html,/id="compoundFraction"/);
+  assert.match(html,/id="compoundFractionMode"/);
+  assert.match(html,/id="compoundDecimalMode"/);
+  assert.doesNotMatch(html,/Fraction precision|分数精度/i);
+  assert.match(css,/\.compound-fields\{display:grid;grid-template-columns:repeat\(3/);
+});
+
+test('04.21 compound conversion reference math is exact',()=>{
+  const inches=compoundImperialToInches({feet:5,inches:8,fraction:'3/8',mode:'fraction'});
+  assert.equal(inches,68.375);
+  assert.ok(Math.abs(inches*25.4-1736.725)<1e-9);
+  const decimal=inchesToCompoundImperial(inches,'decimal');
+  assert.equal(decimal.feet,5); assert.equal(decimal.inches,8.375);
+  const fraction=inchesToCompoundImperial(decimal.feet*12+decimal.inches,'fraction');
+  assert.deepEqual(fraction,{feet:5,inches:8,fraction:'3/8'});
+  assert.equal(compoundImperialToInches({feet:0,inches:11,fraction:'11/16',mode:'fraction'}),11.6875);
+});
+
+
+test('04.21 every engineering converter category has executable reference coverage',()=>{
+  const refs=[
+    ['length',1,'m','cm',100],['volume',2,'L','mL',2000],['temperature',32,'°F','°C',0],
+    ['pressure',1,'bar','kPa',100],['speed',36,'km/h','m/s',10],['weight',1000,'g','kg',1],
+    ['area',1,'m²','cm²',10000],['force',1,'kN','N',1000],['torque',1,'N·m','lb-in',8.85074579],
+    ['power',1,'kW','W',1000],['flow',60,'L/min','L/s',1]
+  ];
+  for(const [cat,v,a,b,expected] of refs){const got=convertEngineeringValue(v,cat,a,b);assert.ok(Number.isFinite(got),`${cat} returned non-finite`);assert.ok(Math.abs(got-expected)<Math.max(1e-6,Math.abs(expected)*1e-6),`${cat}: ${got} != ${expected}`)}
+});
+
+test('04.21 inventory-critical source is byte-for-byte unchanged from verified 04.20 baseline',()=>{
+  const hash=x=>crypto.createHash('sha256').update(x).digest('hex');
+  assert.equal(hash(cloud),'953dd739adf05e96fd6eb9645d0dcff9e05a0666c9e6a3ca62b6c1086f6f1d96');
+  const sections=[
+    ['function locationEditorFields','function exportCsv','a808c0c8ba7cc2daeb2bb941f261b45eed092eb67a4783629493d3dcd8416e92'],
+    ['async function inventoryAuth','function changeInventoryPin','92efe1dfd16123ffedc1d86dc88839b3eeb65e0c32d1930aa105b48c9b71723a'],
+    ['function stockAdjustmentConfirm','function deleteWarning','e50eb6cde59e858125f9f8b1bf6ae0f6a49246dd3175eb5b999abef7722bc732']
+  ];
+  for(const [start,end,expected] of sections){const part=app.slice(app.indexOf(start),app.indexOf(end,app.indexOf(start)));assert.equal(hash(part),expected,start)}
+});

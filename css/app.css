@@ -112,3 +112,19 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 .calc-keys button:active{background:#dbeafe;transform:translateY(1px);box-shadow:inset 0 2px 5px #0002}
 .calc-keys button.primary:active{background:#075fd6;border-color:#075fd6}
 @media(hover:hover){.calc-keys button:hover{background:#f1f5f9}.calc-keys button.primary:hover{background:#0d6fe8}}
+
+/* Build 04.21: compound imperial length input */
+.compound-length{margin-top:2px;padding:12px;border:2px solid #c8d2df;border-radius:12px;background:#f8fbff}
+.compound-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.compound-head>b{font-size:15px}
+.compound-mode{min-width:210px}
+.compound-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:end}
+.compound-fields label{display:grid;gap:6px;font-weight:700;min-width:0}
+.compound-fields input,.compound-fields select{width:100%;min-width:0;min-height:52px;font-size:18px;font-weight:700}
+.compound-summary{margin-top:10px;padding:9px 11px;border-radius:8px;background:#eaf3ff;color:#174ea6;font-weight:700;min-height:39px}
+.converter-row.compound-active{grid-template-columns:1fr}
+.converter-row.compound-active #convFrom{width:100%}
+.converter-row.compound-active #convInput{display:none}
+.compound-output{font-weight:800}
+@media(max-width:620px){.compound-head{align-items:flex-start;flex-direction:column}.compound-mode{width:100%;min-width:0}.compound-fields{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.compound-fields input,.compound-fields select{font-size:16px;padding:9px 7px}}
+@media(max-width:420px){.compound-fields{grid-template-columns:1fr 1fr}.compound-fields label:last-child{grid-column:1/-1}}

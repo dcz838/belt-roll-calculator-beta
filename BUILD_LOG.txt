@@ -344,3 +344,21 @@ QA:
 Supabase:
 - No new migration required.
 - No admin-user Edge Function update required.
+
+
+===== Build 2026.08.24.04.21 =====
+Date: 2026-08-24
+Release focus: compound imperial Length input; preserve verified Inventory baseline.
+
+Verification:
+- Unit + regression tests: 50/50 PASS.
+- ES module syntax check: PASS.
+- Converter reference coverage: Length, Volume, Temperature, Pressure, Speed, Weight, Area, Force, Torque, Power, Flow PASS.
+- Compound input checks: Fraction -> Decimal -> Fraction round-trip PASS; 5 ft 8 3/8 in = 68.375 in = 1736.725 mm PASS.
+- Inventory source lock: cloud.js and inventory-critical app sections are SHA-256 identical to the verified 04.20 baseline.
+- Browser E2E: NOT RUN in the build container (headless Chromium is unavailable/reliably non-terminating in this environment). Do not mislabel static/unit checks as browser E2E.
+- Manual iPhone/iPad checks: NOT RUN.
+
+Supabase:
+- No new migration required.
+- No admin-user Edge Function update required.

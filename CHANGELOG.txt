@@ -216,3 +216,17 @@ Tools reliability repair.
 - Added converter regression gates covering 20 m³ = 20,000 L, 1 mi = 5,280 ft, US gal/qt/pt relationships, 100 °C = 212 °F, and kg/lb reference conversion.
 - Inventory module was intentionally left unchanged.
 - No Supabase migration or Edge Function redeployment is required.
+
+
+===== Build 2026.08.24.04.21 =====
+Length converter compound-imperial input.
+
+- Added Feet + Inches (ft + in) as a Length From/To unit.
+- Fraction mode uses aligned Feet, Inches, and Fraction controls on one row.
+- Decimal mode automatically converts the same physical length to decimal inches without changing the value.
+- Switching Decimal back to Fraction rounds to the nearest 1/64 inch and automatically reduces the fraction.
+- Removed the separate Fraction Precision row.
+- Compound input recalculates live and participates in Swap and conversion History.
+- Added pure, executable converter functions in core.mjs so reference conversions are unit-tested against the same math used by the UI.
+- Inventory implementation intentionally left byte-for-byte unchanged in all inventory-critical sections from 04.20.
+- No Supabase migration or Edge Function update required.

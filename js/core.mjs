@@ -111,3 +111,74 @@ export function csvCell(value) {
   const text = String(value ?? "");
   return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }
+
+export function gcdInteger(a, b) {
+  let x = Math.abs(Math.trunc(Number(a) || 0));
+  let y = Math.abs(Math.trunc(Number(b) || 0));
+  while (y) [x, y] = [y, x % y];
+  return x || 1;
+}
+
+export function parseFraction(value) {
+  const text = String(value ?? "").trim();
+  if (!text) return 0;
+  const match = text.match(/^(\d+)\/(\d+)$/);
+  if (!match) return NaN;
+  const denominator = Number(match[2]);
+  return denominator ? Number(match[1]) / denominator : NaN;
+}
+
+export function compoundImperialToInches({ feet = 0, inches = 0, fraction = "", mode = "fraction" } = {}) {
+  const ft = Number(feet) || 0;
+  const inch = Number(inches) || 0;
+  if (mode === "decimal") return ft * 12 + inch;
+  const frac = parseFraction(fraction);
+  if (!Number.isFinite(frac)) return NaN;
+  return ft * 12 + inch + frac;
+}
+
+export function inchesToCompoundImperial(totalInches, mode = "fraction", denominator = 64) {
+  let total = Math.max(0, Number(totalInches) || 0);
+  let feet = Math.floor(total / 12);
+  let inches = total - feet * 12;
+  if (mode === "decimal") return { feet, inches: Number(inches.toFixed(6)), fraction: "" };
+  let whole = Math.floor(inches);
+  let numerator = Math.round((inches - whole) * denominator);
+  if (numerator >= denominator) { whole += 1; numerator = 0; }
+  if (whole >= 12) { feet += Math.floor(whole / 12); whole %= 12; }
+  let fraction = "";
+  if (numerator) {
+    const divisor = gcdInteger(numerator, denominator);
+    fraction = `${numerator / divisor}/${denominator / divisor}`;
+  }
+  return { feet, inches: whole, fraction };
+}
+
+export const ENGINEERING_UNITS = Object.freeze({
+  length:{units:{km:1000,m:1,cm:.01,mm:.001,mi:1609.344,yd:.9144,ft:.3048,in:.0254,'ft+in':null}},
+  volume:{units:{'m³':1,L:.001,mL:.000001,'ft³':.0283168466,'in³':.000016387064,'US gal':.003785411784,'US qt':.000946352946,'US pt':.000473176473}},
+  temperature:{units:{'°C':'c','°F':'f',K:'k'}},
+  pressure:{units:{Pa:1,kPa:1000,MPa:1e6,bar:1e5,psi:6894.757293,atm:101325,inHg:3386.389,mmHg:133.322}},
+  speed:{units:{'m/s':1,'km/h':.277777778,mph:.44704,'ft/s':.3048,knot:.514444}},
+  weight:{units:{kg:1,g:.001,mg:.000001,lb:.45359237,oz:.028349523125,'metric ton':1000}},
+  area:{units:{'mm²':1e-6,'cm²':1e-4,'m²':1,'in²':.00064516,'ft²':.09290304,acre:4046.8564224}},
+  force:{units:{N:1,kN:1000,kgf:9.80665,lbf:4.4482216153}},
+  torque:{units:{'N·m':1,'kgf·m':9.80665,'lb-ft':1.3558179483,'lb-in':.112984829}},
+  power:{units:{W:1,kW:1000,hp:745.699872,'BTU/hr':.29307107}},
+  flow:{units:{'L/min':1,'L/s':60,'m³/h':16.6666667,GPM:3.785411784,CFM:28.3168466}}
+});
+
+export function convertEngineeringValue(value, category, fromUnit, toUnit) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return NaN;
+  if (fromUnit === toUnit) return n;
+  const def = ENGINEERING_UNITS[category];
+  if (!def || !(fromUnit in def.units) || !(toUnit in def.units)) return NaN;
+  if (category === 'temperature') {
+    const toC = fromUnit === '°C' ? n : fromUnit === '°F' ? (n - 32) * 5 / 9 : n - 273.15;
+    return toUnit === '°C' ? toC : toUnit === '°F' ? toC * 9 / 5 + 32 : toC + 273.15;
+  }
+  const fromFactor = def.units[fromUnit], toFactor = def.units[toUnit];
+  if (!Number.isFinite(fromFactor) || !Number.isFinite(toFactor)) return NaN;
+  return n * fromFactor / toFactor;
+}
