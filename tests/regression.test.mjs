@@ -83,7 +83,7 @@ test("CSV cells quote commas, quotes, and newlines", () => {
 });
 
 // Consolidated regression suite (04.08 -> 04.18)
-test('04.21 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.08.24.04.21');assert.match(sw,/04-21/);assert.match(html,/app\.js\?v=202608240421/);assert.match(html,/app\.css\?v=202608240421/)});
+test('04.22 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.08.24.04.22');assert.match(sw,/04-22/);assert.match(html,/app\.js\?v=202608240422/);assert.match(html,/app\.css\?v=202608240422/)});
 test('app.js parses in ES module mode',()=>{const tmp=path.join(os.tmpdir(),`brc-app-${process.pid}.mjs`);fs.writeFileSync(tmp,app);const r=spawnSync(process.execPath,['--check',tmp],{encoding:'utf8'});fs.unlinkSync(tmp);assert.equal(r.status,0,r.stderr||r.stdout)});
 test('mobile safe areas and iPad offset remain',()=>{assert.match(css,/safe-area-inset-top/);assert.match(css,/min-width:521px/);assert.match(css,/pointer:coarse/)});
 test('sticky edit header remains and Enter advances through editor fields',()=>{assert.match(css,/\.dialog\.sticky-editor \.dialog-title\{position:sticky/);assert.match(app,/fields\[i\+1\]\.focus\(\)/)});
@@ -159,7 +159,8 @@ test('04.21 length converter supports compound feet-inches with fraction/decimal
 test('04.21 compound imperial controls are aligned and have no fraction-precision row',()=>{
   assert.match(html,/id="compoundFeet"/);
   assert.match(html,/id="compoundInches"/);
-  assert.match(html,/id="compoundFraction"/);
+  assert.match(html,/id="compoundNumerator"/);
+  assert.match(html,/id="compoundDenominator"/);
   assert.match(html,/id="compoundFractionMode"/);
   assert.match(html,/id="compoundDecimalMode"/);
   assert.doesNotMatch(html,/Fraction precision|分数精度/i);
@@ -186,6 +187,31 @@ test('04.21 every engineering converter category has executable reference covera
     ['power',1,'kW','W',1000],['flow',60,'L/min','L/s',1]
   ];
   for(const [cat,v,a,b,expected] of refs){const got=convertEngineeringValue(v,cat,a,b);assert.ok(Number.isFinite(got),`${cat} returned non-finite`);assert.ok(Math.abs(got-expected)<Math.max(1e-6,Math.abs(expected)*1e-6),`${cat}: ${got} != ${expected}`)}
+});
+
+test('04.22 fraction UI uses separate numerator and denominator selectors',()=>{
+  assert.match(html,/id="compoundNumerator"/);
+  assert.match(html,/id="compoundDenominator"/);
+  assert.doesNotMatch(html,/id="compoundFraction"/);
+  assert.match(app,/const compoundDenominators=\[2,4,8,16,32,64\]/);
+  assert.match(app,/function populateNumeratorOptions/);
+  assert.match(css,/\.fraction-pair\{display:grid/);
+});
+
+test('04.22 decimal compound inches accepts decimal point and round-trips to fraction',()=>{
+  assert.equal(compoundImperialToInches({feet:10,inches:'9.5',mode:'decimal'}),129.5);
+  assert.equal(compoundImperialToInches({feet:10,inches:'9,5',mode:'decimal'}),129.5);
+  const f=inchesToCompoundImperial(129.5,'fraction');
+  assert.deepEqual(f,{feet:10,inches:9,fraction:'1/2'});
+  assert.equal(compoundImperialToInches({feet:10,inches:9,numerator:1,denominator:2,mode:'fraction'}),129.5);
+  assert.match(html,/id="compoundInches" type="text" inputmode="decimal"/);
+  assert.match(app,/replace\(','\s*,\s*'\.'\)/);
+});
+
+test('04.22 decimal mode truly hides fraction pair and preserves value during mode switching',()=>{
+  assert.match(app,/compoundFractionField'\)\.hidden=compoundMode==='decimal'/);
+  assert.match(css,/\.compound-fields \[hidden\]\{display:none!important\}/);
+  assert.match(app,/const total=compoundTotalInches\(\);[\s\S]*setCompoundFromTotalInches\(total,compoundMode\)/);
 });
 
 test('04.21 inventory-critical source is byte-for-byte unchanged from verified 04.20 baseline',()=>{

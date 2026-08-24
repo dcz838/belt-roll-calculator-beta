@@ -1,3 +1,15 @@
+===== Build 2026.08.24.04.22 =====
+Focus: Compound imperial input UX and decimal-entry reliability.
+- Numerator/denominator split controls.
+- Decimal input accepts dot/comma decimal separators.
+- Fraction/Decimal round-trip regression coverage added.
+- Inventory-critical source retained from 04.21/04.20 baseline.
+Test status:
+- Node unit + static regression: 53/53 PASS
+- ES module syntax check: PASS
+- Browser E2E: NOT RUN (no browser automation driver in build harness)
+- iPhone/iPad manual device test: NOT RUN
+
 Belt Roll Calculator — Cumulative Build Log
 
 ===== Build 2026.08.17.04.16 =====

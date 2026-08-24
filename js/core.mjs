@@ -128,12 +128,20 @@ export function parseFraction(value) {
   return denominator ? Number(match[1]) / denominator : NaN;
 }
 
-export function compoundImperialToInches({ feet = 0, inches = 0, fraction = "", mode = "fraction" } = {}) {
+export function compoundImperialToInches({ feet = 0, inches = 0, fraction = "", numerator = "", denominator = "", mode = "fraction" } = {}) {
   const ft = Number(feet) || 0;
-  const inch = Number(inches) || 0;
+  const inch = Number(String(inches).replace(',', '.')) || 0;
   if (mode === "decimal") return ft * 12 + inch;
-  const frac = parseFraction(fraction);
-  if (!Number.isFinite(frac)) return NaN;
+  let frac = 0;
+  if (numerator !== "" || denominator !== "") {
+    const num = Number(numerator) || 0;
+    const den = Number(denominator);
+    if (num && (!Number.isFinite(den) || den <= 0 || num >= den)) return NaN;
+    frac = num && den ? num / den : 0;
+  } else {
+    frac = parseFraction(fraction);
+    if (!Number.isFinite(frac)) return NaN;
+  }
   return ft * 12 + inch + frac;
 }
 

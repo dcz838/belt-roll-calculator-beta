@@ -113,7 +113,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 .calc-keys button.primary:active{background:#075fd6;border-color:#075fd6}
 @media(hover:hover){.calc-keys button:hover{background:#f1f5f9}.calc-keys button.primary:hover{background:#0d6fe8}}
 
-/* Build 04.21: compound imperial length input */
+/* Build 04.22: compound imperial length input */
 .compound-length{margin-top:2px;padding:12px;border:2px solid #c8d2df;border-radius:12px;background:#f8fbff}
 .compound-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
 .compound-head>b{font-size:15px}
@@ -126,5 +126,12 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 .converter-row.compound-active #convFrom{width:100%}
 .converter-row.compound-active #convInput{display:none}
 .compound-output{font-weight:800}
+
+.compound-fields [hidden]{display:none!important}
+.fraction-pair{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:6px}
+.fraction-pair select{min-height:52px}
+.fraction-slash{font-size:22px;font-weight:900;text-align:center}
+.fraction-pair-labels{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:2px;color:#64748b;font-size:11px;font-weight:600}
+.fraction-pair-labels span:last-child{text-align:right}
 @media(max-width:620px){.compound-head{align-items:flex-start;flex-direction:column}.compound-mode{width:100%;min-width:0}.compound-fields{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.compound-fields input,.compound-fields select{font-size:16px;padding:9px 7px}}
 @media(max-width:420px){.compound-fields{grid-template-columns:1fr 1fr}.compound-fields label:last-child{grid-column:1/-1}}
