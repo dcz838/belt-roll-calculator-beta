@@ -374,3 +374,19 @@ Verification:
 Supabase:
 - No new migration required.
 - No admin-user Edge Function update required.
+
+
+===== Build 2026.08.31.04.23 =====
+Date: 2026-08-31
+Release focus: calculator memory visibility; compound-imperial layout/output polish; About FAQ.
+
+Verification:
+- Unit + static regression suites: 57/57 PASS.
+- JavaScript syntax checks: app.js PASS; core.mjs PASS; cloud.js PASS.
+- Browser E2E: NOT RUN in this build environment; do not interpret static checks as browser interaction proof.
+- Manual iPhone/iPad/Mac checks: NOT RUN; user validation required after deployment.
+- Inventory cloud module intentionally unchanged from 04.22.
+
+Supabase:
+- No new migration required.
+- No admin-user Edge Function update required.

@@ -83,7 +83,7 @@ test("CSV cells quote commas, quotes, and newlines", () => {
 });
 
 // Consolidated regression suite (04.08 -> 04.18)
-test('04.22 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.08.24.04.22');assert.match(sw,/04-22/);assert.match(html,/app\.js\?v=202608240422/);assert.match(html,/app\.css\?v=202608240422/)});
+test('04.23 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.08.31.04.23');assert.match(sw,/04-23/);assert.match(html,/app\.js\?v=202608310423/);assert.match(html,/app\.css\?v=202608310423/)});
 test('app.js parses in ES module mode',()=>{const tmp=path.join(os.tmpdir(),`brc-app-${process.pid}.mjs`);fs.writeFileSync(tmp,app);const r=spawnSync(process.execPath,['--check',tmp],{encoding:'utf8'});fs.unlinkSync(tmp);assert.equal(r.status,0,r.stderr||r.stdout)});
 test('mobile safe areas and iPad offset remain',()=>{assert.match(css,/safe-area-inset-top/);assert.match(css,/min-width:521px/);assert.match(css,/pointer:coarse/)});
 test('sticky edit header remains and Enter advances through editor fields',()=>{assert.match(css,/\.dialog\.sticky-editor \.dialog-title\{position:sticky/);assert.match(app,/fields\[i\+1\]\.focus\(\)/)});
@@ -214,13 +214,51 @@ test('04.22 decimal mode truly hides fraction pair and preserves value during mo
   assert.match(app,/const total=compoundTotalInches\(\);[\s\S]*setCompoundFromTotalInches\(total,compoundMode\)/);
 });
 
-test('04.21 inventory-critical source is byte-for-byte unchanged from verified 04.20 baseline',()=>{
+test('04.23 inventory-critical source remains byte-for-byte unchanged from 04.22 baseline',()=>{
   const hash=x=>crypto.createHash('sha256').update(x).digest('hex');
   assert.equal(hash(cloud),'953dd739adf05e96fd6eb9645d0dcff9e05a0666c9e6a3ca62b6c1086f6f1d96');
   const sections=[
-    ['function locationEditorFields','function exportCsv','a808c0c8ba7cc2daeb2bb941f261b45eed092eb67a4783629493d3dcd8416e92'],
+    ['function locationEditorFields','function beltEditor','27e170af1bf21c23108faf1d5a8fb4f5dd1c0d620593f535791631ff1d3c0443'],
+    ['function beltEditor','function stockAction','d1988565b9afdc740a95fd3802dcbe163bb006834f6ec4fa57dc38522f1844a2'],
     ['async function inventoryAuth','function changeInventoryPin','92efe1dfd16123ffedc1d86dc88839b3eeb65e0c32d1930aa105b48c9b71723a'],
     ['function stockAdjustmentConfirm','function deleteWarning','e50eb6cde59e858125f9f8b1bf6ae0f6a49246dd3175eb5b999abef7722bc732']
   ];
   for(const [start,end,expected] of sections){const part=app.slice(app.indexOf(start),app.indexOf(end,app.indexOf(start)));assert.equal(hash(part),expected,start)}
+});
+
+
+test('04.23 calculator memory has collapsible visible state with zero-memory distinction',()=>{
+  assert.match(html,/id="calcMemoryToggle"/);
+  assert.match(html,/id="calcMemoryRow"/);
+  assert.match(html,/id="calcMemoryValue"/);
+  assert.match(app,/memorySet=false,memoryExpanded=false,memoryUserCollapsed=false/);
+  assert.match(app,/function renderMemoryDisplay\(\)/);
+  assert.match(app,/if\(k==='MC'\)\{memory=0;memorySet=false/);
+  assert.match(app,/else if\(k==='M\+'\)\{memory\+=Number\(currentValue\(\)\)\|\|0;memorySet=true/);
+  assert.match(app,/else if\(k==='MR'\)\{if\(memorySet\)calcExpr=String\(memory\)\}/);
+  assert.match(css,/\.calc-memory-toggle\.has-memory/);
+});
+
+test('04.23 compound input allocates more room to fraction pair and keeps controls equal height',()=>{
+  assert.match(css,/\.compound-fields\{grid-template-columns:minmax\(82px,\.72fr\) minmax\(82px,\.62fr\) minmax\(220px,1\.66fr\)\}/);
+  assert.match(css,/\.compound-fields input,\.compound-fields select,\.fraction-pair\{height:52px;min-height:52px\}/);
+});
+
+test('04.23 Feet + Inches output supports Fraction and Decimal display modes after swap',()=>{
+  assert.match(html,/id="compoundOutputMode"/);
+  assert.match(html,/id="outputFractionMode"/);
+  assert.match(html,/id="outputDecimalMode"/);
+  assert.match(app,/let compoundMode='fraction',compoundOutputMode='fraction'/);
+  assert.match(app,/outputDisplay=formatFeetInches\(out,compoundOutputMode\)/);
+  assert.match(app,/function setCompoundOutputMode\(mode\)/);
+  assert.match(app,/if\(a==='ft\+in'\)compoundOutputMode=compoundMode/);
+});
+
+test('04.23 About includes localized collapsible Help and FAQ',()=>{
+  assert.match(html,/id="faqList"/);
+  assert.match(app,/const FAQ=/);
+  assert.match(app,/如何在 Mac 上安装 BRC/);
+  assert.match(app,/How do I install BRC on a Mac/);
+  assert.match(app,/¿Cómo instalo BRC en Mac/);
+  assert.match(css,/\.faq-list details/);
 });

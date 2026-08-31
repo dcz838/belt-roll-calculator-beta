@@ -238,3 +238,12 @@ Length converter compound-imperial input.
 - Added pure, executable converter functions in core.mjs so reference conversions are unit-tested against the same math used by the UI.
 - Inventory implementation intentionally left byte-for-byte unchanged in all inventory-critical sections from 04.20.
 - No Supabase migration or Edge Function update required.
+
+
+===== Build 2026.08.31.04.23 =====
+- Calculator Memory now has a compact, manually collapsible display integrated into the main calculator display area.
+- M+ / M- mark Memory as active and auto-expand unless the user explicitly collapsed it; MR recalls; MC clears Memory and its active state. Stored zero is distinct from unused Memory.
+- Compound Feet + Inches input reallocates width away from Feet/Inches and toward Numerator/Denominator, with equal control height.
+- Feet + Inches as a conversion OUTPUT now provides Fraction / Decimal display switching, including after Swap.
+- Added localized About > Help & FAQ accordion for installation, PWA window recovery, cloud/local data, password, backup/export, and stale-version troubleshooting.
+- Inventory implementation and Supabase schema/functions are unchanged.
