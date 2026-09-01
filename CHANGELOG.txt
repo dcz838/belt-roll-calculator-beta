@@ -247,3 +247,11 @@ Length converter compound-imperial input.
 - Feet + Inches as a conversion OUTPUT now provides Fraction / Decimal display switching, including after Swap.
 - Added localized About > Help & FAQ accordion for installation, PWA window recovery, cloud/local data, password, backup/export, and stale-version troubleshooting.
 - Inventory implementation and Supabase schema/functions are unchanged.
+
+
+===== Build 2026.09.01.04.24 =====
+FIXED
+- Severe calculator memory regression introduced in 04.23.
+- Example fixed sequence: 2 + 3 = 5, M+, then 9 + 9 = now starts from 9 and returns 18 instead of appending to 5.
+- Memory display behavior retained.
+- MR/MC/M+/M- no longer corrupt the next numeric-entry state.

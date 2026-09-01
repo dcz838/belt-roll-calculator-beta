@@ -390,3 +390,14 @@ Verification:
 Supabase:
 - No new migration required.
 - No admin-user Edge Function update required.
+
+
+===== Build 2026.09.01.04.24 =====
+Date: 2026-09-01
+Focus: Calculator memory-state regression repair.
+- Fixed post-equals numeric entry after M+/M-/MC/MR workflows.
+- A completed result remains visible after memory operations, but the next numeric key starts a new expression.
+- Operators still continue from the completed/recalled value.
+- MR recalls memory as a completed value: numeric key replaces it; operator continues it.
+- Inventory-critical code intentionally unchanged.
+Testing: Unit/static regression suite + ES module syntax + ZIP integrity. Browser/device E2E not claimed.

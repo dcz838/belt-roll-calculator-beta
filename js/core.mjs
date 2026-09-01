@@ -190,3 +190,17 @@ export function convertEngineeringValue(value, category, fromUnit, toUnit) {
   if (!Number.isFinite(fromFactor) || !Number.isFinite(toFactor)) return NaN;
   return n * fromFactor / toFactor;
 }
+
+
+export function applyCalculatorEntry(expr, key, freshInput = false) {
+  const current = String(expr ?? '0');
+  const k = String(key ?? '');
+  const isDigit = /^\d$/.test(k);
+  const isDecimal = k === '.';
+  const isOperator = ['+','−','×','÷','^'].includes(k);
+  if (freshInput && (isDigit || isDecimal)) {
+    return { expr: isDecimal ? '0.' : k, freshInput: false };
+  }
+  if (current === '0' && isDigit) return { expr: k, freshInput: false };
+  return { expr: current + k, freshInput: freshInput && !isOperator ? freshInput : false };
+}

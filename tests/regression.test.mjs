@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import {spawnSync} from "node:child_process";
 import crypto from "node:crypto";
-import {MM_PER_INCH,calculateInventoryBalance,calculateRoll,convertDimension,csvCell,validateBeltRecord,compoundImperialToInches,inchesToCompoundImperial,ENGINEERING_UNITS,convertEngineeringValue} from "../js/core.mjs";
+import {MM_PER_INCH,calculateInventoryBalance,calculateRoll,convertDimension,csvCell,validateBeltRecord,compoundImperialToInches,inchesToCompoundImperial,ENGINEERING_UNITS,convertEngineeringValue,applyCalculatorEntry} from "../js/core.mjs";
 const read=(p)=>fs.readFileSync(new URL(`../${p}`,import.meta.url),"utf8");
 const app=read("js/app.js"), core=read("js/core.mjs"), cloud=read("js/cloud.js"), css=read("css/app.css"), html=read("index.html"), sw=read("service-worker.js");
 const edge=read("supabase/functions/admin-user/index.ts"), sql09=read("supabase/migrations/20260814_0409_inventory_security.sql"), sql12=read("supabase/migrations/20260814_0412_inventory_credentials.sql"), sql14=read("supabase/migrations/20260814_0414_inventory_location_move.sql");
@@ -83,7 +83,7 @@ test("CSV cells quote commas, quotes, and newlines", () => {
 });
 
 // Consolidated regression suite (04.08 -> 04.18)
-test('04.23 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.08.31.04.23');assert.match(sw,/04-23/);assert.match(html,/app\.js\?v=202608310423/);assert.match(html,/app\.css\?v=202608310423/)});
+test('04.24 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.09.01.04.24');assert.match(sw,/04-24/);assert.match(html,/app\.js\?v=202609010424/);assert.match(html,/app\.css\?v=202609010424/)});
 test('app.js parses in ES module mode',()=>{const tmp=path.join(os.tmpdir(),`brc-app-${process.pid}.mjs`);fs.writeFileSync(tmp,app);const r=spawnSync(process.execPath,['--check',tmp],{encoding:'utf8'});fs.unlinkSync(tmp);assert.equal(r.status,0,r.stderr||r.stdout)});
 test('mobile safe areas and iPad offset remain',()=>{assert.match(css,/safe-area-inset-top/);assert.match(css,/min-width:521px/);assert.match(css,/pointer:coarse/)});
 test('sticky edit header remains and Enter advances through editor fields',()=>{assert.match(css,/\.dialog\.sticky-editor \.dialog-title\{position:sticky/);assert.match(app,/fields\[i\+1\]\.focus\(\)/)});
@@ -235,7 +235,7 @@ test('04.23 calculator memory has collapsible visible state with zero-memory dis
   assert.match(app,/function renderMemoryDisplay\(\)/);
   assert.match(app,/if\(k==='MC'\)\{memory=0;memorySet=false/);
   assert.match(app,/else if\(k==='M\+'\)\{memory\+=Number\(currentValue\(\)\)\|\|0;memorySet=true/);
-  assert.match(app,/else if\(k==='MR'\)\{if\(memorySet\)calcExpr=String\(memory\)\}/);
+  assert.match(app,/else if\(k==='MR'\)\{if\(memorySet\)\{calcExpr=String\(memory\);calcFreshInput=true\}\}/);
   assert.match(css,/\.calc-memory-toggle\.has-memory/);
 });
 
@@ -261,4 +261,28 @@ test('04.23 About includes localized collapsible Help and FAQ',()=>{
   assert.match(app,/How do I install BRC on a Mac/);
   assert.match(app,/¿Cómo instalo BRC en Mac/);
   assert.match(css,/\.faq-list details/);
+});
+
+
+test('04.24 calculator starts a fresh numeric entry after equals and memory operations',()=>{
+  let state={expr:'5',freshInput:true};
+  state=applyCalculatorEntry(state.expr,'9',state.freshInput);
+  assert.deepEqual(state,{expr:'9',freshInput:false});
+  state=applyCalculatorEntry(state.expr,'+',state.freshInput);
+  assert.deepEqual(state,{expr:'9+',freshInput:false});
+  state=applyCalculatorEntry(state.expr,'9',state.freshInput);
+  assert.deepEqual(state,{expr:'9+9',freshInput:false});
+  assert.equal(Function(`return (${state.expr})`)(),18);
+  assert.match(app,/calcFreshInput=true;data\.calcHistory/);
+  const mplus=app.match(/else if\(k==='M\+'\)\{[^}]+\}/)?.[0]||'';
+  assert.doesNotMatch(mplus,/calcFreshInput\s*=/);
+});
+
+test('04.24 recalled memory behaves like a completed value: digit replaces, operator continues',()=>{
+  let recalled={expr:'5',freshInput:true};
+  let next=applyCalculatorEntry(recalled.expr,'9',recalled.freshInput);
+  assert.equal(next.expr,'9');
+  next=applyCalculatorEntry(recalled.expr,'+',recalled.freshInput);
+  assert.equal(next.expr,'5+');
+  assert.match(app,/else if\(k==='MR'\)\{if\(memorySet\)\{calcExpr=String\(memory\);calcFreshInput=true\}\}/);
 });
