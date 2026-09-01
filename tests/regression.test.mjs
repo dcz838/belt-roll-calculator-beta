@@ -83,7 +83,7 @@ test("CSV cells quote commas, quotes, and newlines", () => {
 });
 
 // Consolidated regression suite (04.08 -> 04.18)
-test('04.24 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.09.01.04.24');assert.match(sw,/04-24/);assert.match(html,/app\.js\?v=202609010424/);assert.match(html,/app\.css\?v=202609010424/)});
+test('04.25 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.09.01.04.25');assert.match(sw,/04-25/);assert.match(html,/app\.js\?v=202609010425/);assert.match(html,/app\.css\?v=202609010425/)});
 test('app.js parses in ES module mode',()=>{const tmp=path.join(os.tmpdir(),`brc-app-${process.pid}.mjs`);fs.writeFileSync(tmp,app);const r=spawnSync(process.execPath,['--check',tmp],{encoding:'utf8'});fs.unlinkSync(tmp);assert.equal(r.status,0,r.stderr||r.stdout)});
 test('mobile safe areas and iPad offset remain',()=>{assert.match(css,/safe-area-inset-top/);assert.match(css,/min-width:521px/);assert.match(css,/pointer:coarse/)});
 test('sticky edit header remains and Enter advances through editor fields',()=>{assert.match(css,/\.dialog\.sticky-editor \.dialog-title\{position:sticky/);assert.match(app,/fields\[i\+1\]\.focus\(\)/)});
@@ -286,3 +286,23 @@ test('04.24 recalled memory behaves like a completed value: digit replaces, oper
   assert.equal(next.expr,'5+');
   assert.match(app,/else if\(k==='MR'\)\{if\(memorySet\)\{calcExpr=String\(memory\);calcFreshInput=true\}\}/);
 });
+
+test('04.25 Memory collapse genuinely hides the memory row',()=>{
+  assert.match(css,/\.calc-memory-row\[hidden\]\{display:none!important\}/);
+  assert.match(app,/row\.hidden=!memoryExpanded/);
+});
+
+test('04.25 calculator touch controls prevent double-tap zoom without disabling global zoom',()=>{
+  assert.match(css,/\.calc-keys,\.calc-keys button,\.calc-memory-toggle,\.calc-mode-controls button\{touch-action:manipulation\}/);
+  assert.doesNotMatch(html,/user-scalable\s*=\s*no/i);
+  assert.doesNotMatch(html,/maximum-scale\s*=\s*1/i);
+});
+
+test('04.25 signed-out users cannot see inventory or inventory history',()=>{
+  assert.match(app,/const inventoryAccess=\(\)=>cloudConfigured\(\)\?!!cloudUser\(\):!!localUser\(\)/);
+  assert.match(app,/if\(\(id==='inventory'\|\|id==='history'\)&&!inventoryAccess\(\)\)id='calculator'/);
+  assert.match(app,/\.nav\[data-page="inventory"\],\.nav\[data-page="history"\]/);
+  assert.match(app,/function renderInventory\(\)\{if\(!inventoryAccess\(\)\)/);
+  assert.match(app,/function renderHistory\(\)\{if\(!inventoryAccess\(\)\)/);
+});
+

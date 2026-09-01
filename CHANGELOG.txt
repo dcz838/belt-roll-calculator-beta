@@ -1,3 +1,10 @@
+===== Build 2026.09.01.04.25 =====
+- Fixed the Memory display toggle so M ▸ genuinely collapses the memory value and M ▾ expands it.
+- Prevented calculator double-tap zoom on high-frequency calculator controls using touch-action: manipulation, without disabling global pinch zoom/accessibility.
+- Hid Inventory and inventory History from signed-out users and blocked direct navigation to those pages until authentication succeeds.
+- Cleared rendered Inventory/History DOM content when signed out; retained the existing protected cloud/RLS model and local recovery cache.
+- Inventory mutation/RPC logic was not changed.
+
 ===== Build 2026.08.24.04.22 =====
 - Fixed Feet + Inches Decimal mode so values such as 9.5 in are accepted and preserved.
 - Fraction input now uses separate Numerator and Denominator selectors.
