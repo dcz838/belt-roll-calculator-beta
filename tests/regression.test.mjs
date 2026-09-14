@@ -83,7 +83,7 @@ test("CSV cells quote commas, quotes, and newlines", () => {
 });
 
 // Consolidated regression suite (04.08 -> 04.18)
-test('04.26 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.09.14.04.26');assert.match(sw,/04-26/);assert.match(html,/app\.js\?v=202609140426/);assert.match(html,/app\.css\?v=202609140426/)});
+test('04.26 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.09.14.04.27');assert.match(sw,/04-26/);assert.match(html,/app\.js\?v=202609140426/);assert.match(html,/app\.css\?v=202609140426/)});
 test('app.js parses in ES module mode',()=>{const tmp=path.join(os.tmpdir(),`brc-app-${process.pid}.mjs`);fs.writeFileSync(tmp,app);const r=spawnSync(process.execPath,['--check',tmp],{encoding:'utf8'});fs.unlinkSync(tmp);assert.equal(r.status,0,r.stderr||r.stdout)});
 test('mobile safe areas and iPad offset remain',()=>{assert.match(css,/safe-area-inset-top/);assert.match(css,/min-width:521px/);assert.match(css,/pointer:coarse/)});
 test('sticky edit header remains and Enter advances through editor fields',()=>{assert.match(css,/\.dialog\.sticky-editor \.dialog-title\{position:sticky/);assert.match(app,/fields\[i\+1\]\.focus\(\)/)});
@@ -324,3 +324,14 @@ test('04.26 thread lookup and identifier return usable standard results',()=>{
  const id=identifyThread({diameter:5.95,diameterUnit:'mm',pitch:1.02,pitchUnit:'mm'});assert.equal(id[0].size,'M6 × 1.0');assert.ok(id[0].confidence>80);assert.ok(THREAD_TABLE.some(x=>x.size==='1/4-20 UNC'));assert.ok(THREAD_TABLE.some(x=>x.size==='#10-32 UNF'));
 });
 test('04.26 thread tool includes annotated SVG drawing and searchable reference',()=>{assert.match(app,/function threadSvg/);assert.match(app,/Major Ø/);assert.match(app,/Tap drill Ø/);assert.match(html,/id="threadSearch"/);assert.match(html,/id="identifyThreadBtn"/)});
+
+// Build 04.27 startup ordering regression: boot call must occur after toolDefs initialization.
+{
+  const app = fs.readFileSync(new URL('../js/app.js', import.meta.url), 'utf8');
+  const defs = app.indexOf('const toolDefs=');
+  const bootDef = app.indexOf('function bootBRC()');
+  const bootCall = app.lastIndexOf('bootBRC();');
+  assert.ok(defs >= 0 && bootDef >= 0 && bootCall >= 0, 'toolDefs/boot markers must exist');
+  assert.ok(bootCall > defs, 'bootBRC must run only after toolDefs initialization');
+  console.log('PASS startup ordering after toolDefs initialization');
+}
