@@ -1,3 +1,9 @@
+Build 2026.09.14.04.31
+- Added Fastener Reference tool: Metric/Imperial hex bolts, screws and hex nuts.
+- Added Single Size and Range Table modes with responsive dimension diagrams.
+- Metric reference coverage M1.6 through M64; Unified reference coverage #0 through 1-1/2 inch.
+- Fastener Reference participates in Admin Tool Access and per-user tool ordering.
+
 
 [2026-09-14] Build 2026.09.14.04.27
 - HOTFIX: fixed startup ReferenceError: Cannot access 'toolDefs' before initialization.
@@ -287,3 +293,8 @@ Build 2026.09.14.04.29
 - New Fraction / Decimal / mm conversion reference tool (1/64" to 1").
 - Reduced-fraction-first notation and highlighted 1/8-inch increments.
 - New tool participates in Admin Tool Access and per-user tool ordering.
+
+Build 2026.09.14.04.30
+- Belt / Foil Calculator naming and Tools integration.
+- Belt tool permission + ordering support.
+- iPad/PWA startup resilience improvements.

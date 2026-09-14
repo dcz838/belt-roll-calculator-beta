@@ -117,7 +117,7 @@ Deno.serve(async (req: Request) => {
     }
 
     if (action === 'set_tool_access') {
-      const validTools = new Set(['calculator','converter','wire','thread','fractionchart'])
+      const validTools = new Set(['belt','calculator','converter','wire','thread','fractionchart','fastener'])
       const requested = (body.tools && typeof body.tools === 'object') ? body.tools : {}
       const rows = Object.entries(requested)
         .filter(([toolId]) => validTools.has(toolId))

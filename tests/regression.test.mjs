@@ -8,7 +8,7 @@ import crypto from "node:crypto";
 import {MM_PER_INCH,calculateInventoryBalance,calculateRoll,convertDimension,csvCell,validateBeltRecord,compoundImperialToInches,inchesToCompoundImperial,ENGINEERING_UNITS,convertEngineeringValue,applyCalculatorEntry,WIRE_TABLE,calculateWireSize,checkWireCapacity,THREAD_TABLE,threadRecommendation,identifyThread} from "../js/core.mjs";
 const read=(p)=>fs.readFileSync(new URL(`../${p}`,import.meta.url),"utf8");
 const app=read("js/app.js"), core=read("js/core.mjs"), cloud=read("js/cloud.js"), css=read("css/app.css"), html=read("index.html"), sw=read("service-worker.js");
-const edge=read("supabase/functions/admin-user/index.ts"), sql09=read("supabase/migrations/20260814_0409_inventory_security.sql"), sql12=read("supabase/migrations/20260814_0412_inventory_credentials.sql"), sql14=read("supabase/migrations/20260814_0414_inventory_location_move.sql"), sql28=read("supabase/migrations/20260914_0428_tool_access.sql");
+const edge=read("supabase/functions/admin-user/index.ts"), sql09=read("supabase/migrations/20260814_0409_inventory_security.sql"), sql12=read("supabase/migrations/20260814_0412_inventory_credentials.sql"), sql14=read("supabase/migrations/20260814_0414_inventory_location_move.sql"), sql28=read("supabase/migrations/20260914_0428_tool_access.sql"), sql30=read("supabase/migrations/20260914_0430_belt_tool_access.sql");
 const version=JSON.parse(read("VERSION.json"));
 
 test("OD calculation matches the reference workbook", () => {
@@ -83,7 +83,7 @@ test("CSV cells quote commas, quotes, and newlines", () => {
 });
 
 // Consolidated regression suite (04.08 -> 04.18)
-test('04.29 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.09.14.04.29');assert.match(sw,/04-29/);assert.match(html,/app\.js\?v=202609140429/);assert.match(html,/app\.css\?v=202609140429/)});
+test('04.30 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.09.14.04.31');assert.match(sw,/04-31/);assert.match(html,/app\.js\?v=202609140431/);assert.match(html,/app\.css\?v=202609140431/)});
 test('app.js parses in ES module mode',()=>{const tmp=path.join(os.tmpdir(),`brc-app-${process.pid}.mjs`);fs.writeFileSync(tmp,app);const r=spawnSync(process.execPath,['--check',tmp],{encoding:'utf8'});fs.unlinkSync(tmp);assert.equal(r.status,0,r.stderr||r.stdout)});
 test('mobile safe areas and iPad offset remain',()=>{assert.match(css,/safe-area-inset-top/);assert.match(css,/min-width:521px/);assert.match(css,/pointer:coarse/)});
 test('sticky edit header remains and Enter advances through editor fields',()=>{assert.match(css,/\.dialog\.sticky-editor \.dialog-title\{position:sticky/);assert.match(app,/fields\[i\+1\]\.focus\(\)/)});
@@ -97,7 +97,7 @@ test('inventory passwords remain private and separate from cloud auth password',
 test('admin-user retains server-side authorization chain',()=>{assert.match(edge,/const userClient = createClient/);assert.match(edge,/const admin = createClient\(url, secretKey/);assert.match(edge,/Administrator permission required/);assert.match(edge,/admin\.auth\.admin\.updateUserById/)});
 test('backup UI remains simplified and export formats remain available',()=>{assert.doesNotMatch(html,/id="shareBackup"/);assert.doesNotMatch(html,/id="backupDestination"/);for(const x of ['exportPdf','exportExcel','exportTxt','exportJson'])assert.match(app,new RegExp(x))});
 test('unit converter includes mile, US quart, and US pint',()=>{assert.equal(ENGINEERING_UNITS.length.units.mi,1609.344);assert.equal(ENGINEERING_UNITS.volume.units['US qt'],.000946352946);assert.equal(ENGINEERING_UNITS.volume.units['US pt'],.000473176473)});
-test('static startup guard and fallback labels remain',()=>{assert.match(html,/window\.BRCBootFail/);assert.match(html,/id="startupError"/);assert.match(html,/>Calculator<\/button>/);assert.match(html,/data-i="input">Input<\/h2>/)});
+test('static startup guard and fallback labels remain',()=>{assert.match(html,/window\.BRCBootFail/);assert.match(html,/id="startupError"/);assert.match(html,/>Belt \/ Foil Calculator<\/button>/);assert.match(html,/data-i="input">Input<\/h2>/)});
 test('publishable key may be embedded but secret keys are absent from browser code',()=>{assert.match(cloud,/sb_publishable_bBGvL1QwSX27Eu5bfrERRQ_c9qgziE0/);assert.doesNotMatch(cloud,/sb_secret_/);assert.doesNotMatch(cloud,/service_role/)});
 
 test('04.17 stock field intentionally has no one-click clear control',()=>{const section=app.slice(app.indexOf('function beltEditor'),app.indexOf('function stockAction'));assert.match(section,/smartNumberField\(`\$\{tr\('stock'\)\} \(\$\{inventoryUnit\(\)\}\)`,stock,\{allowClear:false\}\)/);assert.match(app,/function smartNumberField\(label,input,\{allowClear=true\}=\{\}\)/)});
@@ -122,7 +122,7 @@ test('04.20 converter event chain is wired and category changes rebuild unit lis
   assert.match(app,/from\.onchange=\(\)=>\{updateCompoundVisibility\(\);convert\(true\)\}/);
   assert.match(app,/to\.onchange=\(\)=>\{updateCompoundVisibility\(\);convert\(true\)\}/);
   assert.match(app,/swap\.onclick=swapConverterUnits/);
-  assert.match(app,/setupConverterEvents\(\);setupCalculatorControls\(\);setupToolsHub\(\);setupWireTool\(\);setupThreadTool\(\);setupFractionChart\(\);translate\(\)/);
+  assert.match(app,/setupConverterEvents\(\);setupCalculatorControls\(\);setupToolsHub\(\);setupWireTool\(\);setupThreadTool\(\);setupFastenerTool\(\);setupFractionChart\(\);translate\(\)/);
 });
 
 test('04.20 converter formulas cover required reference conversions',()=>{
@@ -296,7 +296,7 @@ test('04.25 calculator touch controls prevent double-tap zoom without disabling 
 
 test('04.25 signed-out users cannot see inventory or inventory history',()=>{
   assert.match(app,/const inventoryAccess=\(\)=>cloudConfigured\(\)\?!!cloudUser\(\):!!localUser\(\)/);
-  assert.match(app,/if\(\(id==='inventory'\|\|id==='history'\)&&!inventoryAccess\(\)\)id='calculator'/);
+  assert.match(app,/if\(\(id==='inventory'\|\|id==='history'\)&&!inventoryAccess\(\)\)id=toolAllowed\('belt'\)\?'calculator':'tools'/);
   assert.match(app,/\.nav\[data-page="inventory"\],\.nav\[data-page="history"\]/);
   assert.match(app,/function renderInventory\(\)\{if\(!inventoryAccess\(\)\)/);
   assert.match(app,/function renderHistory\(\)\{if\(!inventoryAccess\(\)\)/);
@@ -353,7 +353,7 @@ test('04.28 thread diagram labels included angle inside the tooth profile and ha
 });
 
 test('04.28 tool access is admin controlled and user order changes do not grant access',()=>{
-  assert.match(edge,/validTools = new Set\(\['calculator','converter','wire','thread','fractionchart'\]\)/);
+  assert.match(edge,/validTools = new Set\(\['belt','calculator','converter','wire','thread','fractionchart','fastener'\]\)/);
   assert.match(sql28,/revoke insert, update, delete on public\.user_tool_settings from anon, authenticated/);
   assert.match(sql28,/on conflict\(user_id,tool_id\) do update[\s\S]*set sort_order=excluded\.sort_order/);
   assert.doesNotMatch(sql28,/set allowed=excluded\.allowed/);
@@ -373,4 +373,34 @@ test('04.29 fraction chart math uses exact 25.4 mm per inch and 1\/64 increments
   assert.ok(Math.abs(mm(1)-0.396875)<1e-12);
   assert.ok(Math.abs(mm(24)-9.525)<1e-12);
   assert.equal(mm(64),25.4);
+});
+
+
+// Build 04.31 Fastener Reference regression checks.
+test('04.31 Fastener Reference has Metric/Imperial bolt and nut data plus range mode',()=>{
+  assert.match(app,/id:'fastener'/);
+  assert.match(html,/id="fastenerTool"/);
+  assert.match(app,/M1\.6/); assert.match(app,/M64/); assert.match(app,/#0/); assert.match(app,/1-1\/2/);
+  assert.match(app,/Hex Nut/); assert.match(html,/Range Table/); assert.match(app,/function fastenerSvg/);
+  assert.match(edge,/fractionchart','fastener/);
+});
+
+// Build 04.30 release blockers: Belt/Foil naming+permission and resilient startup.
+test('04.30 Belt / Foil Calculator is a sortable permission-controlled tool and primary nav label',()=>{
+  assert.match(app,/id:'belt'/);
+  assert.match(app,/beltCalculator:'Belt \/ Foil Calculator'/);
+  assert.match(app,/beltCalculator:'皮带 \/ 箔卷计算'/);
+  assert.match(html,/data-page="calculator" data-i="beltCalculator"/);
+  assert.match(sql30,/tool_id in \('belt','calculator','converter','wire','thread','fractionchart'\)/);
+  assert.match(sql30,/\('belt',5\)/);
+  assert.match(edge,/validTools = new Set\(\['belt','calculator','converter','wire','thread','fractionchart','fastener'\]\)/);
+});
+
+test('04.30 startup has critical CSS fallback, resource retry, and service-worker refresh protection',()=>{
+  assert.match(html,/id="brcCritical"/);
+  assert.match(html,/BRCCssRetry/);
+  assert.match(html,/failed to load after retry/);
+  assert.match(app,/updateViaCache:'none'/);
+  assert.match(app,/controllerchange/);
+  assert.match(app,/service-worker\.js\?v=202609140431/);
 });

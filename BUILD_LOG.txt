@@ -1,3 +1,7 @@
+Build 2026.09.14.04.31
+- Fastener Reference tool build.
+- Inventory/cloud core intentionally unchanged.
+
 
 [2026-09-14] Build 2026.09.14.04.27
 - HOTFIX: fixed startup ReferenceError: Cannot access 'toolDefs' before initialization.
@@ -449,3 +453,10 @@ Build 2026.09.14.04.29
 - Added search by fraction, decimal inch, or millimeter value.
 - Added per-user permission and ordering support for the new chart tool.
 - Requires migration 20260914_0429_fraction_chart_tool.sql and admin-user Edge Function update.
+
+[2026-09-14] Build 2026.09.14.04.30
+- Renamed primary Calculator navigation to Belt / Foil Calculator.
+- Added Belt / Foil Calculator as a permission-controlled, user-sortable Tools card.
+- Tool access now applies consistently to admin and non-admin user accounts.
+- Added transient CSS/module startup retry and critical fallback UI to avoid unstyled iPad startup screens.
+- Service Worker registration now bypasses HTTP cache and reloads once when a new worker takes control.
