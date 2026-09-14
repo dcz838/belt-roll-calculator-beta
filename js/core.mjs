@@ -204,3 +204,41 @@ export function applyCalculatorEntry(expr, key, freshInput = false) {
   if (current === '0' && isDigit) return { expr: k, freshInput: false };
   return { expr: current + k, freshInput: freshInput && !isOperator ? freshInput : false };
 }
+
+
+// Build 04.26 — practical engineering tools
+export const WIRE_TABLE = Object.freeze([
+ {size:'14 AWG',mm2:2.08,ampCu:20,ampAl:null,rCu:3.07},{size:'12 AWG',mm2:3.31,ampCu:25,ampAl:20,rCu:1.93},{size:'10 AWG',mm2:5.26,ampCu:35,ampAl:30,rCu:1.21},{size:'8 AWG',mm2:8.37,ampCu:50,ampAl:40,rCu:.764},{size:'6 AWG',mm2:13.3,ampCu:65,ampAl:50,rCu:.491},{size:'4 AWG',mm2:21.2,ampCu:85,ampAl:65,rCu:.308},{size:'3 AWG',mm2:26.7,ampCu:100,ampAl:75,rCu:.245},{size:'2 AWG',mm2:33.6,ampCu:115,ampAl:90,rCu:.194},{size:'1 AWG',mm2:42.4,ampCu:130,ampAl:100,rCu:.154},{size:'1/0 AWG',mm2:53.5,ampCu:150,ampAl:120,rCu:.122},{size:'2/0 AWG',mm2:67.4,ampCu:175,ampAl:135,rCu:.0967},{size:'3/0 AWG',mm2:85.0,ampCu:200,ampAl:155,rCu:.0766},{size:'4/0 AWG',mm2:107.2,ampCu:230,ampAl:180,rCu:.0608}
+]);
+function wireResistance(row,material){return row.rCu*(material==='aluminum'?1.64:1)}
+function distanceFeet(distance,unit){const d=Number(distance);return unit==='m'?d*3.280839895:d}
+function wireFactor(system){return system==='three'?Math.sqrt(3):2}
+export function wireVoltageDrop({row,current,distance,distanceUnit='ft',material='copper',system='single',voltage=120}){
+ const I=Number(current),L=distanceFeet(distance,distanceUnit),V=Number(voltage);if(!row||![I,L,V].every(Number.isFinite)||V<=0)return {volts:NaN,percent:NaN};
+ const volts=wireFactor(system)*L*I*wireResistance(row,material)/1000;return {volts,percent:volts/V*100};
+}
+export function calculateWireSize({voltage,current,system='single',distance=0,distanceUnit='ft',material='copper',targetDrop=3,continuous=false}={}){
+ const V=Number(voltage),I=Number(current),drop=Number(targetDrop);if(!(V>0)||!(I>=0)||!(Number(distance)>=0)||!(drop>0))return {ok:false,error:'invalidInput'};
+ const ampNeed=I*(continuous?1.25:1), ampKey=material==='aluminum'?'ampAl':'ampCu';
+ const ampRow=WIRE_TABLE.find(r=>Number.isFinite(r[ampKey])&&r[ampKey]>=ampNeed)||WIRE_TABLE.at(-1);
+ const dropRow=WIRE_TABLE.find(r=>wireVoltageDrop({row:r,current:I,distance,distanceUnit,material,system,voltage:V}).percent<=drop)||WIRE_TABLE.at(-1);
+ const recommended=ampRow.mm2>=dropRow.mm2?ampRow:dropRow, vd=wireVoltageDrop({row:recommended,current:I,distance,distanceUnit,material,system,voltage:V});
+ const L=distanceFeet(distance,distanceUnit),R=wireResistance(recommended,material)*L/1000;const loss=system==='three'?3*I*I*R:2*I*I*R;
+ return {ok:true,recommended,ampRow,dropRow,ampacity:recommended[ampKey],ampNeed,voltageDrop:vd.volts,dropPercent:vd.percent,loadVoltage:V-vd.volts,lossWatts:loss,limiting:dropRow.mm2>ampRow.mm2?'voltageDrop':'ampacity'};
+}
+export function checkWireCapacity({size,voltage=120,system='single',distance=null,distanceUnit='ft',material='copper',targetDrop=3}={}){
+ const row=WIRE_TABLE.find(r=>r.size===size);if(!row)return {ok:false,error:'unknownSize'};const ampacity=row[material==='aluminum'?'ampAl':'ampCu'];
+ let dropLimited=null;if(distance!==null&&distance!==''&&Number(distance)>0&&Number(voltage)>0){const L=distanceFeet(distance,distanceUnit),R=wireResistance(row,material),factor=wireFactor(system);dropLimited=(Number(voltage)*(Number(targetDrop)/100)*1000)/(factor*L*R)}
+ return {ok:true,row,ampacity,dropLimited,recommendedMax:dropLimited==null?ampacity:Math.min(ampacity??Infinity,dropLimited)};
+}
+export const THREAD_TABLE = Object.freeze([
+ {standard:'Metric',size:'M3 × 0.5',majorMm:3,pitchMm:.5,tapDrillMm:2.5,drill:'2.5 mm'},{standard:'Metric',size:'M4 × 0.7',majorMm:4,pitchMm:.7,tapDrillMm:3.3,drill:'3.3 mm'},{standard:'Metric',size:'M5 × 0.8',majorMm:5,pitchMm:.8,tapDrillMm:4.2,drill:'4.2 mm'},{standard:'Metric',size:'M6 × 1.0',majorMm:6,pitchMm:1,tapDrillMm:5,drill:'5.0 mm'},{standard:'Metric',size:'M8 × 1.25',majorMm:8,pitchMm:1.25,tapDrillMm:6.8,drill:'6.8 mm'},{standard:'Metric',size:'M10 × 1.5',majorMm:10,pitchMm:1.5,tapDrillMm:8.5,drill:'8.5 mm'},{standard:'Metric',size:'M12 × 1.75',majorMm:12,pitchMm:1.75,tapDrillMm:10.2,drill:'10.2 mm'},{standard:'Metric',size:'M14 × 2.0',majorMm:14,pitchMm:2,tapDrillMm:12,drill:'12.0 mm'},{standard:'Metric',size:'M16 × 2.0',majorMm:16,pitchMm:2,tapDrillMm:14,drill:'14.0 mm'},
+ {standard:'UNC',size:'#4-40 UNC',majorMm:2.845,pitchMm:25.4/40,tapDrillMm:2.261,drill:'#43 (0.0890 in)'},{standard:'UNC',size:'#6-32 UNC',majorMm:3.505,pitchMm:25.4/32,tapDrillMm:2.705,drill:'#36 (0.1065 in)'},{standard:'UNC',size:'#8-32 UNC',majorMm:4.166,pitchMm:25.4/32,tapDrillMm:3.454,drill:'#29 (0.1360 in)'},{standard:'UNC',size:'#10-24 UNC',majorMm:4.826,pitchMm:25.4/24,tapDrillMm:3.797,drill:'#25 (0.1495 in)'},{standard:'UNC',size:'1/4-20 UNC',majorMm:6.35,pitchMm:25.4/20,tapDrillMm:5.105,drill:'#7 (0.2010 in)'},{standard:'UNC',size:'5/16-18 UNC',majorMm:7.938,pitchMm:25.4/18,tapDrillMm:6.528,drill:'F (0.2570 in)'},{standard:'UNC',size:'3/8-16 UNC',majorMm:9.525,pitchMm:25.4/16,tapDrillMm:7.938,drill:'5/16 in'},{standard:'UNC',size:'1/2-13 UNC',majorMm:12.7,pitchMm:25.4/13,tapDrillMm:10.716,drill:'27/64 in'},
+ {standard:'UNF',size:'#10-32 UNF',majorMm:4.826,pitchMm:25.4/32,tapDrillMm:4.039,drill:'#21 (0.1590 in)'},{standard:'UNF',size:'1/4-28 UNF',majorMm:6.35,pitchMm:25.4/28,tapDrillMm:5.410,drill:'#3 (0.2130 in)'},{standard:'UNF',size:'5/16-24 UNF',majorMm:7.938,pitchMm:25.4/24,tapDrillMm:6.909,drill:'I (0.2720 in)'},{standard:'UNF',size:'3/8-24 UNF',majorMm:9.525,pitchMm:25.4/24,tapDrillMm:8.433,drill:'Q (0.3320 in)'},{standard:'UNF',size:'1/2-20 UNF',majorMm:12.7,pitchMm:25.4/20,tapDrillMm:11.509,drill:'29/64 in'}
+]);
+export function threadRecommendation(standard='Metric',size=''){return THREAD_TABLE.find(t=>t.standard===standard&&(t.size===size||!size))||THREAD_TABLE.find(t=>t.standard===standard)||THREAD_TABLE[0]}
+export function identifyThread({diameter,diameterUnit='mm',pitch,pitchUnit='mm'}={}){
+ const d=Number(diameter)*(diameterUnit==='in'?25.4:1),p=Number(pitch);if(!(d>0)||!(p>0))return [];
+ const pitchMm=pitchUnit==='tpi'?25.4/p:p;
+ return THREAD_TABLE.map(t=>{const dErr=Math.abs(t.majorMm-d)/t.majorMm,pErr=Math.abs(t.pitchMm-pitchMm)/t.pitchMm;const score=dErr*.6+pErr*.4;return {...t,diameterErrorMm:d-t.majorMm,pitchErrorMm:pitchMm-t.pitchMm,confidence:Math.max(0,Math.round((1-score*5)*100))}}).sort((a,b)=>Math.abs(a.diameterErrorMm)*.6+Math.abs(a.pitchErrorMm)*.4-(Math.abs(b.diameterErrorMm)*.6+Math.abs(b.pitchErrorMm)*.4)).slice(0,5);
+}

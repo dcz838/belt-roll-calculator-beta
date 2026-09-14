@@ -262,3 +262,7 @@ FIXED
 - Example fixed sequence: 2 + 3 = 5, M+, then 9 + 9 = now starts from 9 and returns 18 instead of appending to 5.
 - Memory display behavior retained.
 - MR/MC/M+/M- no longer corrupt the next numeric-entry state.
+
+
+2026-09-14 · 04.26
+Tools architecture redesigned into a hub. Added Wire/Cable and Thread/Tap Drill practical engineering tools, favorites, responsive tool navigation, and inline reference explanations. Inventory/cloud logic unchanged.

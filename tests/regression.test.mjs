@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import {spawnSync} from "node:child_process";
 import crypto from "node:crypto";
-import {MM_PER_INCH,calculateInventoryBalance,calculateRoll,convertDimension,csvCell,validateBeltRecord,compoundImperialToInches,inchesToCompoundImperial,ENGINEERING_UNITS,convertEngineeringValue,applyCalculatorEntry} from "../js/core.mjs";
+import {MM_PER_INCH,calculateInventoryBalance,calculateRoll,convertDimension,csvCell,validateBeltRecord,compoundImperialToInches,inchesToCompoundImperial,ENGINEERING_UNITS,convertEngineeringValue,applyCalculatorEntry,WIRE_TABLE,calculateWireSize,checkWireCapacity,THREAD_TABLE,threadRecommendation,identifyThread} from "../js/core.mjs";
 const read=(p)=>fs.readFileSync(new URL(`../${p}`,import.meta.url),"utf8");
 const app=read("js/app.js"), core=read("js/core.mjs"), cloud=read("js/cloud.js"), css=read("css/app.css"), html=read("index.html"), sw=read("service-worker.js");
 const edge=read("supabase/functions/admin-user/index.ts"), sql09=read("supabase/migrations/20260814_0409_inventory_security.sql"), sql12=read("supabase/migrations/20260814_0412_inventory_credentials.sql"), sql14=read("supabase/migrations/20260814_0414_inventory_location_move.sql");
@@ -83,7 +83,7 @@ test("CSV cells quote commas, quotes, and newlines", () => {
 });
 
 // Consolidated regression suite (04.08 -> 04.18)
-test('04.25 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.09.01.04.25');assert.match(sw,/04-25/);assert.match(html,/app\.js\?v=202609010425/);assert.match(html,/app\.css\?v=202609010425/)});
+test('04.26 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.09.14.04.26');assert.match(sw,/04-26/);assert.match(html,/app\.js\?v=202609140426/);assert.match(html,/app\.css\?v=202609140426/)});
 test('app.js parses in ES module mode',()=>{const tmp=path.join(os.tmpdir(),`brc-app-${process.pid}.mjs`);fs.writeFileSync(tmp,app);const r=spawnSync(process.execPath,['--check',tmp],{encoding:'utf8'});fs.unlinkSync(tmp);assert.equal(r.status,0,r.stderr||r.stdout)});
 test('mobile safe areas and iPad offset remain',()=>{assert.match(css,/safe-area-inset-top/);assert.match(css,/min-width:521px/);assert.match(css,/pointer:coarse/)});
 test('sticky edit header remains and Enter advances through editor fields',()=>{assert.match(css,/\.dialog\.sticky-editor \.dialog-title\{position:sticky/);assert.match(app,/fields\[i\+1\]\.focus\(\)/)});
@@ -122,7 +122,7 @@ test('04.20 converter event chain is wired and category changes rebuild unit lis
   assert.match(app,/from\.onchange=\(\)=>\{updateCompoundVisibility\(\);convert\(true\)\}/);
   assert.match(app,/to\.onchange=\(\)=>\{updateCompoundVisibility\(\);convert\(true\)\}/);
   assert.match(app,/swap\.onclick=swapConverterUnits/);
-  assert.match(app,/setupConverterEvents\(\);setupCalculatorControls\(\);translate\(\)/);
+  assert.match(app,/setupConverterEvents\(\);setupCalculatorControls\(\);setupToolsHub\(\);setupWireTool\(\);setupThreadTool\(\);translate\(\)/);
 });
 
 test('04.20 converter formulas cover required reference conversions',()=>{
@@ -306,3 +306,21 @@ test('04.25 signed-out users cannot see inventory or inventory history',()=>{
   assert.match(app,/function renderHistory\(\)\{if\(!inventoryAccess\(\)\)/);
 });
 
+
+
+test('04.26 Tools Hub provides scalable dedicated tool workspaces',()=>{
+ assert.match(html,/id="toolsHome"/);assert.match(html,/id="calculatorTool"/);assert.match(html,/id="converterTool"/);assert.match(html,/id="wireTool"/);assert.match(html,/id="threadTool"/);assert.match(app,/function showToolView/);assert.match(app,/toolFavKey/);
+});
+test('04.26 wire sizing computes ampacity and voltage-drop constraints independently',()=>{
+ const r=calculateWireSize({voltage:240,current:30,system:'single',distance:150,distanceUnit:'ft',material:'copper',targetDrop:3,continuous:false});
+ assert.equal(r.ok,true);assert.ok(r.recommended.mm2>=r.ampRow.mm2);assert.ok(r.recommended.mm2>=r.dropRow.mm2);assert.ok(r.dropPercent<=3.01);assert.ok(r.loadVoltage<240);
+ const check=checkWireCapacity({size:'12 AWG',voltage:120,system:'single',distance:100,distanceUnit:'ft',material:'copper',targetDrop:3});assert.equal(check.ok,true);assert.ok(check.ampacity>0);assert.ok(check.dropLimited>0);
+});
+test('04.26 wire tool covers Cu/Al, single/split/three-phase and inline wire-type explanations',()=>{
+ assert.ok(WIRE_TABLE.some(x=>x.size==='6 AWG'&&x.mm2===13.3));assert.match(html,/120\/240V Split Phase/);assert.match(html,/Three Phase/);assert.match(html,/Copper \(Cu\)/);assert.match(html,/Aluminum \(Al\)/);assert.match(app,/THHN \/ THWN-2/);assert.match(app,/NM-B/);assert.match(app,/UF-B/);
+});
+test('04.26 thread lookup and identifier return usable standard results',()=>{
+ const m6=threadRecommendation('Metric','M6 × 1.0');assert.equal(m6.tapDrillMm,5);assert.equal(m6.majorMm,6);
+ const id=identifyThread({diameter:5.95,diameterUnit:'mm',pitch:1.02,pitchUnit:'mm'});assert.equal(id[0].size,'M6 × 1.0');assert.ok(id[0].confidence>80);assert.ok(THREAD_TABLE.some(x=>x.size==='1/4-20 UNC'));assert.ok(THREAD_TABLE.some(x=>x.size==='#10-32 UNF'));
+});
+test('04.26 thread tool includes annotated SVG drawing and searchable reference',()=>{assert.match(app,/function threadSvg/);assert.match(app,/Major Ø/);assert.match(app,/Tap drill Ø/);assert.match(html,/id="threadSearch"/);assert.match(html,/id="identifyThreadBtn"/)});

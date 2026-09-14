@@ -416,3 +416,11 @@ Focus: Calculator memory-state regression repair.
 - MR recalls memory as a completed value: numeric key replaces it; operator continues it.
 - Inventory-critical code intentionally unchanged.
 Testing: Unit/static regression suite + ES module syntax + ZIP integrity. Browser/device E2E not claimed.
+
+
+=== Build 2026.09.14.04.26 ===
+- Redesigned Tools as a scalable Tools Hub with Favorites and dedicated tool workspaces.
+- Existing Calculator and Unit Converter moved into dedicated Tools pages without changing inventory logic.
+- Added functional Wire / Cable Calculator: Size a Wire, Check Existing Wire, Voltage Drop Only; AWG/mm2, Cu/Al, single/split/three-phase, distance, voltage drop, continuous-load reference and wire-type explanations.
+- Added functional Thread / Tap Drill: common Metric/UNC/UNF tap-drill lookup, annotated SVG thread/drill diagram, measured-thread identifier, searchable thread reference table.
+- No Supabase schema or inventory RPC changes.
