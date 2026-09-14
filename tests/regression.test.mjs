@@ -83,7 +83,7 @@ test("CSV cells quote commas, quotes, and newlines", () => {
 });
 
 // Consolidated regression suite (04.08 -> 04.18)
-test('04.28 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.09.14.04.28');assert.match(sw,/04-28/);assert.match(html,/app\.js\?v=202609140428/);assert.match(html,/app\.css\?v=202609140428/)});
+test('04.29 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.09.14.04.29');assert.match(sw,/04-29/);assert.match(html,/app\.js\?v=202609140429/);assert.match(html,/app\.css\?v=202609140429/)});
 test('app.js parses in ES module mode',()=>{const tmp=path.join(os.tmpdir(),`brc-app-${process.pid}.mjs`);fs.writeFileSync(tmp,app);const r=spawnSync(process.execPath,['--check',tmp],{encoding:'utf8'});fs.unlinkSync(tmp);assert.equal(r.status,0,r.stderr||r.stdout)});
 test('mobile safe areas and iPad offset remain',()=>{assert.match(css,/safe-area-inset-top/);assert.match(css,/min-width:521px/);assert.match(css,/pointer:coarse/)});
 test('sticky edit header remains and Enter advances through editor fields',()=>{assert.match(css,/\.dialog\.sticky-editor \.dialog-title\{position:sticky/);assert.match(app,/fields\[i\+1\]\.focus\(\)/)});
@@ -122,7 +122,7 @@ test('04.20 converter event chain is wired and category changes rebuild unit lis
   assert.match(app,/from\.onchange=\(\)=>\{updateCompoundVisibility\(\);convert\(true\)\}/);
   assert.match(app,/to\.onchange=\(\)=>\{updateCompoundVisibility\(\);convert\(true\)\}/);
   assert.match(app,/swap\.onclick=swapConverterUnits/);
-  assert.match(app,/setupConverterEvents\(\);setupCalculatorControls\(\);setupToolsHub\(\);setupWireTool\(\);setupThreadTool\(\);translate\(\)/);
+  assert.match(app,/setupConverterEvents\(\);setupCalculatorControls\(\);setupToolsHub\(\);setupWireTool\(\);setupThreadTool\(\);setupFractionChart\(\);translate\(\)/);
 });
 
 test('04.20 converter formulas cover required reference conversions',()=>{
@@ -353,8 +353,24 @@ test('04.28 thread diagram labels included angle inside the tooth profile and ha
 });
 
 test('04.28 tool access is admin controlled and user order changes do not grant access',()=>{
-  assert.match(edge,/validTools = new Set\(\['calculator','converter','wire','thread'\]\)/);
+  assert.match(edge,/validTools = new Set\(\['calculator','converter','wire','thread','fractionchart'\]\)/);
   assert.match(sql28,/revoke insert, update, delete on public\.user_tool_settings from anon, authenticated/);
   assert.match(sql28,/on conflict\(user_id,tool_id\) do update[\s\S]*set sort_order=excluded\.sort_order/);
   assert.doesNotMatch(sql28,/set allowed=excluded\.allowed/);
+});
+
+// Build 04.29 fraction chart regression checks
+test('04.29 fraction chart is available, styled, and permission-aware',()=>{
+  assert.match(app,/id:'fractionchart'/);
+  assert.match(html,/id="fractionChartTool"/);
+  assert.match(css,/\.fraction-reference-table tr\.eighth-row/);
+  assert.match(app,/function fractionDisplay64/);
+  assert.match(app,/fractionChartTool/);
+});
+
+test('04.29 fraction chart math uses exact 25.4 mm per inch and 1\/64 increments',()=>{
+  const mm=n=>n/64*25.4;
+  assert.ok(Math.abs(mm(1)-0.396875)<1e-12);
+  assert.ok(Math.abs(mm(24)-9.525)<1e-12);
+  assert.equal(mm(64),25.4);
 });

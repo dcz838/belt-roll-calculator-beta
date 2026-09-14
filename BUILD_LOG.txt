@@ -439,3 +439,13 @@ Build 2026.09.14.04.28
 - Updated admin-user Edge Function with set_tool_access action.
 - Added UNEF, NPT/NPTF, NPS/NPSM, BSPT/R and BSPP/G common pipe thread families.
 - Reworked Thread diagram: true included-angle indication, separate tap-drill and finished-thread views, 55° BSP / 60° Metric-Unified-NPT handling.
+
+
+Build 2026.09.14.04.29
+- Added Fraction / Decimal / Millimeter Chart as a Tools card.
+- Reference range: 1/64 inch through 1 inch in 1/64-inch increments.
+- Fraction display uses reduced fraction first, original /64 value in parentheses when reducible (example: 1/32 (2/64)).
+- Common reduced fractions are bold; every 1/8-inch increment is highlighted with a distinct background.
+- Added search by fraction, decimal inch, or millimeter value.
+- Added per-user permission and ordering support for the new chart tool.
+- Requires migration 20260914_0429_fraction_chart_tool.sql and admin-user Edge Function update.

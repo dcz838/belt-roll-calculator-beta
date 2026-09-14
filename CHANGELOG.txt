@@ -281,3 +281,9 @@ Build 2026.09.14.04.28
 - Updated admin-user Edge Function with set_tool_access action.
 - Added UNEF, NPT/NPTF, NPS/NPSM, BSPT/R and BSPP/G common pipe thread families.
 - Reworked Thread diagram: true included-angle indication, separate tap-drill and finished-thread views, 55° BSP / 60° Metric-Unified-NPT handling.
+
+
+Build 2026.09.14.04.29
+- New Fraction / Decimal / mm conversion reference tool (1/64" to 1").
+- Reduced-fraction-first notation and highlighted 1/8-inch increments.
+- New tool participates in Admin Tool Access and per-user tool ordering.
