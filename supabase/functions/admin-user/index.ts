@@ -116,6 +116,19 @@ Deno.serve(async (req: Request) => {
       return json({ ok: true, profile }, 200, headers)
     }
 
+    if (action === 'set_tool_access') {
+      const validTools = new Set(['calculator','converter','wire','thread'])
+      const requested = (body.tools && typeof body.tools === 'object') ? body.tools : {}
+      const rows = Object.entries(requested)
+        .filter(([toolId]) => validTools.has(toolId))
+        .map(([toolId, allowed]) => ({ user_id: userId, tool_id: toolId, allowed: !!allowed, updated_at: new Date().toISOString() }))
+      if (!rows.length) return json({ error: 'No valid tool permissions supplied' }, 400, headers)
+      const { error: toolError } = await admin.from('user_tool_settings').upsert(rows, { onConflict: 'user_id,tool_id' })
+      if (toolError) throw toolError
+      await admin.from('audit_log').insert({ actor_id: authData.user.id, action: 'user_tool_permissions_update', entity_type: 'profile', entity_id: userId, new_data: requested })
+      return json({ ok: true }, 200, headers)
+    }
+
     return json({ error: 'Unsupported action' }, 400, headers)
   } catch (error) {
     console.error('admin-user unhandled error', error)

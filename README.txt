@@ -29,3 +29,6 @@ Build 2026.08.14.04.14 notes:
 - Location edits use the new move_inventory_location RPC instead of direct inventory_balances updates.
 - Cloud Location is selected from active locations loaded from Supabase.
 - Run supabase/migrations/20260814_0414_inventory_location_move.sql once before testing Location edits.
+
+
+Build 04.28 setup: run supabase/migrations/20260914_0428_tool_access.sql once, then deploy the included admin-user Edge Function update. Keep Verify JWT with legacy secret OFF.

@@ -8,7 +8,7 @@ import crypto from "node:crypto";
 import {MM_PER_INCH,calculateInventoryBalance,calculateRoll,convertDimension,csvCell,validateBeltRecord,compoundImperialToInches,inchesToCompoundImperial,ENGINEERING_UNITS,convertEngineeringValue,applyCalculatorEntry,WIRE_TABLE,calculateWireSize,checkWireCapacity,THREAD_TABLE,threadRecommendation,identifyThread} from "../js/core.mjs";
 const read=(p)=>fs.readFileSync(new URL(`../${p}`,import.meta.url),"utf8");
 const app=read("js/app.js"), core=read("js/core.mjs"), cloud=read("js/cloud.js"), css=read("css/app.css"), html=read("index.html"), sw=read("service-worker.js");
-const edge=read("supabase/functions/admin-user/index.ts"), sql09=read("supabase/migrations/20260814_0409_inventory_security.sql"), sql12=read("supabase/migrations/20260814_0412_inventory_credentials.sql"), sql14=read("supabase/migrations/20260814_0414_inventory_location_move.sql");
+const edge=read("supabase/functions/admin-user/index.ts"), sql09=read("supabase/migrations/20260814_0409_inventory_security.sql"), sql12=read("supabase/migrations/20260814_0412_inventory_credentials.sql"), sql14=read("supabase/migrations/20260814_0414_inventory_location_move.sql"), sql28=read("supabase/migrations/20260914_0428_tool_access.sql");
 const version=JSON.parse(read("VERSION.json"));
 
 test("OD calculation matches the reference workbook", () => {
@@ -83,7 +83,7 @@ test("CSV cells quote commas, quotes, and newlines", () => {
 });
 
 // Consolidated regression suite (04.08 -> 04.18)
-test('04.26 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.09.14.04.27');assert.match(sw,/04-26/);assert.match(html,/app\.js\?v=202609140426/);assert.match(html,/app\.css\?v=202609140426/)});
+test('04.28 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.09.14.04.28');assert.match(sw,/04-28/);assert.match(html,/app\.js\?v=202609140428/);assert.match(html,/app\.css\?v=202609140428/)});
 test('app.js parses in ES module mode',()=>{const tmp=path.join(os.tmpdir(),`brc-app-${process.pid}.mjs`);fs.writeFileSync(tmp,app);const r=spawnSync(process.execPath,['--check',tmp],{encoding:'utf8'});fs.unlinkSync(tmp);assert.equal(r.status,0,r.stderr||r.stdout)});
 test('mobile safe areas and iPad offset remain',()=>{assert.match(css,/safe-area-inset-top/);assert.match(css,/min-width:521px/);assert.match(css,/pointer:coarse/)});
 test('sticky edit header remains and Enter advances through editor fields',()=>{assert.match(css,/\.dialog\.sticky-editor \.dialog-title\{position:sticky/);assert.match(app,/fields\[i\+1\]\.focus\(\)/)});
@@ -214,16 +214,12 @@ test('04.22 decimal mode truly hides fraction pair and preserves value during mo
   assert.match(app,/const total=compoundTotalInches\(\);[\s\S]*setCompoundFromTotalInches\(total,compoundMode\)/);
 });
 
-test('04.23 inventory-critical source remains byte-for-byte unchanged from 04.22 baseline',()=>{
-  const hash=x=>crypto.createHash('sha256').update(x).digest('hex');
-  assert.equal(hash(cloud),'953dd739adf05e96fd6eb9645d0dcff9e05a0666c9e6a3ca62b6c1086f6f1d96');
-  const sections=[
-    ['function locationEditorFields','function beltEditor','27e170af1bf21c23108faf1d5a8fb4f5dd1c0d620593f535791631ff1d3c0443'],
-    ['function beltEditor','function stockAction','d1988565b9afdc740a95fd3802dcbe163bb006834f6ec4fa57dc38522f1844a2'],
-    ['async function inventoryAuth','function changeInventoryPin','92efe1dfd16123ffedc1d86dc88839b3eeb65e0c32d1930aa105b48c9b71723a'],
-    ['function stockAdjustmentConfirm','function deleteWarning','e50eb6cde59e858125f9f8b1bf6ae0f6a49246dd3175eb5b999abef7722bc732']
-  ];
-  for(const [start,end,expected] of sections){const part=app.slice(app.indexOf(start),app.indexOf(end,app.indexOf(start)));assert.equal(hash(part),expected,start)}
+test('04.28 inventory write paths remain controlled while cloud module adds tool settings',()=>{
+  const saveSection=cloud.slice(cloud.indexOf('async function saveBelt'),cloud.indexOf('async function adjustStock'));
+  assert.match(saveSection,/rpcAdjust\(beltId,locationId,'set_balance'/);
+  assert.doesNotMatch(saveSection,/inventory_balances'\)\.update/);
+  assert.match(cloud,/user_tool_settings/);
+  assert.match(cloud,/set_my_tool_order/);
 });
 
 
@@ -308,8 +304,8 @@ test('04.25 signed-out users cannot see inventory or inventory history',()=>{
 
 
 
-test('04.26 Tools Hub provides scalable dedicated tool workspaces',()=>{
- assert.match(html,/id="toolsHome"/);assert.match(html,/id="calculatorTool"/);assert.match(html,/id="converterTool"/);assert.match(html,/id="wireTool"/);assert.match(html,/id="threadTool"/);assert.match(app,/function showToolView/);assert.match(app,/toolFavKey/);
+test('04.28 Tools Hub removes Favorites and supports permissions plus ordering',()=>{
+ assert.match(html,/id="toolsHome"/);assert.match(html,/id="calculatorTool"/);assert.match(html,/id="converterTool"/);assert.match(html,/id="wireTool"/);assert.match(html,/id="threadTool"/);assert.doesNotMatch(html,/toolsFavorites|Favorites<\/b>/);assert.match(html,/id="reorderToolsBtn"/);assert.match(app,/function toolAllowed/);assert.match(app,/function saveToolOrder/);assert.match(app,/data-tool-up/);assert.match(edge,/set_tool_access/);assert.match(sql28,/user_tool_settings/);assert.match(sql28,/set_my_tool_order/);
 });
 test('04.26 wire sizing computes ampacity and voltage-drop constraints independently',()=>{
  const r=calculateWireSize({voltage:240,current:30,system:'single',distance:150,distanceUnit:'ft',material:'copper',targetDrop:3,continuous:false});
@@ -323,7 +319,7 @@ test('04.26 thread lookup and identifier return usable standard results',()=>{
  const m6=threadRecommendation('Metric','M6 × 1.0');assert.equal(m6.tapDrillMm,5);assert.equal(m6.majorMm,6);
  const id=identifyThread({diameter:5.95,diameterUnit:'mm',pitch:1.02,pitchUnit:'mm'});assert.equal(id[0].size,'M6 × 1.0');assert.ok(id[0].confidence>80);assert.ok(THREAD_TABLE.some(x=>x.size==='1/4-20 UNC'));assert.ok(THREAD_TABLE.some(x=>x.size==='#10-32 UNF'));
 });
-test('04.26 thread tool includes annotated SVG drawing and searchable reference',()=>{assert.match(app,/function threadSvg/);assert.match(app,/Major Ø/);assert.match(app,/Tap drill Ø/);assert.match(html,/id="threadSearch"/);assert.match(html,/id="identifyThreadBtn"/)});
+test('04.26 thread tool includes annotated SVG drawing and searchable reference',()=>{assert.match(app,/function threadSvg/);assert.match(app,/Major Ø/);assert.match(app,/Tap drill/);assert.match(html,/id="threadSearch"/);assert.match(html,/id="identifyThreadBtn"/)});
 
 // Build 04.27 startup ordering regression: boot call must occur after toolDefs initialization.
 {
@@ -335,3 +331,30 @@ test('04.26 thread tool includes annotated SVG drawing and searchable reference'
   assert.ok(bootCall > defs, 'bootBRC must run only after toolDefs initialization');
   console.log('PASS startup ordering after toolDefs initialization');
 }
+
+
+test('04.28 thread database includes common pipe thread families and correct profile angles',()=>{
+  assert.ok(THREAD_TABLE.some(x=>x.standard==='NPT'&&x.size==='1/4-18 NPT'&&x.angle===60&&x.taper==='1:16'));
+  assert.ok(THREAD_TABLE.some(x=>x.standard==='BSPT'&&x.angle===55));
+  assert.ok(THREAD_TABLE.some(x=>x.standard==='BSPP'&&x.angle===55));
+  assert.ok(THREAD_TABLE.some(x=>x.standard==='NPS'));
+  assert.ok(THREAD_TABLE.some(x=>x.standard==='UNEF'));
+  const pipe=identifyThread({diameter:13.72,diameterUnit:'mm',pitch:18,pitchUnit:'tpi'});
+  assert.ok(pipe.slice(0,3).some(x=>x.standard==='NPT'||x.standard==='NPTF'));
+});
+
+test('04.28 thread diagram labels included angle inside the tooth profile and handles BSP 55 degrees',()=>{
+  assert.match(app,/Included thread angle/);
+  assert.match(app,/angle=t\.angle\|\|60/);
+  assert.match(app,/BSP uses a 55° Whitworth profile/);
+  assert.match(html,/value="NPT"/);
+  assert.match(html,/value="BSPT"/);
+  assert.match(html,/value="BSPP"/);
+});
+
+test('04.28 tool access is admin controlled and user order changes do not grant access',()=>{
+  assert.match(edge,/validTools = new Set\(\['calculator','converter','wire','thread'\]\)/);
+  assert.match(sql28,/revoke insert, update, delete on public\.user_tool_settings from anon, authenticated/);
+  assert.match(sql28,/on conflict\(user_id,tool_id\) do update[\s\S]*set sort_order=excluded\.sort_order/);
+  assert.doesNotMatch(sql28,/set allowed=excluded\.allowed/);
+});

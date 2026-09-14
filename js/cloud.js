@@ -11,7 +11,7 @@ let client=null,channel=null,reloadTimer=0,applying=false,authBound=false;
 const deviceId=localStorage.getItem(DEVICE_KEY)||crypto.randomUUID();
 localStorage.setItem(DEVICE_KEY,deviceId);
 const cfg=()=>{try{const saved=JSON.parse(localStorage.getItem(CONFIG_KEY)||'{}');return {url:saved.url||EMBEDDED_CONFIG.url,key:saved.key||EMBEDDED_CONFIG.key,redirectTo:EMBEDDED_CONFIG.redirectTo}}catch{return {...EMBEDDED_CONFIG}}};
-const state={status:'signed-out',user:null,profile:null,profiles:[],locations:[],lastSync:'',error:'',recovery:false};
+const state={status:'signed-out',user:null,profile:null,profiles:[],locations:[],toolSettings:[],lastSync:'',error:'',recovery:false};
 const markDirty=()=>localStorage.setItem(DIRTY_KEY,'1');
 const clearDirty=()=>localStorage.removeItem(DIRTY_KEY);
 const isDirty=()=>localStorage.getItem(DIRTY_KEY)==='1';
@@ -29,7 +29,7 @@ function initClient(){
     client.auth.onAuthStateChange((event,session)=>{
       state.user=session?.user||null;
       if(event==='PASSWORD_RECOVERY'){setState({status:'recovery',user:session?.user||null,recovery:true,error:''});return}
-      if(!session){localStorage.removeItem(PROFILE_CACHE_KEY);stopRealtime();setState({status:'signed-out',user:null,profile:null,profiles:[],recovery:false})}
+      if(!session){localStorage.removeItem(PROFILE_CACHE_KEY);stopRealtime();setState({status:'signed-out',user:null,profile:null,profiles:[],toolSettings:[],recovery:false})}
     });
   }
   return client;
@@ -52,7 +52,7 @@ async function signIn(email,password){
   if(error){setState({status:'error',error:error.message});throw error}
   await start();
 }
-async function signOut(){if(client)await client.auth.signOut();stopRealtime();setState({status:'signed-out',user:null,profile:null,profiles:[],recovery:false})}
+async function signOut(){if(client)await client.auth.signOut();stopRealtime();setState({status:'signed-out',user:null,profile:null,profiles:[],toolSettings:[],recovery:false})}
 async function requestPasswordReset(email){
   const c=initClient();if(!c)throw new Error('Cloud is unavailable.');
   const target=String(email||'').trim();if(!target)throw new Error('Enter your email address.');
@@ -104,20 +104,22 @@ async function loadCloud(){
   if(!client||!state.user)return;
   setState({status:'syncing',error:''});
   const local=window.BRCApp?.getData?.()||{belts:[]};
-  const [b,t,p,l]=await Promise.all([
+  const [b,t,p,l,ts]=await Promise.all([
     client.from('inventory_balances').select('id,belt_id,location_id,quantity,updated_at,belt_catalog(id,belt_code,description,manufacturer,width_mm,thickness_mm,color,supplier,core_diameter_mm,application,minimum_stock,notes,updated_at,is_active),locations(id,location_code,name)').order('updated_at',{ascending:false}),
     client.from('inventory_transactions').select('id,belt_id,location_id,transaction_type,quantity_change,quantity_before,quantity_after,notes,performed_by,created_at,belt_catalog(belt_code,description)').order('created_at',{ascending:true}).limit(5000),
     client.from('profiles').select('id,display_name,role,is_active,can_add_belt,can_modify_belt,can_delete_belt,can_add_stock,can_use_stock,can_set_balance,can_manage_users,can_backup,can_restore_backup'),
-    client.from('locations').select('id,location_code,name,is_active').eq('is_active',true).order('location_code')
+    client.from('locations').select('id,location_code,name,is_active').eq('is_active',true).order('location_code'),
+    client.from('user_tool_settings').select('user_id,tool_id,allowed,sort_order').order('sort_order')
   ]);
   for(const r of [b,t,l])if(r.error)throw r.error;
+  if(ts.error)ts.data=[];
   if(p.error)p.data=state.profile?[state.profile]:[];
-  state.profiles=p.data||[];state.locations=l.data||[];
-  if(!(b.data||[]).length&&(local.belts||[]).length){setState({status:'migration-needed',lastSync:'',error:'',profiles:state.profiles,locations:state.locations});return}
+  state.profiles=p.data||[];state.locations=l.data||[];state.toolSettings=ts.data||[];
+  if(!(b.data||[]).length&&(local.belts||[]).length){setState({status:'migration-needed',lastSync:'',error:'',profiles:state.profiles,locations:state.locations,toolSettings:state.toolSettings});return}
   const mapped=mapCloud(b.data,t.data,p.data);
   applying=true;window.BRCApp?.applyCloudData(mapped);applying=false;
   clearDirty();
-  setState({status:'connected',lastSync:new Date().toISOString(),error:'',profiles:state.profiles,locations:state.locations});
+  setState({status:'connected',lastSync:new Date().toISOString(),error:'',profiles:state.profiles,locations:state.locations,toolSettings:state.toolSettings});
 }
 async function findBeltByCode(code){
   const r=await client.from('belt_catalog').select('id,belt_code,is_active').ilike('belt_code',String(code||'').trim()).maybeSingle();
@@ -222,6 +224,18 @@ async function updateProfile(id,patch){
   const safe=Object.fromEntries(Object.entries(patch||{}).filter(([k])=>allowed.includes(k)));
   const data=await invokeAdmin({action:'update_profile',user_id:id,patch:safe},'Permission update failed.');await loadProfile();await loadCloud();return data?.profile;
 }
+
+async function adminSetToolAccess(userId,tools){
+  if(!client||!state.user)throw new Error('Cloud sign-in required.');
+  const clean=Object.fromEntries(Object.entries(tools||{}).map(([k,v])=>[String(k),!!v]));
+  await invokeAdmin({action:'set_tool_access',user_id:userId,tools:clean},'Tool permission update failed.');
+  await loadCloud();return true;
+}
+async function setMyToolOrder(toolIds){
+  if(!client||!state.user)throw new Error('Cloud sign-in required.');
+  const ids=(toolIds||[]).map(String);
+  const r=await client.rpc('set_my_tool_order',{p_tool_ids:ids});if(r.error)throw r.error;await loadCloud();return true;
+}
 async function verifyInventoryPin(pin){if(!client||!state.user)throw new Error('Cloud sign-in required.');const r=await client.rpc('verify_inventory_pin',{p_pin:String(pin||'')});if(r.error)throw r.error;return r.data===null?null:!!r.data}
 async function setInventoryPin(pin){if(!client||!state.user)throw new Error('Cloud sign-in required.');const p=String(pin||'');if(!/^\d{4,}$/.test(p))throw new Error('Inventory password must contain at least 4 digits.');const r=await client.rpc('set_inventory_pin',{p_pin:p});if(r.error)throw r.error;return true}
 
@@ -272,7 +286,7 @@ function can(permission){
   if(p.role==='admin'&&permission==='manageUsers')return true;
   const field=map[permission];return field?!!p[field]:false;
 }
-window.BRCCloud={state,configured,cfg,saveConfig,clearConfig,signIn,signOut,requestPasswordReset,updatePassword,endRecovery,start,loadCloud,syncFromLocal,pushLocalToCloud,saveBelt,adjustStock,archiveBelt,undoTransaction,adminResetPassword,adminSetInventoryPin,updateProfile,verifyInventoryPin,setInventoryPin,markDirty,isDirty,isApplying:()=>applying,can,deviceId,embeddedConfig:EMBEDDED_CONFIG};
+window.BRCCloud={state,configured,cfg,saveConfig,clearConfig,signIn,signOut,requestPasswordReset,updatePassword,endRecovery,start,loadCloud,syncFromLocal,pushLocalToCloud,saveBelt,adjustStock,archiveBelt,undoTransaction,adminResetPassword,adminSetInventoryPin,updateProfile,adminSetToolAccess,setMyToolOrder,verifyInventoryPin,setInventoryPin,markDirty,isDirty,isApplying:()=>applying,can,deviceId,embeddedConfig:EMBEDDED_CONFIG};
 window.addEventListener('offline',()=>{const cp=cachedProfile();if(cp&&!state.profile)state.profile=cp;setState({status:'offline',error:''})});
 window.addEventListener('online',()=>start().catch(e=>setState({status:'error',error:e.message||String(e)})));
 window.addEventListener('load',()=>{if(navigator.onLine)start().catch(e=>setState({status:'error',error:e.message||String(e)}));else{state.profile=cachedProfile();setState({status:'offline'})}});

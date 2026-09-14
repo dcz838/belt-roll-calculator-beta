@@ -430,3 +430,12 @@ Testing: Unit/static regression suite + ES module syntax + ZIP integrity. Browse
 - Added functional Wire / Cable Calculator: Size a Wire, Check Existing Wire, Voltage Drop Only; AWG/mm2, Cu/Al, single/split/three-phase, distance, voltage drop, continuous-load reference and wire-type explanations.
 - Added functional Thread / Tap Drill: common Metric/UNC/UNF tap-drill lookup, annotated SVG thread/drill diagram, measured-thread identifier, searchable thread reference table.
 - No Supabase schema or inventory RPC changes.
+
+Build 2026.09.14.04.28
+- Removed Favorites section from Tools Home to reduce duplicate UI.
+- Added per-user Tool access controlled by Admin.
+- Added user-controlled Tool ordering (drag or arrow controls) with cloud persistence.
+- Added SQL migration 20260914_0428_tool_access.sql.
+- Updated admin-user Edge Function with set_tool_access action.
+- Added UNEF, NPT/NPTF, NPS/NPSM, BSPT/R and BSPP/G common pipe thread families.
+- Reworked Thread diagram: true included-angle indication, separate tap-drill and finished-thread views, 55° BSP / 60° Metric-Unified-NPT handling.
