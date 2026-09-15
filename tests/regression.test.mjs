@@ -83,7 +83,7 @@ test("CSV cells quote commas, quotes, and newlines", () => {
 });
 
 // Consolidated regression suite (04.08 -> 04.18)
-test('04.30 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.09.14.04.32');assert.match(sw,/04-31/);assert.match(html,/app\.js\?v=202609140432/);assert.match(html,/app\.css\?v=202609140432/)});
+test('04.30 metadata and network-first cache namespace',()=>{assert.equal(version.build,'2026.09.15.04.34');assert.match(sw,/04-31/);assert.match(html,/app\.js\?v=202609140432/);assert.match(html,/app\.css\?v=202609140432/)});
 test('app.js parses in ES module mode',()=>{const tmp=path.join(os.tmpdir(),`brc-app-${process.pid}.mjs`);fs.writeFileSync(tmp,app);const r=spawnSync(process.execPath,['--check',tmp],{encoding:'utf8'});fs.unlinkSync(tmp);assert.equal(r.status,0,r.stderr||r.stdout)});
 test('mobile safe areas and iPad offset remain',()=>{assert.match(css,/safe-area-inset-top/);assert.match(css,/min-width:521px/);assert.match(css,/pointer:coarse/)});
 test('sticky edit header remains and Enter advances through editor fields',()=>{assert.match(css,/\.dialog\.sticky-editor \.dialog-title\{position:sticky/);assert.match(app,/fields\[i\+1\]\.focus\(\)/)});

@@ -11,17 +11,19 @@ export function convertDimension(value, fromUnit, toUnit) {
 export function calculateRoll({ unit, mode, thickness, coreDiameter, remaining }) {
   const normalizedUnit = unit === "IN" ? "IN" : "MM";
   const normalizedMode = mode === "turns" ? "turns" : "od";
-  const rawValues = [thickness, coreDiameter, remaining];
-  if (rawValues.some((value) => value === null || value === undefined || String(value).trim() === "")) {
-    return { ok: false, error: "required" };
-  }
-  const values = rawValues.map(Number);
-  const [beltThickness, core, remainingValue] = values;
+  const thicknessMissing = thickness === null || thickness === undefined || String(thickness).trim() === "";
+  const remainingMissing = remaining === null || remaining === undefined || String(remaining).trim() === "";
+  if (thicknessMissing || remainingMissing) return { ok:false, error:"required" };
+  const beltThickness = Number(thickness);
+  const requestedCore = (coreDiameter === null || coreDiameter === undefined || String(coreDiameter).trim() === "") ? 0 : Number(coreDiameter);
+  const remainingValue = Number(remaining);
+  const core = requestedCore <= 0 ? beltThickness : requestedCore;
+  const values = [beltThickness, core, remainingValue];
 
   if (!values.every(finite)) {
     return { ok: false, error: "required" };
   }
-  if (beltThickness <= 0 || core <= 0 || remainingValue <= 0) {
+  if (beltThickness <= 0 || remainingValue <= 0) {
     return { ok: false, error: "positive" };
   }
   if (normalizedMode === "od" && remainingValue <= core) {

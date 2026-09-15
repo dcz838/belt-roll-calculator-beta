@@ -299,7 +299,7 @@ Build 2026.09.14.04.30
 - Belt tool permission + ordering support.
 - iPad/PWA startup resilience improvements.
 
-[2026-09-14] Build 2026.09.14.04.32
+[2026-09-14] Build 2026.09.15.04.34
 - Tools is now the default home page; removed the duplicate Belt / Foil entry from the left navigation.
 - Belt / Foil remains available as a permission-controlled, user-sortable tool card.
 - Rebuilt Thread / Tap Drill engineering diagram to a professional three-panel reference style.
